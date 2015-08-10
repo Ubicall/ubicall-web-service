@@ -67,9 +67,22 @@ var storageModuleInterface = {
     return when.promise(function(resolve,rejcet){
       storageModule.getQueue(key).then(function(queue){
         if(cache){
-            // TODO find cache
+            // TODO add cache
         }
         return resolve(queue);
+      }).otherwise(function(error){
+        return rejcet(error);
+      });
+    });
+  },
+
+   feedback : function (data){
+    return when.promise(function(resolve,rejcet){
+      storageModule.feedback(data).then(function(feedback){
+        if(cache){
+            // TODO add cache
+        }
+        return resolve(feedback);
       }).otherwise(function(error){
         return rejcet(error);
       });

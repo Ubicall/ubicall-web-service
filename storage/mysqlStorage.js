@@ -80,7 +80,10 @@ function getQueue(key) {
   return when.promise(function(resolve, rejcet) {
     $admin.find({ licence_key : key}).then(function(admin) {
 
-      $queue.find({ admin_id : admin.id}).then(function(queue) {
+      $queue.findAll({
+       where: { admin_id : admin.id},
+        attributes: ['id', 'name']
+     }).then(function(queue) {
       
       }).then(function(queue) {
         return resolve(queue);
@@ -93,8 +96,30 @@ function getQueue(key) {
   });
 }
 
+
+
+
+function feedback(data) {
+  return when.promise(function(resolve, rejcet)  {
+
+     $feedback.create({
+      call_id: data.call_id,
+      feedback: data.feedback,
+      feedback_text: data.feedback_text
+    }).then(function(feedback) {
+      return resolve(feedback);
+    }).catch(function(error){
+      return rejcet(error)
+    });
+  });
+}
+
+
+
 module.exports = {
   init: init,
   scheduleCall: scheduleCall,
-  cancelCall : cancelCall
+  cancelCall : cancelCall,
+  getQueue : getQueue,
+  feedback : feedback
 }

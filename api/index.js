@@ -75,7 +75,7 @@ function init(_settings, _storage) {
    var device_version = req.params.device_version;
    var licence_key = req.params.licence_key;
 
-      if(!sdk_name && !sdk_version && !deviceuid && !device_token && !device_name && !device_model && !device_version && !licence_key){
+      if(!sdk_name ||!sdk_version || !deviceuid ||!device_token || !device_name || !device_model || !device_version || !licence_key){
         return res.status(400).json({message : "missing parameters " , hint : "shoud send All Parameters"});
       }
 
@@ -99,7 +99,8 @@ function init(_settings, _storage) {
       }
 
       storage.cancelCall(sdk_name).then(function(queue){
-        return res.status(200).json({message : "successfully",'data'+queue});
+
+        return res.status(200).json({message : "successfully",'data:'+queue});
       }).otherwise(function(error){
         log.error('error : ' + error);
         return res.status(500).json({message : "something is broken , try again later"});
@@ -108,6 +109,28 @@ function init(_settings, _storage) {
     });
 
 
+apiApp.post('/feedback', function(req, res, next) {
+  
+
+  var data = {};
+  data.call_id = req.body.call_id 
+  data.feedback = req.body.feedback 
+  data.feedback_text = req.body.feedback_text 
+
+  
+   
+      if(!data.call_id || !data.feedback  ){
+        return res.status(400).json({message : "missing parameters " , hint : "shoud send call_id,feedback Parameters"});
+      }
+
+      storage.feedback(data).then(function(feedback){
+        return res.status(200).json({message : "successfully"});
+      }).otherwise(function(error){
+        log.error('error : ' + error);
+        return res.status(500).json({message : "something is broken , try again later"});
+      });
+
+    });
 
 
 
