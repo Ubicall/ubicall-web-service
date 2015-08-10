@@ -63,6 +63,57 @@ function init(_settings, _storage) {
 
     });
 
+
+    apiApp.get('/getsip/:sdk_name/:sdk_version/:deviceuid/:device_token/:device_name/:device_model/:device_version/:licence_key', function(req, res, next) {
+  
+   var sdk_name = req.params.sdk_name;
+   var sdk_version = req.params.sdk_version;
+   var deviceuid = req.params.deviceuid;
+   var device_token = req.params.device_token;
+   var device_name = req.params.device_name;
+   var device_model = req.params.device_model;
+   var device_version = req.params.device_version;
+   var licence_key = req.params.licence_key;
+
+      if(!sdk_name && !sdk_version && !deviceuid && !device_token && !device_name && !device_model && !device_version && !licence_key){
+        return res.status(400).json({message : "missing parameters " , hint : "shoud send All Parameters"});
+      }
+
+      storage.cancelCall(sdk_name,sdk_version,deviceuid,device_token ,device_name,device_model,device_version,licence_key).then(function(call){
+        return res.status(200).json({message : "call canceled successfully"});
+      }).otherwise(function(error){
+        log.error('error : ' + error);
+        return res.status(500).json({message : "something is broken , try again later"});
+      });
+
+    });
+
+
+
+    apiApp.get('/getqueue/:key', function(req, res, next) {
+  
+   var key = req.params.key;
+   
+      if(!key ){
+        return res.status(400).json({message : "missing parameters " , hint : "shoud send key Parameter"});
+      }
+
+      storage.cancelCall(sdk_name).then(function(queue){
+        return res.status(200).json({message : "successfully",'data'+queue});
+      }).otherwise(function(error){
+        log.error('error : ' + error);
+        return res.status(500).json({message : "something is broken , try again later"});
+      });
+
+    });
+
+
+
+
+
+
+
+
     return resolve(apiApp);
   });
 }

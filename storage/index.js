@@ -61,6 +61,21 @@ var storageModuleInterface = {
     });
   },
 
+
+
+  getQueue : function (key){
+    return when.promise(function(resolve,rejcet){
+      storageModule.getQueue(key).then(function(queue){
+        if(cache){
+            // TODO find cache
+        }
+        return resolve(queue);
+      }).otherwise(function(error){
+        return rejcet(error);
+      });
+    });
+  }
+
 };
 
 module.exports = storageModuleInterface;

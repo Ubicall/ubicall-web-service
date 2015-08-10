@@ -74,6 +74,25 @@ function cancelCall(callId) {
   });
 }
 
+
+
+function getQueue(key) {
+  return when.promise(function(resolve, rejcet) {
+    $admin.find({ licence_key : key}).then(function(admin) {
+
+      $queue.find({ admin_id : admin.id}).then(function(queue) {
+      
+      }).then(function(queue) {
+        return resolve(queue);
+      }).catch(function(error) {
+        return reject(error);
+      });
+    }).catch(function(error){
+      return rejcet(error)
+    });
+  });
+}
+
 module.exports = {
   init: init,
   scheduleCall: scheduleCall,
