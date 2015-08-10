@@ -2,4 +2,4 @@
 exposed ubicall web service for public and internal use , to make CRUD operations on calls , feedback , agent and queues tables
 
 # create model from db using :
-__sequelize-auto -o "./storage/models" -d ubi -h localhost -u sand -p 3306 -x sand -e mysql __
+#####sequelize-auto -o "./storage/models" -d ubi -h localhost -u sand -p 3306 -x sand -e mysql

@@ -1,10 +1,11 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('call_entry', { 
+  return sequelize.define('call_entry', {
     id: {
       type: DataTypes.INTEGER(10),
-      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true
     },
     id_agent: {
       type: DataTypes.INTEGER(10),
