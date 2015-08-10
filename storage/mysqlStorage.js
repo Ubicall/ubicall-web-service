@@ -76,5 +76,6 @@ function cancelCall(callId) {
 
 module.exports = {
   init: init,
-  scheduleCall: scheduleCall
+  scheduleCall: scheduleCall,
+  cancelCall : cancelCall
 }
