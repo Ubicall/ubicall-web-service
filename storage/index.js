@@ -60,6 +60,33 @@ var storageModuleInterface = {
       });
     });
   },
+  getAccountInfo:function(key){
+    return when.promise(function(resolve,reject){
+      storageModule.getAccountInfo(key).then(function(company){
+        if(cache){
+          //TODO update cache
+        }
+        return resolve(company);
+      }).otherwise(function(error){
+        return reject(error);
+      });
+
+    });
+  },
+
+  getVersion:function(key){
+    return when.promise(function(resolve,reject){
+      storageModule.getVersion(key).then(function(version){
+        if(cache){
+          //TODO update cahe
+        }
+        return resolve(version);
+      }).otherwise(function(error){
+        return reject(otherwise);
+      });
+    });
+
+  }
 
 };
 

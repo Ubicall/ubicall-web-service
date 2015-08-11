@@ -21,15 +21,7 @@ function init(_settings, _storage) {
     apiApp.use(cors(ubicallCors.options));
     apiApp.use(ubicallCors.cors);
 
-    apiApp.post('/versionToken',function(req,res){
-      var key =req.body.key;
-      if(!key){
-        return res.status(400).json({message:'unable to get version',hint:'should submit a key'});
 
-      }
-      storage.getVersion(version)
-
-    });
 
     apiApp.post('/call', function(req, res, next) {
       var call = {};
@@ -57,8 +49,6 @@ function init(_settings, _storage) {
         });
       }
 
-
-
       storage.scheduleCall(call).then(function(call) {
         return res.status(200).json({
           message: 'call scheduled successfully',
@@ -72,6 +62,72 @@ function init(_settings, _storage) {
       });
 
     });
+
+    apiApp.get('/versionToken',function(req,res){
+      var key =req.body.key;//change to params
+      if(!key)
+      {
+        return res.status(400).json({message:'unable to get version',hint:'should submit a key'});
+
+      }
+      storage.getVersion(key).then(function(version){
+        return res.status(200).json({
+          message:'version retrieved successfully',
+          version:version.version,
+          url:version.url
+
+      });
+    }).otherwise(function(error){
+
+      log.error('error : ' + error);
+      return res.status(500).json({
+        message:'unable to get version,try again later'
+      });
+    });
+
+    });
+apiApp.post('/getSchedCall',function(req,res,next){
+  var call = {};
+  call.device_token = req.body.device_token;
+  call.license_key = req.body.license || req.body.license_key;
+  call.json = req.body.json;
+  call.longitude = req.body.long;
+  call.latitude =  req.body.lat;
+  call.address = req.body.address;
+  call.time = req.body.time;
+  call.qid = req.body.qid;
+  var attribute_s = JSON.parse(json);
+  var jsondb,attribute;
+  for(var attribute in call.json)
+  {
+   attribute = {"key:"+attribute+",value:"+call.json[attribute] };
+   jsondb = JSON.stringify(attribute);
+  }
+  storage.getSchedCall(key).then(function());
+
+});
+
+    apiApp.post('/accountInfo',function(req,res){
+      var key = req.body.key;
+      if(!key){
+        return res.status(400).json({message:'Unable to get Account info',hint:'Should submit a key'});
+      }
+
+      storage.getAccountInfo(key).then(function(info){
+        return res.status(200).json({message:'accont info retrieved successfully',
+        information:info
+      }).otherwise(function(error){
+        log.error('error'+error);
+        return res.status(500).json({
+          message:'unable to get account info,Try again later'
+        });
+
+      });
+
+    });
+
+    });
+
 
     apiApp.delete('/call/:id' , function(req, res, next) {
       var call_id = req.params.id;
