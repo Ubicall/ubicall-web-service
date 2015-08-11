@@ -1,10 +1,11 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('queue_agent', { 
+  return sequelize.define('queue_agent', {
     id: {
       type: DataTypes.INTEGER(16),
-      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true
     },
     queue_id: {
       type: DataTypes.INTEGER(16),

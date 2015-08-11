@@ -2,7 +2,6 @@ var http = require('http');
 var https = require('https');
 var express = require('express');
 var fs = require("fs");
-var cors = require('cors');
 var storage = require('./storage')
 var settings = require('./settings');
 var api = require('./api');
@@ -33,21 +32,7 @@ storage.init(settings).then(function() {
 
   api.init(settings, storage).then(function(apia) {
 
-    var corsOptions = {
-      origin: [/^(.+\.)?ubicall.com$/],
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      headers: ['X-Requested-With', 'Content-Type', 'Accept', 'Origin', 'Authorization', 'X-CSRFToken', 'User-Agent', 'Accept-Encoding'],
-      credentials: true,
-      maxAge: 123
-    };
-
-    // TODO store allowed domains to use our api ,
-    // TODO check if current request domain is in this list
-    // if true process to api , otherwise remove Access-Control-Allow-Origin header
-    // and to be more aggressive remove Access-Control-Allow-Methods and Access-Control-Allow-Headers too
-    // then response with HTTP_403 , Forbidden , you not in our allowed domain list
-
-    app.use('/v1' , cors(corsOptions) , apia);
+    app.use('/v1' , apia);
 
     app.use(function(err, req, res, next) {
       if (process.env.node_env != 'production') {

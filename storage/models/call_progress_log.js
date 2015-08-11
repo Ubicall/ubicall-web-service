@@ -1,10 +1,11 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('call_progress_log', { 
+  return sequelize.define('call_progress_log', {
     id: {
       type: DataTypes.INTEGER(10),
-      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true
     },
     datetime_entry: {
       type: DataTypes.DATE,
