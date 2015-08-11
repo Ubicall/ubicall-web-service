@@ -86,7 +86,7 @@ function init(_settings, _storage) {
     });
 
     });
-apiApp.post('/getSchedCall',function(req,res,next){
+/*apiApp.post('/getSchedCall',function(req,res,next){
   var call = {};
   call.device_token = req.body.device_token;
   call.license_key = req.body.license || req.body.license_key;
@@ -100,12 +100,12 @@ apiApp.post('/getSchedCall',function(req,res,next){
   var jsondb,attribute;
   for(var attribute in call.json)
   {
-   attribute = {"key:"+attribute+",value:"+call.json[attribute] };
+//   attribute = {"key:"+attribute+",value:"+call.json[attribute] };
    jsondb = JSON.stringify(attribute);
   }
   storage.getSchedCall(key).then(function());
 
-});
+});*/
 
     apiApp.post('/accountInfo',function(req,res){
       var key = req.body.key;
