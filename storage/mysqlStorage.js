@@ -32,7 +32,7 @@ function init(_settings) {
     $queueAgent = sequlizeImport('queue_agent');
     $calls = sequlizeImport('calls');
     $queue = sequlizeImport('queue');
-
+    $clients = sequlizeImport('clients');
     return resolve({});
   });
 }
@@ -55,6 +55,41 @@ function scheduleCall(call) {
       return reject(error);
     });
   });
+}
+///Get Version API
+function getVersion(key)
+{
+  return when.promise(function(resolve,reject)){
+    //assuming there's a model for version & client
+    $clients.create({
+      fname:version.fname,
+      lname:version.lname,
+      phone: version.sip,
+      address:version.address,
+
+    }).then(function(client)){
+
+      version.findAll({
+        client_id : client.id
+      }).then(function(versions){
+
+      }).otherwise(fu)
+      client.then(function(version){
+        $version.create({
+          fname:version.fname,
+          lname:version.lname,
+          phone: version.sip,
+          address:version.address}).then(function(version))
+
+
+      })
+
+    }).catch(function(error){
+      return reject(error);
+    })
+
+  }
+
 }
 
 function cancelCall(callId) {

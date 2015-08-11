@@ -16,6 +16,16 @@ function init(_settings, _storage) {
     }));
     apiApp.use(bodyParser.json());
 
+    apiApp.post('/versionToken',function(req,res){
+      var key =req.body.key;
+      if(!key){
+        return res.status(400).json({message:'unable to get version',hint:'should submit a key'});
+
+      }
+      storage.getVersion(version)
+
+    });
+
     apiApp.post('/call', function(req, res, next) {
       var call = {};
       call.sip = req.body.sip || req.body.voiceuser_id;
@@ -35,8 +45,6 @@ function init(_settings, _storage) {
       if(call.time &&  !validator.isAfter(call.time)){
         return res.status(400).json({ message : 'unable to schedule call' , hint : 'call time should be in the future'});
       }
-
-
 
       storage.scheduleCall(call).then(function(call){
         return res.status(200).json({ message : 'call scheduled successfully' , id : call.id });
