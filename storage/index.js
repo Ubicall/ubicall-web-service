@@ -82,7 +82,7 @@ var storageModuleInterface = {
         }
         return resolve(version);
       }).otherwise(function(error){
-        return reject(otherwise);
+        return reject(error);
       });
     });
 

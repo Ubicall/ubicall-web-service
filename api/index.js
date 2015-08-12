@@ -1,5 +1,8 @@
-var when = require('when');
 var express = require('express');
+var path = require("path");
+var http = require('http');
+var router = express.Router();
+var when = require('when');
 var bodyParser = require('body-parser');
 var validator = require('validator');
 var cors = require('cors');
@@ -17,9 +20,9 @@ function init(_settings, _storage) {
     apiApp.use(bodyParser.urlencoded({
       extended: true
     }));
-    apiApp.use(bodyParser.json());
-    apiApp.use(cors(ubicallCors.options));
-    apiApp.use(ubicallCors.cors);
+      apiApp.use(bodyParser.json());
+  //  apiApp.use(cors(ubicallCors.options));
+    //apiApp.use(ubicallCors.cors);
 
 
 
@@ -63,14 +66,15 @@ function init(_settings, _storage) {
 
     });
 
-    apiApp.get('/versionToken',function(req,res){
-      var key =req.body.key;//change to params
-      if(!key)
+    apiApp.get('/versionToken/:key',function(req,res){
+      var input_key =req.params.key;//change to params
+      console.log('key is '+input_key);
+      if(!input_key)
       {
         return res.status(400).json({message:'unable to get version',hint:'should submit a key'});
 
       }
-      storage.getVersion(key).then(function(version){
+      storage.getVersion(input_key).then(function(version){
         return res.status(200).json({
           message:'version retrieved successfully',
           version:version.version,

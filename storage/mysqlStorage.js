@@ -77,9 +77,9 @@ function getSchedCall(key) {
 function getVersion(key) {
   return when.promise(function(resolve, reject) {
     //Get Clients with a specific license_key
-    $client.findOne({
+    $clients.findOne({
       where: {
-        license_key: key
+          licence_key: key
       }
     }).then(function(client) {
 
