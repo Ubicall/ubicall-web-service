@@ -48,6 +48,45 @@ var storageModuleInterface = {
       });
     });
   },
+
+  scheduleDemoCall:function(call){
+    return when.promise(function(resolve,reject){
+      return storageModule.scheduleDemoCall(call,device.sip).then(function(call){
+        if(cache){
+          //TODO
+        }
+        return resolve(call);
+      }).otherwise(function(error){
+        return reject(error);
+      });
+    });
+  },
+
+  getDevice:function(device){
+    return when.promise(function(resolve,reject){
+      return storageModule.getDevice(token).then(function(device){
+        if(cache){
+          //TODO
+        }
+        return resolve(device);
+      }).otherwise(function(error){
+        return reject(error);
+      });
+    });
+  },
+  getClient:function(client){
+    return when.promise(function(resolve,reject){
+      return storageModule.getClient(key).then(function(client){
+        if(cache){
+          //TODO
+        }
+        return resolve(client);
+      }).otherwise(function(error){
+        return reject(error);
+      });
+    });
+  },
+
   cancelCall : function (callId){
     return when.promise(function(resolve,rejcet){
       storageModule.cancelCall(callId).then(function(call){

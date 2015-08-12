@@ -2,7 +2,6 @@ var when = require('when');
 var Sequelize = require('sequelize');
 var moment = require('moment');
 
-
 var settings, _sequelize;
 var calls, agent, queueAgent, clients;
 
@@ -34,7 +33,7 @@ function init(_settings) {
     $queue = sequlizeImport('queue');
     $clients = sequlizeImport('client');
     $version = sequlizeImport('version');
-  //  $company = sequlizeImport('company');
+    //  $company = sequlizeImport('company');
     $device_sip = sequlizeImport('device_sip');
     return resolve({});
   });
@@ -45,7 +44,7 @@ function scheduleCall(call) {
     $calls.create({
       api_key: call.license_key,
       queue_id: call.queue,
-      phone: call.sip,
+      phone: device.sip,
       address: call.address,
       longitude: call.longitude,
       latitude: call.latitude,
@@ -59,19 +58,53 @@ function scheduleCall(call) {
     });
   });
 }
-//NOT DONE YET
-function getSchedCall(key) {
+
+function scheduleDemoCall(call,device) {
   return when.promise(function(resolve, reject) {
-    $client.findAll({
-      where: {
-        license_key: key
-      }
-    }).then(function(client) {
-      return resolve(client.demo);
-
-    }).catch(reject(error));
+    $demo_calls.create({
+      api_key: call.license_key,
+      queue_id: call.queue,
+      phone: device.sip,
+      address: call.address,
+      longitude: call.longitude,
+      latitude: call.latitude,
+      caller_type: call.pstn,
+      call_data: call.call_data,
+      schedule_time: call.time
+    }).then(function(call) {
+      return resolve(call);
+    }).catch(function(error) {
+      return reject(error);
+    });
   });
+}
 
+function getClient(key) {
+  return when.promise(function(resolve,reject){
+    $clients.findOne({
+      where:{
+        licence_key:key
+      }
+    }).then(function(client){
+      return resolve(client);
+    }).catch(function(error){
+      return reject(error);
+    });
+  });
+}
+
+function getDevice(token) {
+return when.promise(function(resolve,reject){
+  $device_sip.findOne({
+    where:{
+      device_token:token
+    }
+  }).then(function(device){
+    return resolve(device);
+  }).catch(function(error){
+    return reject(error);
+  });
+});
 }
 ///Get Version API
 function getVersion(key) {
@@ -79,7 +112,7 @@ function getVersion(key) {
     //Get Clients with a specific license_key
     $clients.findOne({
       where: {
-          licence_key: key
+        licence_key: key
       }
     }).then(function(client) {
 
@@ -105,21 +138,6 @@ function getVersion(key) {
   });
 }
 
-/*function getAccountInfo(key) {
-  return when.promise(function(resolve, reject) {
-    //Missing company table
-    $company.findAll({
-      where: {
-        license_key: key
-      }
-    }).then(function(company) {
-      return resolve(company);
-    }).catch(function(error) {
-      return reject(error);
-    });
-  });
-}*/
-
 function cancelCall(callId) {
   return when.promise(function(resolve, rejcet) {
     $calls.findById(callId).then(function(call) {
@@ -141,6 +159,9 @@ module.exports = {
   init: init,
   scheduleCall: scheduleCall,
   cancelCall: cancelCall,
-  getVersion: getVersion
-  //getAccountInfo: getAccountInfo
+  getVersion: getVersion,
+  getDevice:getDevice,
+  getClient:getClient,
+  scheduleDemoCall:scheduleDemoCall
+    //getAccountInfo: getAccountInfo
 }
