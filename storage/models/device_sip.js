@@ -1,64 +1,58 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('demo_list', {
-    w_id: {
-      type: DataTypes.INTEGER(11),
-      primaryKey: true,
-      autoIncrement: true
-    },
-    w_fname: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    w_lname: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    w_email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    w_phone: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    w_company: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    w_country: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    w_city: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    w_address: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    w_comment: {
-      type: DataTypes.TEXT,
-      allowNull: false,
-    },
-    w_reason: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    admin_id: {
+  return sequelize.define('device_sip', { 
+    id: {
       type: DataTypes.INTEGER(11),
       allowNull: false,
     },
-    w_status: {
-      type: DataTypes.INTEGER(11),
+    sdk_name: {
+      type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: '0'
     },
-    w_date: {
+    sdk_version: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    deviceuid: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    device_token: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    device_name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    device_model: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    device_version: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    licence_key: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    sip: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    domain: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    creation_date: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
       defaultValue: 'CURRENT_TIMESTAMP'
     }
   });

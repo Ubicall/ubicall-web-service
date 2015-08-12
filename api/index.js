@@ -1,6 +1,9 @@
 var when = require('when');
 var express = require('express');
 var bodyParser = require('body-parser');
+var validator = require('validator');
+var cors = require('cors');
+var ubicallCors = require('../ubicallCors');
 var log = require('../log');
 var settings, storage;
 var apiApp;
@@ -15,6 +18,8 @@ function init(_settings, _storage) {
       extended: true
     }));
     apiApp.use(bodyParser.json());
+    apiApp.use(cors(ubicallCors.options));
+    apiApp.use(ubicallCors.cors);
 
     apiApp.post('/call', function(req, res, next) {
       var call = {};
@@ -28,37 +33,55 @@ function init(_settings, _storage) {
       call.time = req.body.time || req.body.call_time;
       call.queue = req.body.queue || req.body.queue_id || req.body.qid;
 
-      if(!call.sip || !call.license_key || !call.queue){
-        return res.status(400).json({ message : 'unable to schedule call' , hint : 'should submit license key , phone and queue'});
+      if (!call.sip || !call.license_key || !call.queue) {
+        return res.status(400).json({
+          message: 'unable to schedule call',
+          hint: 'should submit license key , phone and queue'
+        });
       }
 
-      if(call.time &&  !validator.isAfter(call.time)){
-        return res.status(400).json({ message : 'unable to schedule call' , hint : 'call time should be in the future'});
+      if (call.time && !validator.isAfter(call.time)) {
+        return res.status(400).json({
+          message: 'unable to schedule call',
+          hint: 'call time should be in the future'
+        });
       }
 
 
 
-      storage.scheduleCall(call).then(function(call){
-        return res.status(200).json({ message : 'call scheduled successfully' , id : call.id });
-      }).otherwise(function(error){
-        log.error('error : ' +  error);
-        return res.status(500).json({message : "unable to schedule call , try again later"});
+      storage.scheduleCall(call).then(function(call) {
+        return res.status(200).json({
+          message: 'call scheduled successfully',
+          id: call.id
+        });
+      }).otherwise(function(error) {
+        log.error('error : ' + error);
+        return res.status(500).json({
+          message: "unable to schedule call , try again later"
+        });
       });
 
     });
 
-    apiApp.delete('/call/:id', function(req, res, next) {
+    apiApp.delete('/call/:id' , function(req, res, next) {
       var call_id = req.params.id;
 
-      if(!call_id){
-        return res.status(400).json({message : "unable to cancle call " , hint : "shoud send call id to cancel call"});
+      if (!call_id) {
+        return res.status(400).json({
+          message: "unable to cancle call ",
+          hint: "shoud send call id to cancel call"
+        });
       }
 
-      storage.cancelCall(call_id).then(function(call){
-        return res.status(200).json({message : "call canceled successfully"});
-      }).otherwise(function(error){
+      storage.cancelCall(call_id).then(function(call) {
+        return res.status(200).json({
+          message: "call canceled successfully"
+        });
+      }).otherwise(function(error) {
         log.error('error : ' + error);
-        return res.status(500).json({message : "something is broken , try again later"});
+        return res.status(500).json({
+          message: "something is broken , try again later"
+        });
       });
 
     });
