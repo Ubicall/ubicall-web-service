@@ -32,6 +32,10 @@ function init(_settings) {
     $queueAgent = sequlizeImport('queue_agent');
     $calls = sequlizeImport('calls');
     $queue = sequlizeImport('queue');
+    $version = sequlizeImport('version');
+    $client = sequlizeImport('client');
+    $feedback = sequlizeImport('feedback');
+      
 
     return resolve({});
   });
@@ -84,8 +88,6 @@ function getQueue(key) {
        where: { admin_id : admin.id},
         attributes: ['id', 'name']
      }).then(function(queue) {
-      
-      }).then(function(queue) {
         return resolve(queue);
       }).catch(function(error) {
         return reject(error);
@@ -116,10 +118,56 @@ function feedback(data) {
 
 
 
+function updateIVR(data) {
+  return when.promise(function(resolve, rejcet)  {
+ $client.findOne({ licence_key : data.licence_key}).then(function(client) {
+
+  $version.findOne({ client_id : client.id}).then(function(version) {
+
+    return version.updateAttributes({
+        server_id: data.server_id, server_id: data.url,server_id: data.url
+      }).then(function(updated) {
+        return resolve(updated);
+      }).catch(function(error) {
+        return reject(error);
+      });
+
+  }).catch(function(error){
+      return rejcet(error)
+    });
+      
+    }).catch(function(error){
+      return rejcet(error)
+    });
+  });
+}
+
+
+
+function getClients() {
+  return when.promise(function(resolve, rejcet) {
+
+  $version.hasMany(Post, {foreignKey: 'client_id'})
+$client.hasMany(User, {foreignKey: 'id'})
+      $client.findAll({
+       where: { enabled : 1},include: [version]
+     }).then(function(clients) {
+        return resolve(clients);
+      }).catch(function(error) {
+        return reject(error);
+      });
+   
+  });
+}
+
+
+
 module.exports = {
   init: init,
   scheduleCall: scheduleCall,
   cancelCall : cancelCall,
   getQueue : getQueue,
-  feedback : feedback
+  feedback : feedback,
+  checkIVR : checkIVR
+  getClients : getClients
 }

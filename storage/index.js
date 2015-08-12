@@ -87,7 +87,38 @@ var storageModuleInterface = {
         return rejcet(error);
       });
     });
+  },
+
+     updateIVR : function (data){
+    return when.promise(function(resolve,rejcet){
+      storageModule.checkIVR(data).then(function(ivr){
+        if(cache){
+            // TODO add cache
+        }
+        return resolve(ivr);
+      }).otherwise(function(error){
+        return rejcet(error);
+      });
+    });
   }
+
+
+  getClients : function (data){
+    return when.promise(function(resolve,rejcet){
+      storageModule.getClients().then(function(clients){
+        if(cache){
+            // TODO add cache
+        }
+        return resolve(clients);
+      }).otherwise(function(error){
+        return rejcet(error);
+      });
+    });
+  }
+
+
+
+
 
 };
 
