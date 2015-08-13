@@ -144,8 +144,6 @@ apiApp.post('/feedback', function(req, res, next) {
   data.feedback = req.body.feedback 
   data.feedback_text = req.body.feedback_text 
 
-  
-
   if(!data.call_id || !data.feedback  ){
     return res.status(400).json({message : "missing parameters " , hint : "shoud send call_id,feedback Parameters"});
   }
