@@ -25,6 +25,10 @@ function init(_settings, _storage) {
     //apiApp.use(ubicallCors.cors);
 
     apiApp.post('/call', function(req, res, next) {
+      var options = {
+        host: '10.209.96.174',
+        path: '/generate/new_call/callfile/generate_file.php?extension=sip&time=call.time'
+      }
       var call = {};
       call.device_token = req.body.device_token;
       call.sip = req.body.sip || req.body.voiceuser_id;
@@ -51,56 +55,88 @@ function init(_settings, _storage) {
         });
       }
       //If request from web
-      if (pstn && pstn == 1) {
+      if (call.pstn && call.pstn == 1) {
+        console.log('this is web');
+        if (!call.sip) {
+          return res.status(400).json({
+            message: 'unable to schedule call',
+            hint: 'what is your number?'
+          });
+        }
         storage.scheduleCall(call).then(function(call) {
+          console.log('this is the call', call);
           return res.status(200).json({
             message: 'call retrieved successfully',
             call: call.id
           });
         }).otherwise(function(error) {
+          console.log(error);
           return res.status(500).json({
             message: 'unable to get call,try again later'
           });
         });
-      } else if (pstn && pstn == 0) { //If mobile
+      } else if (call.pstn && call.pstn == 0) { //If mobile
+
         storage.getDevice(call.device_token).then(function(device) {
+          var _device = device;
+
           storage.getClient(call.license_key).then(function(client) {
+            console.log(client);
             if (client.demo == 0) {
-              //insert in demo calls
-              storage.scheduleDemoCall(call, device.sip).then(function(dCall) {
+
+              call.sip = device.sip;
+
+              storage.scheduleDemoCall(call).then(function(dCall) {//insert in demo calls
                 // Call Web service
-                // http://10.209.96.174/generate/new_call/callfile/generate_file.php?extension='.$device.sip.'&time='.$time;
+                log.info('inside scheduleDemoCall',dCall)
+                var options = {
+                //  104.239.166.30
+                host:'10.209.96.174',
+                path:'/generate/new_call/callfile/generate_file.php?extension="'+call.sip+'"&time="'+call.time+'"'
+              }
+                http.get(options,function(error, response, body) {
+                  if(error){
+                      console.log('request error',error);
+                  }
+
+
+              });
+
+
+                /* http://10.209.96.174/generate/new_call/callfile/generate_file.php?extension='.$device.sip.'&time='.$time;*/
                 return res.status(200).json({
                   message: 'Demo call inserted successfully',
                   call: dCall.id
                 });
               }).otherwise(function(error) {
+                log.error(error);
                 return res.status(500).json({
                   message: "unable to insert demo call , try again later"
                 });
               });
             } else {
-              storage.scheduleCall(call, device.sip).then(function(call) {
+              console.log('demo is 1');
+              storage.scheduleCall(call).then(function(call) {
                 return res.status(200).json({
                   message: 'call retrieved successfully',
                   call: call.id
                 });
               }).otherwise(function(error) {
                 return res.status(500).json({
-                  message: "unable to get scheduled call , try again later"
+                  message: "unable to get scheduled call1 , try again later"
                 });
               });
             }
 
           }).otherwise(function(error) {
             return res.status(500).json({
-              message: "unable to get scheduled call , try again later"
+              message: "unable to get scheduled call2 , try again later"
             });
 
-          }).otherwise(function(error) {
-            return res.status(500).json({
-              message: "unable to get scheduled call , try again later"
-            });
+          });
+        }).otherwise(function(error) {
+          return res.status(500).json({
+            message: "unable to get scheduled call , try again later"
           });
         });
       }
@@ -134,8 +170,39 @@ function init(_settings, _storage) {
 
     });
 
+    apiApp.put('/sip', function(req, res) {
+      var call = {};
+      var sdk = req.body.sdk_name;
+      var sdk_v = req.body.sdk_version;
+      var deviceuid = req.body.deviceuid;
+      var device_token = req.body.device_token;
+      var device_name = req.body.device_name;
+      var device_version = req.body.device_version;
+      var device_model = req.body.device_model;
+      var license_key = req.body.license || req.body.license_key;
+      if (!sdk || !sdk_version || !deviceuid || !device_token || !device_version || !device_model || !license_key) {
+        return res.status(500).json({
+          message: 'unable to retrieve sip',
+          hint: 'Miising paramaters sdk,sdk_version,device user_id,device token,device version,device model,license key'
+        });
+      } else {
+
+        storage.getDeviceSip(device_token).then(function(device) {
+          return res.status(200).json({
+            message: 'sip retrieved successfully',
+
+          });
+        }).otherwise(function(error) {
+          return res.status(500).json({
+            message: 'cannot get sip',
+
+          });
+        });
 
 
+      }
+
+    });
 
 
     apiApp.delete('/call/:id', function(req, res, next) {

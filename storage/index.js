@@ -39,11 +39,13 @@ var storageModuleInterface = {
   scheduleCall: function(call) {
     return when.promise(function(resolve, reject) {
       return storageModule.scheduleCall(call).then(function(call){
+  log.info('return from index storage',call);
         if(cache){
             // TODO add this call to cache
         }
         return resolve(call);
       }).otherwise(function(error){
+        log.error('inside index storage',error);
         return reject(error);
       });
     });
@@ -51,7 +53,7 @@ var storageModuleInterface = {
 
   scheduleDemoCall:function(call){
     return when.promise(function(resolve,reject){
-      return storageModule.scheduleDemoCall(call,device.sip).then(function(call){
+      return storageModule.scheduleDemoCall(call).then(function(call){
         if(cache){
           //TODO
         }
@@ -62,7 +64,7 @@ var storageModuleInterface = {
     });
   },
 
-  getDevice:function(device){
+  getDevice:function(token){
     return when.promise(function(resolve,reject){
       return storageModule.getDevice(token).then(function(device){
         if(cache){
@@ -74,7 +76,7 @@ var storageModuleInterface = {
       });
     });
   },
-  getClient:function(client){
+  getClient:function(key){
     return when.promise(function(resolve,reject){
       return storageModule.getClient(key).then(function(client){
         if(cache){
