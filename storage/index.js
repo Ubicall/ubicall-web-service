@@ -41,24 +41,24 @@ var storageModuleInterface = {
       return storageModule.scheduleCall(call).then(function(call){
         if(cache){
             // TODO add this call to cache
-        }
-        return resolve(call);
-      }).otherwise(function(error){
-        return reject(error);
+          }
+          return resolve(call);
+        }).otherwise(function(error){
+          return reject(error);
+        });
       });
-    });
   },
   cancelCall : function (callId){
     return when.promise(function(resolve,rejcet){
       storageModule.cancelCall(callId).then(function(call){
         if(cache){
             // TODO update cache
-        }
-        return resolve(call);
-      }).otherwise(function(error){
-        return rejcet(error);
+          }
+          return resolve(call);
+        }).otherwise(function(error){
+          return rejcet(error);
+        });
       });
-    });
   },
 
 
@@ -68,38 +68,38 @@ var storageModuleInterface = {
       storageModule.getQueue(key).then(function(queue){
         if(cache){
             // TODO add cache
-        }
-        return resolve(queue);
-      }).otherwise(function(error){
-        return rejcet(error);
+          }
+          return resolve(queue);
+        }).otherwise(function(error){
+          return rejcet(error);
+        });
       });
-    });
   },
 
-   feedback : function (data){
+  feedback : function (data){
     return when.promise(function(resolve,rejcet){
       storageModule.feedback(data).then(function(feedback){
         if(cache){
             // TODO add cache
-        }
-        return resolve(feedback);
-      }).otherwise(function(error){
-        return rejcet(error);
+          }
+          return resolve(feedback);
+        }).otherwise(function(error){
+          return rejcet(error);
+        });
       });
-    });
   },
 
-     updateIVR : function (data){
+  updateIVR : function (data){
     return when.promise(function(resolve,rejcet){
       storageModule.checkIVR(data).then(function(ivr){
         if(cache){
             // TODO add cache
-        }
-        return resolve(ivr);
-      }).otherwise(function(error){
-        return rejcet(error);
+          }
+          return resolve(ivr);
+        }).otherwise(function(error){
+          return rejcet(error);
+        });
       });
-    });
   },
 
 
@@ -108,25 +108,25 @@ var storageModuleInterface = {
       storageModule.getClients().then(function(clients){
         if(cache){
             // TODO add cache
-        }
-        return resolve(clients);
-      }).otherwise(function(error){
-        return rejcet(error);
+          }
+          return resolve(clients);
+        }).otherwise(function(error){
+          return rejcet(error);
+        });
       });
-    });
   },
 
-    getsip : function (data){
+  getsip : function (data){
     return when.promise(function(resolve,rejcet){
       storageModule.getsip(data).then(function(getsip){
         if(cache){
             // TODO add cache
-        }
-        return resolve(getsip);
-      }).otherwise(function(error){
-        return rejcet(error);
+          }
+          return resolve(getsip);
+        }).otherwise(function(error){
+          return rejcet(error);
+        });
       });
-    });
   }
 
 

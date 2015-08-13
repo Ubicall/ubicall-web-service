@@ -88,6 +88,8 @@ function getQueue(key) {
   return when.promise(function(resolve, rejcet) {
     $admin.find({ licence_key : key}).then(function(admin) {
 
+      if (typeof admin[index] !== 'undefined' && admin[index] !== null) {
+
       $queue.findAll({
        where: { admin_id : admin.id},
        attributes: ['id', 'name']
@@ -96,6 +98,15 @@ function getQueue(key) {
     }).catch(function(error) {
       return reject(error);
     });
+
+
+  }
+
+  else{
+
+    return resolve('Invaled Key');
+  }
+
   }).catch(function(error){
     return rejcet(error)
   });
@@ -126,6 +137,9 @@ function updateIVR(data) {
   return when.promise(function(resolve, rejcet)  {
    $client.findOne({ licence_key : data.licence_key}).then(function(client) {
 
+  if (typeof client[index] !== 'undefined' && client[index] !== null) {
+
+
     $version.findOne({ client_id : client.id}).then(function(version) {
 
       return version.updateAttributes({
@@ -139,6 +153,12 @@ function updateIVR(data) {
     }).catch(function(error){
       return rejcet(error)
     });
+
+  }
+  else {
+
+      return resolve('Invaled Key');
+  }
 
   }).catch(function(error){
     return rejcet(error)
@@ -247,22 +267,16 @@ function getsip(data) {
         return rejcet(error)
       });
 
-
     }).catch(function(error){
       return rejcet(error)
     });
-
-
 
   }).catch(function(error) {
     return reject(error);
   });
 
-
 }
-
-
-    // return resolve(device_sip);
+;
   }).catch(function(error) {
     return reject(error);
   });

@@ -89,26 +89,26 @@ apiApp.delete('/call/:id' , function(req, res, next) {
 
 
 apiApp.get('/getsip', function(req, res, next) {
-data={};
- data.sdk_name = req.body.sdk_name;
- data.sdk_version = req.body.sdk_version;
- data.deviceuid = req.body.deviceuid;
- data.device_token = req.body.device_token;
- data.device_name = req.body.device_name;
- data.device_model = req.body.device_model;
- data.device_version = req.body.device_version;
- data.licence_key = req.body.licence_key;
+  data={};
+  data.sdk_name = req.body.sdk_name;
+  data.sdk_version = req.body.sdk_version;
+  data.deviceuid = req.body.deviceuid;
+  data.device_token = req.body.device_token;
+  data.device_name = req.body.device_name;
+  data.device_model = req.body.device_model;
+  data.device_version = req.body.device_version;
+  data.licence_key = req.body.licence_key;
 
- if(!sdk_name ||!sdk_version || !deviceuid ||!device_token || !device_name || !device_model || !device_version || !licence_key){
-  return res.status(400).json({message : "missing parameters " , hint : "shoud send All Parameters"});
-}
+  if(!sdk_name ||!sdk_version || !deviceuid ||!device_token || !device_name || !device_model || !device_version || !licence_key){
+    return res.status(400).json({message : "missing parameters " , hint : "shoud send All Parameters"});
+  }
 
-storage.getsip(data).then(function(data){
-  return res.status(200).json({message : "successfully" , data:data});
-}).otherwise(function(error){
-  log.error('error : ' + error);
-  return res.status(500).json({message : "something is broken , try again later"});
-});
+  storage.getsip(data).then(function(data){
+    return res.status(200).json({message : "successfully" , data:data});
+  }).otherwise(function(error){
+    log.error('error : ' + error);
+    return res.status(500).json({message : "something is broken , try again later"});
+  });
 
 });
 
@@ -123,8 +123,11 @@ apiApp.get('/getqueue/:key', function(req, res, next) {
 }
 
 storage.cancelCall(sdk_name).then(function(queue){
-
-  return res.status(200).json({message : "successfully",data:queue});
+  if(queue !='Invaled Key'){
+  return res.status(200).json({data:queue});
+}
+else{  return res.status(400).json({message : "Invaled Key"});
+} }
 }).otherwise(function(error){
   log.error('error : ' + error);
   return res.status(500).json({message : "something is broken , try again later"});
@@ -174,12 +177,14 @@ apiApp.post('/updateivr', function(req, res, next) {
   }
 
   storage.updateIVR(data).then(function(IVR){
+    if (IVR !='Invaled Key')
+    {
 
     var options = {
-    url: 'https://platform.ubicall.com/api/widget',
-    method: 'POST',
-    form: {'plistUrl': data.url,}
-}
+      url: 'https://platform.ubicall.com/api/widget',
+      method: 'POST',
+      form: {'plistUrl': data.url,}
+    }
 
     request(options, function (error, response, body) {
       if (!error && response.statusCode == 200) {
@@ -188,6 +193,8 @@ apiApp.post('/updateivr', function(req, res, next) {
         return res.status(500).json({message : "something is broken , try again later"});
       }
     });
+  }
+  else {   return res.status(400).json({message : "Invaled Key"}); }
 
   }).otherwise(function(error){
     log.error('error : ' + error);
@@ -200,25 +207,25 @@ apiApp.post('/updateivr', function(req, res, next) {
 
 
 apiApp.get('/get-clients' , function(req, res, next) {
-  
+
 
   storage.getClients().then(function(clients) {
- var data =[];
+   var data =[];
 
-     clients.forEach(function(client) {
+   clients.forEach(function(client) {
 
-data.push({name : client.name ,licence_key : client.licence_key ,link : client.url});
+    data.push({name : client.name ,licence_key : client.licence_key ,link : client.url});
 
   }
-    return res.status(200).json({
-      message: " successfully",data : data
-    });
-  }).otherwise(function(error) {
-    log.error('error : ' + error);
-    return res.status(500).json({
-      message: "something is broken , try again later"
-    });
+  return res.status(200).json({
+    message: " successfully",data : data
   });
+}).otherwise(function(error) {
+  log.error('error : ' + error);
+  return res.status(500).json({
+    message: "something is broken , try again later"
+  });
+});
 
 });
 
@@ -227,7 +234,7 @@ data.push({name : client.name ,licence_key : client.licence_key ,link : client.u
 
 
 
-return resolve(apiApp);
+  return resolve(apiApp);
 });
 }
 
