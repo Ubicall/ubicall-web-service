@@ -38,6 +38,7 @@ function init(_settings) {
     $feedback = sequlizeImport('feedback');
     $sipfriends = sequlizeImport('sipfriends');
     $device_sip = sequlizeImport('device_sip');
+    $client_version_view = sequlizeImport('client_version_view');
 
 
 
@@ -171,11 +172,15 @@ function updateIVR(data) {
 function getClients() {
   return when.promise(function(resolve, rejcet) {
 
-    $version.hasMany(Post, {foreignKey: 'client_id'})
-    $client.hasMany(User, {foreignKey: 'id'})
-    $client.findAll({
-     where: { enabled : 1},include: [version]
+   
+    $client_version_view.findAll({
+     where: { enabled : 1},
+       attributes: ['name', 'licence_key','url']
    }).then(function(clients) {
+    if(!clients){
+      return resolve('No Clients Found ');
+    }
+
     return resolve(clients);
   }).catch(function(error) {
     return reject(error);

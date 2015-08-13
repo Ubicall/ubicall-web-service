@@ -103,7 +103,7 @@ var storageModuleInterface = {
   },
 
 
-  getClients : function (data){
+getClients : function (data){
     return when.promise(function(resolve,rejcet){
       storageModule.getClients().then(function(clients){
         if(cache){

@@ -127,7 +127,7 @@ storage.getQueue(sdk_name).then(function(queue){
   return res.status(200).json({data:queue});
 }
 else{  return res.status(400).json({message : "Invaled Key"});
-} }
+} 
 }).otherwise(function(error){
   log.error('error : ' + error);
   return res.status(500).json({message : "something is broken , try again later"});
@@ -203,29 +203,21 @@ apiApp.post('/updateivr', function(req, res, next) {
 
 
 
-
 apiApp.get('/get-clients' , function(req, res, next) {
 
 
-  storage.getClients().then(function(clients) {
-   var data =[];
+      storage.getClients().then(function(clients) {
 
-   clients.forEach(function(client) {
+        return res.status(200).json({ data : clients});
+      }).otherwise(function(error) {
+        log.error('error : ' + error);
+        return res.status(500).json({
+          message: "something is broken , try again later"
+        });
+      });
 
-    data.push({name : client.name ,licence_key : client.licence_key ,link : client.url});
+    });
 
-  }
-  return res.status(200).json({
-    message: " successfully",data : data
-  });
-}).otherwise(function(error) {
-  log.error('error : ' + error);
-  return res.status(500).json({
-    message: "something is broken , try again later"
-  });
-});
-
-});
 
 
 
