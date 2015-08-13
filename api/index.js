@@ -122,7 +122,7 @@ apiApp.get('/getqueue/:key', function(req, res, next) {
   return res.status(400).json({message : "missing parameters " , hint : "shoud send key Parameter"});
 }
 
-storage.cancelCall(sdk_name).then(function(queue){
+storage.getQueue(sdk_name).then(function(queue){
   if(queue !='Invaled Key'){
   return res.status(200).json({data:queue});
 }
