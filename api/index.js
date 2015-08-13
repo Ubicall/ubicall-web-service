@@ -88,23 +88,23 @@ apiApp.delete('/call/:id' , function(req, res, next) {
 });
 
 
-apiApp.get('/getsip/:sdk_name/:sdk_version/:deviceuid/:device_token/:device_name/:device_model/:device_version/:licence_key', function(req, res, next) {
-
- var sdk_name = req.params.sdk_name;
- var sdk_version = req.params.sdk_version;
- var deviceuid = req.params.deviceuid;
- var device_token = req.params.device_token;
- var device_name = req.params.device_name;
- var device_model = req.params.device_model;
- var device_version = req.params.device_version;
- var licence_key = req.params.licence_key;
+apiApp.get('/getsip', function(req, res, next) {
+data={};
+ data.sdk_name = req.body.sdk_name;
+ data.sdk_version = req.body.sdk_version;
+ data.deviceuid = req.body.deviceuid;
+ data.device_token = req.body.device_token;
+ data.device_name = req.body.device_name;
+ data.device_model = req.body.device_model;
+ data.device_version = req.body.device_version;
+ data.licence_key = req.body.licence_key;
 
  if(!sdk_name ||!sdk_version || !deviceuid ||!device_token || !device_name || !device_model || !device_version || !licence_key){
   return res.status(400).json({message : "missing parameters " , hint : "shoud send All Parameters"});
 }
 
-storage.cancelCall(sdk_name,sdk_version,deviceuid,device_token ,device_name,device_model,device_version,licence_key).then(function(call){
-  return res.status(200).json({message : "call canceled successfully"});
+storage.getsip(data).then(function(data){
+  return res.status(200).json({message : "successfully" , data:data});
 }).otherwise(function(error){
   log.error('error : ' + error);
   return res.status(500).json({message : "something is broken , try again later"});

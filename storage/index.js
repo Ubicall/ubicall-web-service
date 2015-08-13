@@ -100,7 +100,7 @@ var storageModuleInterface = {
         return rejcet(error);
       });
     });
-  }
+  },
 
 
   getClients : function (data){
@@ -110,6 +110,19 @@ var storageModuleInterface = {
             // TODO add cache
         }
         return resolve(clients);
+      }).otherwise(function(error){
+        return rejcet(error);
+      });
+    });
+  },
+
+    getsip : function (data){
+    return when.promise(function(resolve,rejcet){
+      storageModule.getsip(data).then(function(getsip){
+        if(cache){
+            // TODO add cache
+        }
+        return resolve(getsip);
       }).otherwise(function(error){
         return rejcet(error);
       });
