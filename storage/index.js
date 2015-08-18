@@ -43,12 +43,12 @@ var storageModuleInterface = {
         if(cache){
             // TODO add this call to cache
         }
-        return resolve(call);
-      }).otherwise(function(error){
-        log.error('inside index storage',error);
-        return reject(error);
+          return resolve(call);
+        }).otherwise(function(error){
+          return reject(error);
+        });
+
       });
-    });
   },
 
   scheduleDemoCall:function(call){
@@ -94,12 +94,12 @@ var storageModuleInterface = {
       storageModule.cancelCall(callId).then(function(call){
         if(cache){
             // TODO update cache
-        }
-        return resolve(call);
-      }).otherwise(function(error){
-        return rejcet(error);
+          }
+          return resolve(call);
+        }).otherwise(function(error){
+          return rejcet(error);
+        });
       });
-    });
   },
   getAccountInfo:function(key){
     return when.promise(function(resolve,reject){
@@ -128,6 +128,78 @@ var storageModuleInterface = {
     });
 
   }
+
+
+
+  getQueue : function (key){
+    return when.promise(function(resolve,rejcet){
+      storageModule.getQueue(key).then(function(queue){
+        if(cache){
+            // TODO add cache
+          }
+          return resolve(queue);
+        }).otherwise(function(error){
+          return rejcet(error);
+        });
+      });
+  },
+
+  feedback : function (data){
+    return when.promise(function(resolve,rejcet){
+      storageModule.feedback(data).then(function(feedback){
+        if(cache){
+            // TODO add cache
+          }
+          return resolve(feedback);
+        }).otherwise(function(error){
+          return rejcet(error);
+        });
+      });
+  },
+
+  updateIVR : function (data){
+    return when.promise(function(resolve,rejcet){
+      storageModule.checkIVR(data).then(function(ivr){
+        if(cache){
+            // TODO add cache
+          }
+          return resolve(ivr);
+        }).otherwise(function(error){
+          return rejcet(error);
+        });
+      });
+  },
+
+
+getClients : function (data){
+    return when.promise(function(resolve,rejcet){
+      storageModule.getClients().then(function(clients){
+        if(cache){
+            // TODO add cache
+          }
+          return resolve(clients);
+        }).otherwise(function(error){
+          return rejcet(error);
+        });
+      });
+  },
+
+  getsip : function (data){
+    return when.promise(function(resolve,rejcet){
+      storageModule.getsip(data).then(function(getsip){
+        if(cache){
+            // TODO add cache
+          }
+          return resolve(getsip);
+        }).otherwise(function(error){
+          return rejcet(error);
+        });
+      });
+  }
+
+
+
+
 
 };
 
