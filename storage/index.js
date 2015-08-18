@@ -39,8 +39,23 @@ var storageModuleInterface = {
   scheduleCall: function(call) {
     return when.promise(function(resolve, reject) {
       return storageModule.scheduleCall(call).then(function(call){
+  log.info('return from index storage',call);
         if(cache){
             // TODO add this call to cache
+        }
+        return resolve(call);
+      }).otherwise(function(error){
+        log.error('inside index storage',error);
+        return reject(error);
+      });
+    });
+  },
+
+  scheduleDemoCall:function(call){
+    return when.promise(function(resolve,reject){
+      return storageModule.scheduleDemoCall(call).then(function(call){
+        if(cache){
+          //TODO
         }
         return resolve(call);
       }).otherwise(function(error){
@@ -48,6 +63,32 @@ var storageModuleInterface = {
       });
     });
   },
+
+  getDevice:function(token){
+    return when.promise(function(resolve,reject){
+      return storageModule.getDevice(token).then(function(device){
+        if(cache){
+          //TODO
+        }
+        return resolve(device);
+      }).otherwise(function(error){
+        return reject(error);
+      });
+    });
+  },
+  getClient:function(key){
+    return when.promise(function(resolve,reject){
+      return storageModule.getClient(key).then(function(client){
+        if(cache){
+          //TODO
+        }
+        return resolve(client);
+      }).otherwise(function(error){
+        return reject(error);
+      });
+    });
+  },
+
   cancelCall : function (callId){
     return when.promise(function(resolve,rejcet){
       storageModule.cancelCall(callId).then(function(call){
@@ -60,6 +101,33 @@ var storageModuleInterface = {
       });
     });
   },
+  getAccountInfo:function(key){
+    return when.promise(function(resolve,reject){
+      storageModule.getAccountInfo(key).then(function(company){
+        if(cache){
+          //TODO update cache
+        }
+        return resolve(company);
+      }).otherwise(function(error){
+        return reject(error);
+      });
+
+    });
+  },
+
+  getVersion:function(key){
+    return when.promise(function(resolve,reject){
+      storageModule.getVersion(key).then(function(version){
+        if(cache){
+          //TODO update cahe
+        }
+        return resolve(version);
+      }).otherwise(function(error){
+        return reject(error);
+      });
+    });
+
+  }
 
 };
 

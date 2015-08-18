@@ -1,0 +1,29 @@
+{
+  "name": "ubicall-web-service",
+  "version": "0.0.1",
+  "description": "ubicall webservice used publically and internally",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://RawanHamdi@bitbucket.org/sandcti/ubicall-web-service.git"
+  },
+  "keywords": [
+    "ubicall"
+  ],
+  "author": "",
+  "license": "GPLV2",
+  "dependencies": {
+    "body-parser": "^1.13.3",
+    "cors": "^2.7.1",
+    "express": "^4.13.3",
+    "moment": "^2.10.6",
+    "mysql": "^2.8.0",
+    "sequelize": "^3.5.1",
+    "validator": "^4.0.2",
+    "when": "^3.7.3",
+    "winston": "^1.0.1"
+  }
+}
