@@ -126,8 +126,7 @@ var storageModuleInterface = {
         return reject(error);
       });
     });
-
-  }
+  },
 
   getQueue : function (key){
     return when.promise(function(resolve,rejcet){
@@ -193,11 +192,6 @@ getClients : function (data){
         });
       });
   }
-
-
-
-
-
 };
 
 module.exports = storageModuleInterface;

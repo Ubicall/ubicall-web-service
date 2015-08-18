@@ -87,21 +87,21 @@ function init(_settings, _storage) {
 
               call.sip = device.sip;
 
-              storage.scheduleDemoCall(call).then(function(dCall) {//insert in demo calls
+              storage.scheduleDemoCall(call).then(function(dCall) { //insert in demo calls
                 // Call Web service
-                log.info('inside scheduleDemoCall',dCall)
+                log.info('inside scheduleDemoCall', dCall)
                 var options = {
-                //  104.239.166.30
-                host:'10.209.96.174',
-                path:'/generate/new_call/callfile/generate_file.php?extension="'+call.sip+'"&time="'+call.time+'"'
-              }
-                http.get(options,function(error, response, body) {
-                  if(error){
-                      console.log('request error',error);
+                  //  104.239.166.30
+                  host: '10.209.96.174',
+                  path: '/generate/new_call/callfile/generate_file.php?extension="' + call.sip + '"&time="' + call.time + '"'
+                }
+                http.get(options, function(error, response, body) {
+                  if (error) {
+                    console.log('request error', error);
                   }
 
 
-              });
+                });
 
 
                 /* http://10.209.96.174/generate/new_call/callfile/generate_file.php?extension='.$device.sip.'&time='.$time;*/
@@ -171,7 +171,6 @@ function init(_settings, _storage) {
 
     });
 
-<<<<<<< HEAD
     apiApp.post('/sip', function(req, res) {
       var call = {};
       var sdk = req.body.sdk_name;
@@ -207,150 +206,175 @@ function init(_settings, _storage) {
     });
 
 
-apiApp.delete('/call/:id' , function(req, res, next) {
-  var call_id = req.params.id;
-  if (!call_id) {
-    return res.status(400).json({
-      message: "unable to cancle call ",
-      hint: "shoud send call id to cancel call"
-    });
-  }
-
-  storage.cancelCall(call_id).then(function(call) {
-    return res.status(200).json({
-      message: "call canceled successfully"
-    });
-  }).otherwise(function(error) {
-    log.error('error : ' + error);
-    return res.status(500).json({
-      message: "something is broken , try again later"
-    });
-  });
-
-});
-
-
-apiApp.get('/getsip', function(req, res, next) {
-  data={};
-  data.sdk_name = req.body.sdk_name;
-  data.sdk_version = req.body.sdk_version;
-  data.deviceuid = req.body.deviceuid;
-  data.device_token = req.body.device_token;
-  data.device_name = req.body.device_name;
-  data.device_model = req.body.device_model;
-  data.device_version = req.body.device_version;
-  data.licence_key = req.body.licence_key;
-
-  if(!sdk_name ||!sdk_version || !deviceuid ||!device_token || !device_name || !device_model || !device_version || !licence_key){
-    return res.status(400).json({message : "missing parameters " , hint : "shoud send All Parameters"});
-  }
-
-  storage.getsip(data).then(function(data){
-    return res.status(200).json({message : "successfully" , data:data});
-  }).otherwise(function(error){
-    log.error('error : ' + error);
-    return res.status(500).json({message : "something is broken , try again later"});
-  });
-
-});
-
-
-
-apiApp.get('/getqueue/:key', function(req, res, next) {
-
- var key = req.params.key;
-
- if(!key ){
-  return res.status(400).json({message : "missing parameters " , hint : "shoud send key Parameter"});
-}
-
-storage.getQueue(sdk_name).then(function(queue){
-  if(queue !='Invaled Key'){
-  return res.status(200).json({data:queue});
-}
-else{  return res.status(400).json({message : "Invaled Key"});
-}
-}).otherwise(function(error){
-  log.error('error : ' + error);
-  return res.status(500).json({message : "something is broken , try again later"});
-});
-
-});
-
-
-apiApp.post('/feedback', function(req, res, next) {
-
-
-  var data = {};
-  data.call_id = req.body.call_id
-  data.feedback = req.body.feedback
-  data.feedback_text = req.body.feedback_text
-
-  if(!data.call_id || !data.feedback  ){
-    return res.status(400).json({message : "missing parameters " , hint : "shoud send call_id,feedback Parameters"});
-  }
-
-  storage.feedback(data).then(function(feedback){
-    return res.status(200).json({message : "successfully"});
-  }).otherwise(function(error){
-    log.error('error : ' + error);
-    return res.status(500).json({message : "something is broken , try again later"});
-  });
-
-});
-
-
-
-
-
-
-apiApp.post('/updateivr', function(req, res, next) {
-
-
-  var data = {};
-  data.url = req.body.url
-  data.licence_key = req.body.licence_key
-  data.server_id = req.body.server_id
-
-  if(!data.url || !data.licence_key || !data.server_id ){
-    return res.status(400).json({message : "missing parameters " , hint : "shoud send All Parameters"});
-  }
-
-  storage.updateIVR(data).then(function(IVR){
-    if (IVR !='Invaled Key')
-    {
-
-    var options = {
-      url: 'https://platform.ubicall.com/api/widget',
-      method: 'POST',
-      form: {'plistUrl': data.url,}
-    }
-
-    request(options, function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-        return res.status(200).json({message : "successfully"});
-      }else{
-        return res.status(500).json({message : "something is broken , try again later"});
+    apiApp.delete('/call/:id', function(req, res, next) {
+      var call_id = req.params.id;
+      if (!call_id) {
+        return res.status(400).json({
+          message: "unable to cancle call ",
+          hint: "shoud send call id to cancel call"
+        });
       }
+
+      storage.cancelCall(call_id).then(function(call) {
+        return res.status(200).json({
+          message: "call canceled successfully"
+        });
+      }).otherwise(function(error) {
+        log.error('error : ' + error);
+        return res.status(500).json({
+          message: "something is broken , try again later"
+        });
+      });
+
     });
-  }
-  else {   return res.status(400).json({message : "Invaled Key"}); }
-
-  }).otherwise(function(error){
-    log.error('error : ' + error);
-    return res.status(500).json({message : "something is broken , try again later"});
-  });
-
-});
 
 
+    apiApp.get('/getsip', function(req, res, next) {
+      data = {};
+      data.sdk_name = req.body.sdk_name;
+      data.sdk_version = req.body.sdk_version;
+      data.deviceuid = req.body.deviceuid;
+      data.device_token = req.body.device_token;
+      data.device_name = req.body.device_name;
+      data.device_model = req.body.device_model;
+      data.device_version = req.body.device_version;
+      data.licence_key = req.body.licence_key;
 
-apiApp.get('/get-clients' , function(req, res, next) {
+      if (!sdk_name || !sdk_version || !deviceuid || !device_token || !device_name || !device_model || !device_version || !licence_key) {
+        return res.status(400).json({
+          message: "missing parameters ",
+          hint: "shoud send All Parameters"
+        });
+      }
+
+      storage.getsip(data).then(function(data) {
+        return res.status(200).json({
+          message: "successfully",
+          data: data
+        });
+      }).otherwi
+      if (!key) {
+        return res.status(400).json({
+          message: "missing parameters ",
+          hint: "shoud send key Parameter"
+        });
+      }
+
+      storage.getQueue(sdk_name).then(function(queue) {
+        if (queue != 'Invaled Key') {
+          return res.status(200).json({
+            data: queue
+          });
+        } else {
+          return res.status(400).json({
+            message: "Invaled Key"
+          });
+        }
+      }).otherwise(function(error) {
+        log.error('error : ' + error);
+        return res.status(500).json({
+          message: "something is broken , try again later"
+        });
+      });
+
+    });
+
+
+    apiApp.post('/feedback', function(req, res, next) {
+
+
+      var data = {};
+      data.call_id = req.body.call_id
+      data.feedback = req.body.feedback
+      data.feedback_text = req.body.feedback_text
+
+      if (!data.call_id || !data.feedback) {
+        return res.status(400).json({
+          message: "missing parameters ",
+          hint: "shoud send call_id,feedback Parameters"
+        });
+      }
+
+      storage.feedback(data).then(function(feedback) {
+        return res.status(200).json({
+          message: "successfully"
+        });
+      }).otherwise(function(error) {
+        log.error('error : ' + error);
+        return res.status(500).json({
+          message: "something is broken , try again later"
+        });
+      });
+
+    });
+
+
+
+
+
+
+    apiApp.post('/updateivr', function(req, res, next) {
+
+
+      var data = {};
+      data.url = req.body.url
+      data.licence_key = req.body.licence_key
+      data.server_id = req.body.server_id
+
+      if (!data.url || !data.licence_key || !data.server_id) {
+        return res.status(400).json({
+          message: "missing parameters ",
+          hint: "shoud send All Parameters"
+        });
+      }
+
+      storage.updateIVR(data).then(function(IVR) {
+        if (IVR != 'Invaled Key') {
+
+          var options = {
+            url: 'https://platform.ubicall.com/api/widget',
+            method: 'POST',
+            form: {
+              'plistUrl': data.url,
+            }
+          }
+
+          request(options, function(error, response, body) {
+            if (!error && response.statusCode == 200) {
+              return res.status(200).json({
+                message: "successfully"
+              });
+            } else {
+              return res.status(500).json({
+                message: "something is broken , try again later"
+              });
+            }
+          });
+        } else {
+          return res.status(400).json({
+            message: "Invaled Key"
+          });
+        }
+
+      }).otherwise(function(error) {
+        log.error('error : ' + error);
+        return res.status(500).json({
+          message: "something is broken , try again later"
+        });
+      });
+
+    });
+
+
+
+    apiApp.get('/get-clients', function(req, res, next) {
 
 
       storage.getClients().then(function(clients) {
 
-        return res.status(200).json({ data : clients});
+        return res.status(200).json({
+          data: clients
+        });
       }).otherwise(function(error) {
         log.error('error : ' + error);
         return res.status(500).json({
@@ -366,8 +390,8 @@ apiApp.get('/get-clients' , function(req, res, next) {
 
 
 
-  return resolve(apiApp);
-});
+    return resolve(apiApp);
+  });
 }
 
 
