@@ -170,7 +170,7 @@ function init(_settings, _storage) {
 
     });
 
-    apiApp.put('/sip', function(req, res) {
+    apiApp.post('/sip', function(req, res) {
       var call = {};
       var sdk = req.body.sdk_name;
       var sdk_v = req.body.sdk_version;
