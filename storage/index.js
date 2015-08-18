@@ -39,7 +39,7 @@ var storageModuleInterface = {
   scheduleCall: function(call) {
     return when.promise(function(resolve, reject) {
       return storageModule.scheduleCall(call).then(function(call){
-  log.info('return from index storage',call);
+          log.info('return from index storage',call);
         if(cache){
             // TODO add this call to cache
         }
@@ -129,8 +129,6 @@ var storageModuleInterface = {
 
   }
 
-
-
   getQueue : function (key){
     return when.promise(function(resolve,rejcet){
       storageModule.getQueue(key).then(function(queue){
@@ -169,7 +167,6 @@ var storageModuleInterface = {
         });
       });
   },
-
 
 getClients : function (data){
     return when.promise(function(resolve,rejcet){

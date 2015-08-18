@@ -278,23 +278,22 @@ function getsip(data) {
     $device_sip.findOne({
      where: { device_token : data.device_token}
    }).then(function(device_sip) {
-
-    if (typeof device_sip[index] !== 'undefined' && device_sip[index] !== null) {
       result={};
 
       result.sip=device_sip.sip;
       result.password=device_sip.password;
       result.domain=device_sip.domain;
       return resolve(result);
-
-    }
+}
     else{
 
      $client_version_view.findOne({
        where: { licence_key : data.licence_key},
        {order: 'id DESC'}
      }).then(function(client) {
-
+       if(!client){
+         return reject('no client found');
+       }
       var sip =client.count+1;
       sip=sprintf("[%'09s]", sip);
       sip=client.id+"000"+ sip;
