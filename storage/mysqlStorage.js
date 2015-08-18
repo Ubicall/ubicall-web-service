@@ -36,6 +36,7 @@ function init(_settings){
     $demo_calls = sequlizeImport('demo_calls');
     //  $company = sequlizeImport('company');
     $device_sip = sequlizeImport('device_sip');
+    $client_version_view = sequlizeImport('client_version_view');
     return resolve({});
   });
 }
@@ -127,7 +128,7 @@ return when.promise(function(resolve,reject){
 function getVersion(key) {
   return when.promise(function(resolve, reject) {
     //Get Clients with a specific license_key
-    $clients.findOne({
+    $client_version_view.findOne({
       where: {
         licence_key: key,
       }
