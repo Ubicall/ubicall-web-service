@@ -26,10 +26,7 @@ function init(_settings, _storage) {
     //apiApp.use(ubicallCors.cors);
 
     apiApp.post('/call', function(req, res, next) {
-      var options = {
-        host: '10.209.96.174',
-        path: '/generate/new_call/callfile/generate_file.php?extension=sip&time=call.time'
-      }
+
       var call = {};
       call.device_token = req.body.device_token;
       call.sip = req.body.sip || req.body.voiceuser_id;
@@ -252,7 +249,12 @@ function init(_settings, _storage) {
           message: "successfully",
           data: data
         });
-      }).otherwi
+      }).otherwise(function(error){
+        log.error('error : ' + error);
+        return res.status(500).json({
+          message: "something is broken , try again later"
+        });
+      })
       if (!key) {
         return res.status(400).json({
           message: "missing parameters ",
@@ -281,8 +283,6 @@ function init(_settings, _storage) {
 
 
     apiApp.post('/feedback', function(req, res, next) {
-
-
       var data = {};
       data.call_id = req.body.call_id
       data.feedback = req.body.feedback
@@ -295,7 +295,8 @@ function init(_settings, _storage) {
         });
       }
 
-      storage.feedback(data).then(function(feedback) {
+    else{
+        storage.feedback(data).then(function(feedback) {
         return res.status(200).json({
           message: "successfully"
         });
@@ -305,12 +306,9 @@ function init(_settings, _storage) {
           message: "something is broken , try again later"
         });
       });
+    }
 
     });
-
-
-
-
 
 
     apiApp.post('/updateivr', function(req, res, next) {
@@ -366,7 +364,6 @@ function init(_settings, _storage) {
     });
 
 
-
     apiApp.get('/get-clients', function(req, res, next) {
 
 
@@ -383,11 +380,6 @@ function init(_settings, _storage) {
       });
 
     });
-
-
-
-
-
 
 
     return resolve(apiApp);

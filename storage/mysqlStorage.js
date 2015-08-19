@@ -131,8 +131,8 @@ function getDevice(device) {
 }
 ///Get Version API
 function getVersion(key) {
-  return when.promise(function(resolve, reject) {
-    //Get Clients with a specific license_key
+  return when.promise(function(resolve, reject) {  //Get Clients with a specific license_key
+
     $client_version_view.findOne({
       where: {
         licence_key: key,
