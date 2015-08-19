@@ -3,22 +3,22 @@ var Sequelize = require('sequelize');
 var moment = require('moment');
 var randomstring = require("randomstring");
 var sprintf = require("sprintf-js").sprintf;
+var ast_rt = require('./ast_rt');
 
-
-var settings, _sequelize;
+var settings, _sequelize ;
 var calls, agent, queueAgent, clients;
 
 function sequlizeImport(model) {
-  return _sequelize.import(__dirname + "/models/" + model);
+  return _sequelize.import(__dirname + "/models/ubicall/" + model);
 }
 
 function init(_settings) {
   return when.promise(function(resolve, reject) {
     settings = _settings;
-    _sequelize = new Sequelize(settings.storage.mysql.database,
-      settings.storage.mysql.username, settings.storage.mysql.password, {
-        host: settings.storage.mysql.host,
-        dialect: settings.storage.storageModule,
+    _sequelize = new Sequelize(settings.storage.ubicall_mysql.database,
+      settings.storage.ubicall_mysql.username, settings.storage.ubicall_mysql.password, {
+        host: settings.storage.ubicall_mysql.host,
+        dialect: 'mysql',
         define: {
           freezeTableName: true,
           timestamps: false
@@ -39,7 +39,6 @@ function init(_settings) {
     $device_sip = sequlizeImport('device_sip');
     $client = sequlizeImport('client');
     $feedback = sequlizeImport('feedback');
-    $sipfriends = sequlizeImport('sipfriends');
     $client_version_view = sequlizeImport('client_version_view');
 
     return resolve({});
@@ -194,7 +193,9 @@ function getQueue(key) {
 
 function feedback(data) {
   return when.promise(function(resolve, rejcet) {
-
+    if(!data.call_id){
+      return rejcet("no call found to sumit this feedback")
+    }
     $feedback.create({
       call_id: data.call_id,
       feedback: data.feedback,
@@ -202,7 +203,7 @@ function feedback(data) {
     }).then(function(feedback) {
       return resolve(feedback);
     }).catch(function(error) {
-      return rejcet(error)
+      return rejcet(error);
     });
   });
 }
@@ -247,23 +248,17 @@ function updateIVR(data) {
 
 function getClients() {
   return when.promise(function(resolve, rejcet) {
-
-
-    $client_version_view.findAll({
-      where: {
-        enabled: 1
-      },
+    $client_version_view.findAll(
+      {where: {enabled: 1},
       attributes: ['name', 'licence_key', 'url']
     }).then(function(clients) {
       if (!clients) {
-        return resolve('No Clients Found ');
+        return reject('No Clients Found ');
       }
-
       return resolve(clients);
     }).catch(function(error) {
       return reject(error);
     });
-
   });
 }
 
@@ -321,6 +316,7 @@ function getsip(data) {
                   }
                 }).then(function(update) {
 
+<<<<<<< HEAD:storage/mysqlStorage.js
                   $sipfriends.create({
                     name: sip,
                     regserver: 'ubicall_demo',
@@ -348,6 +344,9 @@ function getsip(data) {
                   }).catch(function(error) {
                     return rejcet(error)
                   });
+=======
+                  return ast_rt.createSipFriend(sip,password);
+>>>>>>> 76e916bc4c48bda2c6a708379b0f522d3b6d9360:storage/mysql/ubicall.js
 
                 }).catch(function(error) {
                   return rejcet(error)
@@ -381,5 +380,4 @@ module.exports = {
   updateIVR: updateIVR,
   getClients: getClients,
   getsip: getsip
-
 }
