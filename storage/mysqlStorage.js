@@ -37,7 +37,7 @@ function init(_settings) {
     $version = sequlizeImport('version');
     $demo_calls = sequlizeImport('demo_calls');
     $device_sip = sequlizeImport('device_sip');
-
+    $client = sequlizeImport('client');
     $feedback = sequlizeImport('feedback');
     $sipfriends = sequlizeImport('sipfriends');
     $client_version_view = sequlizeImport('client_version_view');
@@ -167,8 +167,6 @@ function cancelCall(callId) {
   });
 }
 
-
-
 function getQueue(key) {
   return when.promise(function(resolve, rejcet) {
     $admin.findOne({
@@ -194,9 +192,6 @@ function getQueue(key) {
   });
 }
 
-
-
-
 function feedback(data) {
   return when.promise(function(resolve, rejcet) {
 
@@ -211,8 +206,6 @@ function feedback(data) {
     });
   });
 }
-
-
 
 function updateIVR(data) {
   return when.promise(function(resolve, rejcet) {
@@ -251,8 +244,6 @@ function updateIVR(data) {
     });
   });
 }
-
-
 
 function getClients() {
   return when.promise(function(resolve, rejcet) {
@@ -302,9 +293,9 @@ function getsip(data) {
               if (!client) {
                 return reject('no client found');
               }
-              var sip = client.count + 1;
+              var next_client = client.count + 1;
               //TODO
-              sip = sprintf("[%'09s]", sip);
+              sip = sprintf("[%'09s]", next_client);
               sip = client.id + "000" + sip;
               var domain = "104.239.166.30";
               var password = randomstring.generate(16);
@@ -321,15 +312,14 @@ function getsip(data) {
                 domain: domain
 
               }).then(function(devicesip) {
-                //TODO where is this model
-                client.update({
+                //TODO where is this model (done)
+                $client.update({
                   count: client.count + 1
                 }, {
                   where: {
                     id: client.id
                   }
                 }).then(function(update) {
-
 
                   $sipfriends.create({
                     name: sip,
@@ -350,7 +340,7 @@ function getsip(data) {
                   }).then(function(sipfriends) {
                     result = {};
 
-                    result.sip = sip;
+                    result.username = sip;
                     result.password = password;
                     result.domain = domain;
                     return resolve(result);

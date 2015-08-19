@@ -383,6 +383,19 @@ function init(_settings, _storage) {
 
     apiApp.get('/queue/:key',function(req,res.next){
       //TODO call strorage.getQueues
+      var key = req.params.key;
+      storage.getQueues(key).then(function(queue){
+        return res.status(200).json({
+          id: queue.id,
+          name: queue.name
+
+        }).otherwise(function(error){
+          log.error('error:'+error);
+        return res.status(500).json({
+            message:""
+          });
+        });
+      });
     });
 
     return resolve(apiApp);
