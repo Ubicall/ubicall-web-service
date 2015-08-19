@@ -1,9 +1,9 @@
 var when = require('when');
 var Sequelize = require('sequelize');
 var moment = require('moment');
-
 var randomstring = require("randomstring");
-var sprintf = require("sprintf-js").sprintf,
+var sprintf = require("sprintf-js").sprintf;
+
 
 var settings, _sequelize;
 var calls, agent, queueAgent, clients;
@@ -12,7 +12,7 @@ function sequlizeImport(model) {
   return _sequelize.import(__dirname + "/models/" + model);
 }
 
-function init(_settings){
+function init(_settings) {
   return when.promise(function(resolve, reject) {
     settings = _settings;
     _sequelize = new Sequelize(settings.storage.mysql.database,
@@ -46,10 +46,10 @@ function init(_settings){
   });
 }
 /**
-* @param  object contain all necessary call attributes
-* insert data into call Table
-**/
-function scheduleCall(call,device) {
+ * @param  object contain all necessary call attributes
+ * insert data into call Table
+ **/
+function scheduleCall(call, device) {
   return when.promise(function(resolve, reject) {
     $calls.create({
       api_key: call.license_key,
@@ -71,9 +71,9 @@ function scheduleCall(call,device) {
 }
 
 /**
-* @param  object contain all necessary call attributes
-* insert data into demp_call Table
-**/
+ * @param  object contain all necessary call attributes
+ * insert data into demp_call Table
+ **/
 function scheduleDemoCall(call) {
   return when.promise(function(resolve, reject) {
     $demo_calls.create({
@@ -85,7 +85,7 @@ function scheduleDemoCall(call) {
       latitude: call.latitude,
       caller_type: call.pstn,
       call_data: call.call_data,
-      id_campaign:"1",
+      id_campaign: "1",
 
       created_time: call.time
     }).then(function(call) {
@@ -97,37 +97,37 @@ function scheduleDemoCall(call) {
 }
 
 function getClient(key) {
-  return when.promise(function(resolve,reject){
+  return when.promise(function(resolve, reject) {
     $client_version_view.findOne({
-      where:{
-        licence_key:key
+      where: {
+        licence_key: key
       }
-    }).then(function(client){
-      if(!client){
-          return reject("no result found");
+    }).then(function(client) {
+      if (!client) {
+        return reject("no result found");
       }
       return resolve(client);
-    }).catch(function(error){
+    }).catch(function(error) {
       return reject(error);
     });
   });
 }
 
 function getDevice(device) {
-return when.promise(function(resolve,reject){
-  $device_sip.findOne({
-    where:{
-      device_token:device
-    }
-  }).then(function(device){
-    if(!device){
+  return when.promise(function(resolve, reject) {
+    $device_sip.findOne({
+      where: {
+        device_token: device
+      }
+    }).then(function(device) {
+      if (!device) {
         return reject("no result found");
-    }
-    return resolve(device);
-  }).catch(function(error){
-    return reject(error);
+      }
+      return resolve(device);
+    }).catch(function(error) {
+      return reject(error);
+    });
   });
-});
 }
 ///Get Version API
 function getVersion(key) {
@@ -138,7 +138,7 @@ function getVersion(key) {
         licence_key: key,
       }
     }).then(function(version) {
-      if(!version){
+      if (!version) {
         return reject('no version found');
       }
       //Now I have client attributes with a specific license_key
@@ -171,84 +171,91 @@ function cancelCall(callId) {
 
 function getQueue(key) {
   return when.promise(function(resolve, rejcet) {
-    $admin.find({ licence_key : key}).then(function(admin) {
+    $admin.find({
+      licence_key: key
+    }).then(function(admin) {
 
       if (typeof admin[index] !== 'undefined' && admin[index] !== null) {
 
-      $queue.findAll({
-       where: { admin_id : admin.id},
-       attributes: ['id', 'name']
-     }).then(function(queue) {
-      return resolve(queue);
+        $queue.findAll({
+          where: {
+            admin_id: admin.id
+          },
+          attributes: ['id', 'name']
+        }).then(function(queue) {
+          return resolve(queue);
+        }).catch(function(error) {
+          return reject(error);
+        });
+
+
+      } else {
+
+        return resolve('Invaled Key');
+      }
+
     }).catch(function(error) {
-      return reject(error);
+      return rejcet(error)
     });
-
-
-  }
-
-  else{
-
-    return resolve('Invaled Key');
-  }
-
-  }).catch(function(error){
-    return rejcet(error)
   });
-});
 }
 
 
 
 
 function feedback(data) {
-  return when.promise(function(resolve, rejcet)  {
+  return when.promise(function(resolve, rejcet) {
 
-   $feedback.create({
-    call_id: data.call_id,
-    feedback: data.feedback,
-    feedback_text: data.feedback_text
-  }).then(function(feedback) {
-    return resolve(feedback);
-  }).catch(function(error){
-    return rejcet(error)
+    $feedback.create({
+      call_id: data.call_id,
+      feedback: data.feedback,
+      feedback_text: data.feedback_text
+    }).then(function(feedback) {
+      return resolve(feedback);
+    }).catch(function(error) {
+      return rejcet(error)
+    });
   });
-});
 }
 
 
 
 function updateIVR(data) {
-  return when.promise(function(resolve, rejcet)  {
-   $client_version_view.findOne({ licence_key : data.licence_key}).then(function(client) {
+  return when.promise(function(resolve, rejcet) {
+    $client_version_view.findOne({
+      licence_key: data.licence_key
+    }).then(function(client) {
 
-  if (typeof client[index] !== 'undefined' && client[index] !== null) {
+      if (typeof client[index] !== 'undefined' && client[index] !== null) {
 
 
-    $version.findOne({ client_id : client.id}).then(function(version) {
+        $version.findOne({
+          client_id: client.id
+        }).then(function(version) {
 
-      return version.updateAttributes({
-        server_id: data.server_id, server_id: data.url,server_id: data.url
-      }).then(function(updated) {
-        return resolve(updated);
-      }).catch(function(error) {
-        return reject(error);
-      });
+          return version.updateAttributes({
+            server_id: data.server_id,
+            server_id: data.url,
+            server_id: data.url
+          }).then(function(updated) {
+            return resolve(updated);
+          }).catch(function(error) {
+            return reject(error);
+          });
 
-    }).catch(function(error){
+        }).catch(function(error) {
+          return rejcet(error)
+        });
+
+      } else {
+
+        return resolve('Invaled Key');
+      }
+
+    }).catch(function(error) {
       return rejcet(error)
     });
-
-  }
-  else {
-
-      return resolve('Invaled Key');
-  }
-
-  }).catch(function(error){
-    return rejcet(error)
   });
-});
 }
 
 
@@ -258,118 +265,122 @@ function getClients() {
 
 
     $client_version_view.findAll({
-     where: { enabled : 1},
-       attributes: ['name', 'licence_key','url']
-   }).then(function(clients) {
-    if(!clients){
-      return resolve('No Clients Found ');
-    }
+      where: {
+        enabled: 1
+      },
+      attributes: ['name', 'licence_key', 'url']
+    }).then(function(clients) {
+      if (!clients) {
+        return resolve('No Clients Found ');
+      }
 
-    return resolve(clients);
-  }).catch(function(error) {
-    return reject(error);
+      return resolve(clients);
+    }).catch(function(error) {
+      return reject(error);
+    });
+
   });
-
-});
 }
+
+
 
 function getsip(data) {
   return when.promise(function(resolve, rejcet) {
-    $device_sip.findOne({
-     where: { device_token : data.device_token}
-   }).then(function(device_sip) {
-      result={};
+      $device_sip.findOne({
+        where: {
+          device_token: data.device_token
+        }
+      }).then(function(device_sip) {
+          if (device_sip) {
+            result = {};
 
-      result.sip=device_sip.sip;
-      result.password=device_sip.password;
-      result.domain=device_sip.domain;
-      return resolve(result);
-}
-    else{
+            result.sip = device_sip.sip;
+            result.password = device_sip.password;
+            result.domain = device_sip.domain;
+            return resolve(result);
+          } else {
 
-     $client_version_view.findOne({
-       where: { licence_key : data.licence_key},
-       {order: 'id DESC'}
-     }).then(function(client) {
-       if(!client){
-         return reject('no client found');
-       }
-      var sip =client.count+1;
-      sip=sprintf("[%'09s]", sip);
-      sip=client.id+"000"+ sip;
-      var domain     ="104.239.166.30";
-      var password =randomstring.generate(16);
+            $client_version_view.findOne({
+              where: {
+                licence_key: data.licence_key
+              },
+              order: 'id DESC'
+            }).then(function(client) {
+              if (!client) {
+                return reject('no client found');
+              }
+              var sip = client.count + 1;
+              sip = sprintf("[%'09s]", sip);
+              sip = client.id + "000" + sip;
+              var domain = "104.239.166.30";
+              var password = randomstring.generate(16);
+
+              $device_sip.create({
+                sdk_name: data.sdk_name,
+                sdk_version: data.sdk_version,
+                device_token: data.device_token,
+                device_name: data.device_name,
+                device_model: data.device_model,
+                licence_key: data.licence_key,
+                sip: sip,
+                password: password,
+                domain: domain
+
+              }).then(function(devicesip) {
+
+                client.update({
+                  count: client.count + 1
+                }, {
+                  where: {
+                    id: client.id
+                  }
+                }).then(function(update) {
 
 
-      $device_sip.create({
-        sdk_name : data.sdk_name,
-        sdk_version : data.sdk_version,
-        device_token : data.device_token,
-        device_name : data.device_name,
-        device_model : data.device_model,
-        licence_key : data.licence_key,
-        sip : sip,
-        password : password,
-        domain : domain
+                  $sipfriends.create({
+                    name: sip,
+                    regserver: 'ubicall_demo',
+                    host: 'dynamic',
+                    type: 'friend',
+                    context: 'ubicalldemo',
+                    secret: password,
+                    transport: 'tcp,udp',
+                    dtmfmode: 'rfc2833',
+                    nat: 'force_rport,comedia',
+                    disallow: 'all',
+                    allow: 'gsm',
+                    rtptimeout: '60',
+                    rtpholdtimeout: '300',
+                    faxdetect: 'no'
 
-      }).then(function(devicesip) {
+                  }).then(function(sipfriends) {
+                    result = {};
 
-        client.update({
-          count: client.count+1,
-        }, {
-          where: {
-            id : client.id
+                    result.sip = sip;
+                    result.password = password;
+                    result.domain = domain;
+                    return resolve(result);
+
+                  }).catch(function(error) {
+                    return rejcet(error)
+                  });
+
+                }).catch(function(error) {
+                  return rejcet(error)
+                });
+
+              }).catch(function(error) {
+                return rejcet(error)
+              });
+
+            }).catch(function(error) {
+              return reject(error);
+            });
           }
-        }).then(function(update) {
-
-
-         $sipfriends.create({
-          name : sip,
-          regserver : 'ubicall_demo',
-          host : 'dynamic',
-          type : 'friend',
-          context : 'ubicalldemo',
-          secret :password ,
-          transport :'tcp,udp',
-          dtmfmode : 'rfc2833',
-          nat : 'force_rport,comedia',
-          disallow : 'all',
-          allow : 'gsm',
-          rtptimeout : '60',
-          rtpholdtimeout : '300',
-          faxdetect : 'no'
-
-        }).then(function(sipfriends) {
-          result={};
-
-          result.sip=sip;
-          result.password=password;
-          result.domain=domain;
-          return resolve(result);
-
-        }).catch(function(error){
-          return rejcet(error)
-        });
-
-      }).catch(function(error){
-        return rejcet(error)
+        }).catch(function(error) {
+        return reject(error);;
       });
-
-    }).catch(function(error){
-      return rejcet(error)
-    });
-
-  }).catch(function(error) {
-    return reject(error);
   });
-
-}
-;
-  }).catch(function(error) {
-    return reject(error);
-  });
-
-});
 }
 
 
@@ -379,13 +390,13 @@ module.exports = {
   scheduleCall: scheduleCall,
   cancelCall: cancelCall,
   getVersion: getVersion,
-  getDevice:getDevice,
-  getClient:getClient,
-  scheduleDemoCall:scheduleDemoCall,
-  getQueue : getQueue,
-  feedback : feedback,
-  checkIVR : checkIVR,
-  getClients : getClients,
-  getsip : getsip
+  getDevice: getDevice,
+  getClient: getClient,
+  scheduleDemoCall: scheduleDemoCall,
+  getQueue: getQueue,
+  feedback: feedback,
+  checkIVR: checkIVR,
+  getClients: getClients,
+  getsip: getsip
 
 }
