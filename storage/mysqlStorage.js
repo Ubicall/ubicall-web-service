@@ -267,106 +267,72 @@ function getClients() {
   });
 }
 
+//function to insert in device sip table used in get_sip api
 
-//TODO review this function
-function getsip(data) {
-  return when.promise(function(resolve, rejcet) {
-      $device_sip.findOne({
-        where: {
-          device_token: data.device_token
-        }
-      }).then(function(device_sip) {
-          if (device_sip) {
-            result = {};
-            result.sip = device_sip.sip;
-            result.password = device_sip.password;
-            result.domain = device_sip.domain;
-            return resolve(result);
-          } else {
+function insert_into_sip(data){
+  return when.promise(function(resolve,reject){
+    $device_sip.create({
+      sdk_name: data.sdk_name,
+      sdk_version: data.sdk_version,
+      device_token: data.device_token,
+      device_name: data.device_name,
+      device_model: data.device_model,
+      licence_key: data.licence_key,
+      sip: sip,
+      password: password,
+      domain: domain
+    }).then(function(device){
+      return resolve(result);
+    }).otherwise(function(error){
+      return reject (error);
+    });
+  });
+}
+//function to update client tabel used in get_sip api
 
-            $client_version_view.findOne({
-              where: {
-                licence_key: data.licence_key
-              },
-              order: 'id DESC'
-            }).then(function(client) {
-              if (!client) {
-                return reject('no client found');
-              }
-              var next_client = client.count + 1;
-              //TODO
-              sip = sprintf("[%'09s]", next_client);
-              sip = client.id + "000" + sip;
-              var domain = "104.239.166.30";
-              var password = randomstring.generate(16);
-
-              $device_sip.create({
-                sdk_name: data.sdk_name,
-                sdk_version: data.sdk_version,
-                device_token: data.device_token,
-                device_name: data.device_name,
-                device_model: data.device_model,
-                licence_key: data.licence_key,
-                sip: sip,
-                password: password,
-                domain: domain
-
-              }).then(function(devicesip) {
-                //TODO where is this model (done)
-                $client.update({
-                  count: client.count + 1
-                }, {
-                  where: {
-                    id: client.id
-                  }
-                }).then(function(update) {
-
-                  $sipfriends.create({
-                    name: sip,
-                    regserver: 'ubicall_demo',
-                    host: 'dynamic',
-                    type: 'friend',
-                    context: 'ubicalldemo',
-                    secret: password,
-                    transport: 'tcp,udp',
-                    dtmfmode: 'rfc2833',
-                    nat: 'force_rport,comedia',
-                    disallow: 'all',
-                    allow: 'gsm',
-                    rtptimeout: '60',
-                    rtpholdtimeout: '300',
-                    faxdetect: 'no'
-
-                  }).then(function(sipfriends) {
-                    result = {};
-
-                    result.username = sip;
-                    result.password = password;
-                    result.domain = domain;
-                    return resolve(result);
-
-                  }).catch(function(error) {
-                    return rejcet(error)
-                  });
-
-                }).catch(function(error) {
-                  return rejcet(error)
-                });
-
-              }).catch(function(error) {
-                return rejcet(error)
-              });
-
-            }).catch(function(error) {
-              return reject(error);
-            });
-          }
-        }).catch(function(error) {
-        return reject(error);;
-      });
+function update_client(count){
+  return when.promise(function(resolve,reject){
+    $client.update({
+      count:count + 1
+    }, {
+      where: {
+        id: count
+      }
+    }).then(function(updated){
+      return resolve(updated);
+    }).otherwise(function(error){
+      return reject(error);
+    });
   });
 }
 
+//TODO
+function insert_sipfriends(sip){
+  //TODO review this function
+/*  return when.promise(function(resolve,reject){
+    $sip_friends.create({
+      name: sip,
+      regserver:'ubicall_demo',
+      host: 'dynamic',
+      type: 'friend',
+      context: 'ubicalldemo',
+      secret ='".$password."' ,
+      transport ='tcp,udp' ,
+      dtmfmode='rfc2833' ,
+      nat ='force_rport,comedia' ,
+      disallow ='all' ,
+      allow='gsm' ,
+      rtptimeout='60' ,
+      rtpholdtimeout='300' ,
+      faxdetect='no'
+    )}.then(function(device){
+      return resolve(result);
+
+    }).otherwise(function(error){
+      return reject (error);
+    });
+  });*/
+}
 
 module.exports = {
   init: init,
@@ -380,6 +346,7 @@ module.exports = {
   feedback: feedback,
   updateIVR: updateIVR,
   getClients: getClients,
-  getsip: getsip
-
+  insert_into_sip:insert_into_sip,
+  insert_sipfriends:insert_sipfriends,
+  update_client:update_client
 }

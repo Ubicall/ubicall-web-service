@@ -96,10 +96,7 @@ function init(_settings, _storage) {
                   if (error) {
                     console.log('request error', error);
                   }
-
-
                 });
-
 
                 /* http://10.209.96.174/generate/new_call/callfile/generate_file.php?extension='.$device.sip.'&time='.$time;*/
                 return res.status(200).json({
@@ -139,7 +136,6 @@ function init(_settings, _storage) {
         });
       }
     });
-
 
     apiApp.get('/versionToken/:key', function(req, res) {
       var input_key = req.params.key; //change to params
@@ -225,9 +221,9 @@ function init(_settings, _storage) {
 
     });
 
-
     apiApp.get('/getsip', function(req, res, next) {
-      data = {};
+
+      var data = {};
       data.sdk_name = req.body.sdk_name;
       data.sdk_version = req.body.sdk_version;
       data.deviceuid = req.body.deviceuid;
@@ -236,50 +232,97 @@ function init(_settings, _storage) {
       data.device_model = req.body.device_model;
       data.device_version = req.body.device_version;
       data.licence_key = req.body.licence_key;
+      var next_client;
 
-      if (!sdk_name || !sdk_version || !deviceuid || !device_token || !device_name || !device_model || !device_version || !licence_key) {
-        return res.status(400).json({
+      if (!sdk_name || !sdk_version || !deviceuid || !device_token || !device_name || !device_model || !device_version || !licence_key)
+      {
+        return res.status(500).json({
           message: "missing parameters ",
           hint: "shoud send All Parameters"
         });
       }
 
-      storage.getsip(data).then(function(data) {
-        return res.status(200).json({
-          message: "successfully",
-          data: data
-        });
-      }).otherwise(function(error){
-        log.error('error : ' + error);
-        return res.status(500).json({
-          message: "something is broken , try again later"
-        });
-      })
-      if (!key) {
-        return res.status(400).json({
-          message: "missing parameters ",
-          hint: "shoud send key Parameter"
-        });
-      }
+      else {
 
-      storage.getQueue(sdk_name).then(function(queue) {
-        if (queue != 'Invaled Key') {
-          return res.status(200).json({
-            data: queue
-          });
-        } else {
-          return res.status(400).json({
-            message: "Invaled Key"
-          });
-        }
+        var client_exist = 1;
+        var sip ="";
+        var password = "";
+        var domain ="";
+
+       storage.getDevice(data).then(function(result) {
+
+         if(result){
+
+           sip = result.sip;
+           password = result.password;
+           domain= result.domain;
+         }
+         else{
+           storage.getClient(data).then(function(client){
+              count = client.id;
+             if(client)
+             {
+               	$client_exist =	1;
+                var next_client = client.count + 1;
+                sip = sprintf("[%'09s]", next_client);
+                sip = client.id + "000" + sip;
+                var domain = "104.239.166.30";
+                var password = randomstring.generate(16);
+                storage.insert_into_sip(data).then(function(device){
+                  return resolve(device);
+                }).otherwise(function(error){
+                  return reject (error);
+                });
+                storage.insert_into_sip(data).then(function(device){
+                  return resolve(device);
+                }).otherwise(function(error){
+                  return reject (error);
+                });
+                storage.update_client(count).then(function(client){
+                  return resolve(client);
+                }).otherwise(function(error){
+                  return reject (error);
+                });
+                storage.insert_sipfriends(data).then(function(result){
+                  return resolve(result);
+                }).otherwise(function(error){
+                  return reject (error);
+                });
+             }
+             else
+             {
+               client_exist =	0;
+             }
+           }).otherwise(function(error){
+             return reject(error);
+           });
+           if(client_exist > 0){
+
+             return res.status(200).json({
+               message: 'data retrieved successfully',
+               username: sip,
+               password: password,
+               domain:domain
+             });
+           }
+           else{
+             return res.status(403).json({
+               message:'license key invalid',
+
+             });
+           }
+         }
+
       }).otherwise(function(error) {
+
         log.error('error : ' + error);
         return res.status(500).json({
-          message: "something is broken , try again later"
+          message: 'unable to get sip'
         });
       });
 
-    });
+      }
+  });
 
 
     apiApp.post('/feedback', function(req, res, next) {
@@ -309,7 +352,6 @@ function init(_settings, _storage) {
     }
 
     });
-
 
     apiApp.post('/updateivr', function(req, res, next) {
 
@@ -381,7 +423,7 @@ function init(_settings, _storage) {
 
     });
 
-    apiApp.get('/queue/:key',function(req,res.next){
+    apiApp.get('/queue/:key',function(req,res,next){
       //TODO call strorage.getQueues
       var key = req.params.key;
       storage.getQueues(key).then(function(queue){
