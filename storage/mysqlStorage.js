@@ -171,13 +171,11 @@ function cancelCall(callId) {
 
 function getQueue(key) {
   return when.promise(function(resolve, rejcet) {
-    $admin.find({
+    $admin.findOne({
       licence_key: key
     }).then(function(admin) {
-
-      if (typeof admin[index] !== 'undefined' && admin[index] !== null) {
-
-        $queue.findAll({
+      if (admin && admin.id) {
+        $queue.findOne({
           where: {
             admin_id: admin.id
           },
@@ -187,13 +185,9 @@ function getQueue(key) {
         }).catch(function(error) {
           return reject(error);
         });
-
-
       } else {
-
-        return resolve('Invaled Key');
+        return reject('Invaled Key');
       }
-
     }).catch(function(error) {
       return rejcet(error)
     });
@@ -283,7 +277,7 @@ function getClients() {
 }
 
 
-
+//TODO review this function
 function getsip(data) {
   return when.promise(function(resolve, rejcet) {
       $device_sip.findOne({
@@ -293,7 +287,6 @@ function getsip(data) {
       }).then(function(device_sip) {
           if (device_sip) {
             result = {};
-
             result.sip = device_sip.sip;
             result.password = device_sip.password;
             result.domain = device_sip.domain;
@@ -310,6 +303,7 @@ function getsip(data) {
                 return reject('no client found');
               }
               var sip = client.count + 1;
+              //TODO
               sip = sprintf("[%'09s]", sip);
               sip = client.id + "000" + sip;
               var domain = "104.239.166.30";
@@ -327,7 +321,7 @@ function getsip(data) {
                 domain: domain
 
               }).then(function(devicesip) {
-
+                //TODO where is this model
                 client.update({
                   count: client.count + 1
                 }, {
@@ -384,7 +378,6 @@ function getsip(data) {
 }
 
 
-
 module.exports = {
   init: init,
   scheduleCall: scheduleCall,
@@ -395,7 +388,7 @@ module.exports = {
   scheduleDemoCall: scheduleDemoCall,
   getQueue: getQueue,
   feedback: feedback,
-  checkIVR: checkIVR,
+  updateIVR: updateIVR,
   getClients: getClients,
   getsip: getsip
 

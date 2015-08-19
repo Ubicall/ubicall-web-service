@@ -381,6 +381,9 @@ function init(_settings, _storage) {
 
     });
 
+    apiApp.get('/queue/:key',function(req,res.next){
+      //TODO call strorage.getQueues
+    });
 
     return resolve(apiApp);
   });
