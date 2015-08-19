@@ -1,29 +1,29 @@
 // inspired from https://github.com/node-red/node-red/tree/master/red/storage
 var when = require('when');
 var log = require('../log');
-var storageModule, cacheModule, cache;
+var ubicallStorageModule, astStorageModule, cacheModule, cache;
 
 
-function moduleSelector(_settings) {
-  var toReturn;
+function _initStorage(_settings) {
+  var toReturnPromises = [];
   if (_settings.storage && _settings.storage.storageModule) {
-    if (typeof _settings.storage.storageModule === "string") {
-      toReturn = require("./" + _settings.storage.storageModule + "Storage");
+    if (typeof _settings.storage.storageModule === "string" && _settings.storage.storageModule == "mysql") {
+      ubicallStorageModule = require("./" + _settings.storage.storageModule + "/ubicall.js");
+      astStorageModule = require("./" + _settings.storage.storageModule + "/ast_rt.js");
+      toReturnPromises.push(ubicallStorageModule.init(settings));
+      toReturnPromises.push(astStorageModule.init(settings));
     } else {
-      toReturn = _settings.storage.storageModule;
+      throw new Error("unsupport storage")
     }
-  } else {
-    toReturn = require("./mysqlStorage.js");
+    return when.all(toReturnPromises);
   }
-  return toReturn;
 }
 
 var storageModuleInterface = {
   init: function(_settings) {
     var promises = [];
     try {
-      storageModule = moduleSelector(_settings);
-      promises.push(storageModule.init(_settings));
+      promises.push(_initStorage(_settings));
       if (_settings.cache && _settings.cache.enabled) {
         cache = _settings.cache.enabled;
         cacheModule = require('../caching');
@@ -38,7 +38,9 @@ var storageModuleInterface = {
   },
   scheduleCall: function(call) {
     return when.promise(function(resolve, reject) {
-      return storageModule.scheduleCall(call).then(function(call) {
+
+      return ubicallStorageModule.scheduleCall(call).then(function(call) {
+
         log.info('return from index storage', call);
         if (cache) {
           // TODO add this call to cache
@@ -53,7 +55,9 @@ var storageModuleInterface = {
 
   scheduleDemoCall: function(call) {
     return when.promise(function(resolve, reject) {
-      return storageModule.scheduleDemoCall(call).then(function(call) {
+
+      return ubicallStorageModule.scheduleDemoCall(call).then(function(call) {
+
         if (cache) {
           //TODO
         }
@@ -66,7 +70,9 @@ var storageModuleInterface = {
 
   getDevice: function(token) {
     return when.promise(function(resolve, reject) {
-      return storageModule.getDevice(token).then(function(device) {
+
+      return ubicallStorageModule.getDevice(token).then(function(device) {
+
         if (cache) {
           //TODO
         }
@@ -78,7 +84,9 @@ var storageModuleInterface = {
   },
   getClient: function(key) {
     return when.promise(function(resolve, reject) {
-      return storageModule.getClient(key).then(function(client) {
+
+      return ubicallStorageModule.getClient(key).then(function(client) {
+
         if (cache) {
           //TODO
         }
@@ -91,7 +99,9 @@ var storageModuleInterface = {
 
   cancelCall: function(callId) {
     return when.promise(function(resolve, rejcet) {
-      storageModule.cancelCall(callId).then(function(call) {
+
+      ubicallStorageModule.cancelCall(callId).then(function(call) {
+
         if (cache) {
           // TODO update cache
         }
@@ -103,7 +113,9 @@ var storageModuleInterface = {
   },
   getAccountInfo: function(key) {
     return when.promise(function(resolve, reject) {
-      storageModule.getAccountInfo(key).then(function(company) {
+
+      ubicallStorageModule.getAccountInfo(key).then(function(company) {
+
         if (cache) {
           //TODO update cache
         }
@@ -117,7 +129,9 @@ var storageModuleInterface = {
 
   getVersion: function(key) {
     return when.promise(function(resolve, reject) {
-      storageModule.getVersion(key).then(function(version) {
+
+      ubicallStorageModule.getVersion(key).then(function(version) {
+
         if (cache) {
           //TODO update cahe
         }
@@ -130,13 +144,16 @@ var storageModuleInterface = {
 
   getQueue: function(key) {
     return when.promise(function(resolve, rejcet) {
-      storageModule.getQueue(key).then(function(queue) {
+
+      ubicallStorageModule.getQueue(key).then(function(queue) {
+
         if (cache) {
           // TODO add cache
         }
         return resolve(queue);
       }).otherwise(function(error) {
         return rejcet(error);
+
       });
     });
   },
@@ -163,19 +180,7 @@ var storageModuleInterface = {
         return resolve(ivr);
       }).otherwise(function(error) {
         return rejcet(error);
-      });
-    });
-  },
 
-  getClients: function(data) {
-    return when.promise(function(resolve, rejcet) {
-      storageModule.getClients().then(function(clients) {
-        if (cache) {
-          // TODO add cache
-        }
-        return resolve(clients);
-      }).otherwise(function(error) {
-        return rejcet(error);
       });
     });
   },
@@ -192,6 +197,21 @@ var storageModuleInterface = {
     });
   },
 
+  updateIVR: function(data) {
+    return when.promise(function(resolve, rejcet) {
+      ubicallStorageModule.checkIVR(data).then(function(ivr) {
+        if (cache) {
+          // TODO add cache
+        }
+        return resolve(ivr);
+      }).otherwise(function(error) {
+        return rejcet(error);
+
+      });
+    });
+  },
+
+
   update_client: function(data) {
     return when.promise(function(resolve, reject) {
       storageModule.update_client(data).then(function(client) {
@@ -203,6 +223,19 @@ var storageModuleInterface = {
       });
     });
   },
+  getClients: function(data) {
+    return when.promise(function(resolve, rejcet) {
+      ubicallStorageModule.getClients().then(function(clients) {
+        if (cache) {
+          // TODO add cache
+        }
+        return resolve(clients);
+      }).otherwise(function(error) {
+        return rejcet(error);
+      });
+    });
+  },
+
 
   insert_sipfriends: function(data) {
     return when.promise(function(resolve, reject) {
@@ -212,9 +245,11 @@ var storageModuleInterface = {
         }
       }).otherwise(function(error) {
         return reject(error);
+
       });
     });
   }
+
 };
 
 

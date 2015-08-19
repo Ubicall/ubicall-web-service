@@ -1,6 +1,6 @@
 var fs = require('fs');
 var config = {};
-var configFile = process.env.HOME + '/.conf/agent/agent.js'
+var configFile = process.env.HOME + '/.conf/ubicall.js'
 if( fs.existsSync(configFile) ){
     config = require(configFile);
 } else {
@@ -26,12 +26,18 @@ module.exports = {
         //      you can login with any email account and password is your email's username
         //      i.e.    username : xyz@sand.com
         //              password : xyz
-        storageModule: 'mysql',
-        mysql: {
-            database: config.agent.storage.mysql.database,
-            username: config.agent.storage.mysql.username,
-            password: config.agent.storage.mysql.password,
-            host: config.agent.storage.mysql.host
+        ubicallStorageModule: 'mysql',
+        ubicall_mysql: {
+            database: config.storage.mysql.ubicall.database,
+            username: config.storage.mysql.ubicall.username,
+            password: config.storage.mysql.ubicall.password,
+            host: config.storage.mysql.ubicall.host
+        },
+        ast_rt_mysql: {
+            database: config.storage.mysql.ast_rt.database,
+            username: config.storage.mysql.ast_rt.username,
+            password: config.storage.mysql.ast_rt.password,
+            host: config.storage.mysql.ast_rt.host
         },
         fake: {
             locale: 'de',
@@ -65,8 +71,8 @@ module.exports = {
         // caching directory(./caching) and implement methods in ./caching/index.js
         cacheModule: 'redis',
         redis: {
-            host: "localhost",
-            port: "6379",
+            host: config.cache.redis.host,
+            port: config.cache.redis.port,
             //time to live ttl for calls in seconds - 600 seconds = 10 minute
             callsttl: 600,
             //time to live ttl for queues in seconds

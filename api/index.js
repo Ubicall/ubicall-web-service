@@ -407,10 +407,7 @@ function init(_settings, _storage) {
 
 
     apiApp.get('/get-clients', function(req, res, next) {
-
-
       storage.getClients().then(function(clients) {
-
         return res.status(200).json({
           data: clients
         });
@@ -420,7 +417,6 @@ function init(_settings, _storage) {
           message: "something is broken , try again later"
         });
       });
-
     });
 
     apiApp.get('/queue/:key',function(req,res,next){
