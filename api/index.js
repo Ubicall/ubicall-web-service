@@ -27,7 +27,8 @@ function init(_settings, _storage) {
       extended: true
     }));
     apiApp.use(bodyParser.json());
-
+    // apiApp.use(cors(ubicallCors.options));
+    // apiApp.use(ubicallCors.cors);
 
     apiApp.post('/call', function(req, res, next) {
 
