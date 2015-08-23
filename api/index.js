@@ -11,6 +11,9 @@ var log = require('../log');
 var settings, storage;
 var apiApp;
 var request = require('request');
+var sprintf = require('sprintf');
+var randomstring = require('randomstring');
+
 
 function init(_settings, _storage) {
   return when.promise(function(resolve, reject) {
@@ -22,8 +25,7 @@ function init(_settings, _storage) {
       extended: true
     }));
     apiApp.use(bodyParser.json());
-    //  apiApp.use(cors(ubicallCors.options));
-    //apiApp.use(ubicallCors.cors);
+
 
     apiApp.post('/call', function(req, res, next) {
 
@@ -164,41 +166,6 @@ function init(_settings, _storage) {
 
     });
 
-    apiApp.post('/sip', function(req, res) {
-      var call = {};
-      var sdk = req.body.sdk_name;
-      var sdk_v = req.body.sdk_version;
-      var deviceuid = req.body.deviceuid;
-      var device_token = req.body.device_token;
-      var device_name = req.body.device_name;
-      var device_version = req.body.device_version;
-      var device_model = req.body.device_model;
-      var license_key = req.body.license || req.body.license_key;
-      if (!sdk || !sdk_version || !deviceuid || !device_token || !device_version || !device_model || !license_key) {
-        return res.status(500).json({
-          message: 'unable to retrieve sip',
-          hint: 'Miising paramaters sdk,sdk_version,device user_id,device token,device version,device model,license key'
-        });
-      } else {
-
-        storage.getDeviceSip(device_token).then(function(device) {
-          return res.status(200).json({
-            message: 'sip retrieved successfully',
-
-          });
-        }).otherwise(function(error) {
-          return res.status(500).json({
-            message: 'cannot get sip',
-
-          });
-        });
-
-
-      }
-
-    });
-
-
     apiApp.delete('/call/:id', function(req, res, next) {
       var call_id = req.params.id;
       if (!call_id) {
@@ -221,7 +188,7 @@ function init(_settings, _storage) {
 
     });
 
-    apiApp.post('/getsip', function(req, res, next) {
+    apiApp.post('/sip', function(req, res, next) {
 
       var data = {};
       data.sdk_name = req.body.sdk_name;
@@ -231,10 +198,10 @@ function init(_settings, _storage) {
       data.device_name = req.body.device_name;
       data.device_model = req.body.device_model;
       data.device_version = req.body.device_version;
-      data.licence_key = req.body.licence_key;
+      data.license_key = req.body.license_key;
       var next_client;
 
-      if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token || !data.device_name || !data.device_model || !data.device_version || !data.licence_key)
+      if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token || !data.device_name || !data.device_model || !data.device_version || !data.license_key)
       {
         return res.status(500).json({
           message: "missing parameters ",
@@ -333,7 +300,7 @@ function init(_settings, _storage) {
   });
 
 
-  apiApp.post('/webacc',function(req,res,next){
+  apiApp.put('/webacc',function(req,res,next){
     var data = {};
     data.sdk_name = req.body.sdk_name;
     data.sdk_version = req.body.sdk_version;
@@ -342,40 +309,44 @@ function init(_settings, _storage) {
     data.device_name = req.body.device_name;
     data.device_model = req.body.device_model;
     data.device_version = req.body.device_version;
-    data.licence_key = req.body.licence_key;
+    data.license_key = req.body.license_key;
     var next_client;
 
-    if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token || !data.device_name || !data.device_model || !data.device_version || !data.licence_key)
+    if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token || !data.device_name || !data.device_model || !data.device_version || !data.license_key)
     {
       return res.status(500).json({
         message: "missing parameters ",
         hint: "shoud send All Parameters"
       });
     }
-
-    else{
+  else{
 
       var client_exist = 1;
       var sip ="";
       var password = "";
       var domain ="";
-      storage.getClient(data.licence_key).then(function(client){
+      var next_client;
+      storage.getClient(data.license_key).then(function(client){
          count = client.id;
          console.log('Count is',count);
         if(client)
         {
           console.log('there is a client');
            client_exist =	1;
-           var next_client = client.count + 1;
+           next_client = client.count + 1;
            sip = sprintf("[%'09s]", next_client);
            sip = client.id + "000" + sip;
            var domain = "104.239.166.30";
            var password = randomstring.generate(16);
           //TODO device name mysql real escape
 
-          storage.update_client(client).then(function(updated){
-            log.info('client record updated');
+          storage.update_client(client.id).then(function(updated){
+            console.log('client updated');
+            return res.status(200).json({
+              message:'client record updated'
+            });
           }).otherwise(function(error){
+            log.error(error);
             return res.status(400).json({
               message:'cannot update client record'
             });
@@ -393,30 +364,32 @@ function init(_settings, _storage) {
 }
 });
 
-apiApp.post('/getQueue',function(req,res,next){
-  var key = req.body.key;
-  if(!key){
+apiApp.get('/queue/:key',function(req,res,next){
+  var key = req.params.key;
+  if(!key)
+  {
     return res.status(500).json({
       message:'Invalid request',
       hint:'should submit a key'
     });
   }
   else{
-    storage.getQueue(key).then(function(queue){
+    storage.findQueue(key).then(function(queue){
         return res.status(200).json({
           message: 'queue retrieved successfully',
           id: queue.id,
           name: queue.url
 
-        }).otherwise(function(error){
+        });
+      }).otherwise(function(error){
           return res.status(404).json({
-            message:'no data'
-          })
-        })
-    });
+            message:'cannot get queue data'
+          });
+        });
   }
 });
- apiApp.post('/feedback', function(req, res, next) {
+
+apiApp.post('/feedback', function(req, res, next) {
       var data = {};
       data.call_id = req.body.call_id
       data.feedback = req.body.feedback
@@ -444,29 +417,36 @@ apiApp.post('/getQueue',function(req,res,next){
 
     });
 
-    apiApp.post('/updateivr', function(req, res, next) {
-
+apiApp.put('/ivr/:license_key/:version', function(req, res, next) {
 
       var data = {};
-      data.url = req.body.url
-      data.licence_key = req.body.licence_key
-      data.server_id = req.body.server_id
+      var mainPlistURL;
+      data.license_key = req.params.license_key;
+      data.server_id = req.params.server_id;
+      if(req.headers.plisturl){
+        //TODO check on plisturl concatenated with slash
+          mainPlistURL = req.headers.plisturl;
+      }
+      else{
+        mainPlistURL = settings.defaultPlistURL;
+      }
+      data.url = mainPlistURL+data.license_key+'/'+data.server_id;
 
-      if (!data.url || !data.licence_key || !data.server_id) {
+
+      if (!data.license_key) {
         return res.status(400).json({
-          message: "missing parameters ",
-          hint: "shoud send All Parameters"
+          message: "missing license key ",
+          hint: "shoud submit a license_key"
         });
       }
 
       storage.updateIVR(data).then(function(IVR) {
-        if (IVR != 'Invaled Key') {
 
           var options = {
-            url: 'https://platform.ubicall.com/api/widget',
+            url: 'https://platform.ubicall.com/api/widget/'+data.license_key+'/'+data.server_id,
             method: 'POST',
-            form: {
-              'plistUrl': data.url,
+            headers: {
+              'plistURL': mainPlistURL
             }
           }
 
@@ -481,11 +461,7 @@ apiApp.post('/getQueue',function(req,res,next){
               });
             }
           });
-        } else {
-          return res.status(400).json({
-            message: "Invaled Key"
-          });
-        }
+
 
       }).otherwise(function(error) {
         log.error('error : ' + error);

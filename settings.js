@@ -78,5 +78,6 @@ module.exports = {
             //time to live ttl for queues in seconds
             queuesttl: 600
         }
-    }
+    },
+    defaultPlistURL : 'https://designer.ubicall.com/plist/'
 }

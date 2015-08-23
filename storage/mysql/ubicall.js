@@ -43,7 +43,8 @@ function init(_settings) {
     $client = sequlizeImport('client');
     $feedback = sequlizeImport('feedback');
     $client_version_view = sequlizeImport('client_version_view');
-    $sip_friends = sequlizeImport2('sipfriends.js')
+    $sip_friends = sequlizeImport2('sipfriends.js');
+    $admin = sequlizeImport('admin.js');
     return resolve({});
   });
 }
@@ -88,7 +89,6 @@ function scheduleDemoCall(call) {
       caller_type: call.pstn,
       call_data: call.call_data,
       id_campaign: "1",
-
       created_time: call.time
     }).then(function(call) {
       return resolve(call);
@@ -169,63 +169,46 @@ function cancelCall(callId) {
   });
 }
 
-/*function getAdmin(key){
-  return when.promise(function(resolve,rejcet){
+function getAdmin(key){
+  return when.promise(function(resolve,reject){
     $admin.findOne({
-      licence_key: key
-    }).then(function(admin) {
-      return resolve(admin);
-    }
-  }).catch(function(error){
-    return reject(error);
-  });
-}*/
-/*function getQueue(admin){
-  return when.promise(function(resolve,rejcet){
-    $admin.findOne({
-      licence_key: key
-    }).then(function(admin) {
-      return resolve(admin);
-    }
-  }).catch(function(error){
-    return reject(error);
-  });
-}*/
-function getQueue(key) {
-  return when.promise(function(resolve, rejcet) {
-    $admin.findOne({
-      licence_key: key
-    }).then(function(admin) {
-      if (admin ) {
-        $queue.findOne({
-          where: {
-            admin_id: admin.id
-          },
-          attributes: ['id', 'name']
-        }).then(function(queue) {
-          return resolve(queue);
-        }).catch(function(error) {
-          return reject(error);
-        });
-      } else {
-        return reject('Invaled Key');
+      where: {
+        licence_key: key,
       }
-    }).catch(function(error) {
-      return rejcet(error)
+    }).then(function(admin){
+      return resolve(admin);
+    }).catch(function(error){
+      return reject(error);
     });
   });
 }
 
+function getQueue(id){
+  return when.promise(function(resolve,rejcet){
+    $queue.findOne({
+      where: {
+      admin_id: id,
+      }
+    }).then(function(queue) {
+      return resolve(queue);
+  }).catch(function(error){
+    return reject(error);
+  });
+});
+}
 
-function feedback(data) {
+function feedback(feedback) {
   return when.promise(function(resolve, rejcet) {
-    if (!data.call_id) {
+    if (!feedback.call_id) {
       return rejcet("no call found to sumit this feedback")
     }
+    //update create to upsert , inside db the call id should be unique
+    //TODO update time from server time to local time
     $feedback.create({
-      call_id: data.call_id,
-      feedback: data.feedback,
-      feedback_text: data.feedback_text
+      call_id: feedback.call_id,
+      feedback: feedback.feedback,
+      feedback_text: feedback.feedback_text,
+      time: moment().format('YYYY-MM-DD HH:mm:ss')
     }).then(function(feedback) {
       return resolve(feedback);
     }).catch(function(error) {
@@ -234,19 +217,15 @@ function feedback(data) {
   });
 }
 
-function updateIVR(data) {
+function updateIVR(ivr) {
   return when.promise(function(resolve, rejcet) {
     $client_version_view.findOne({
-      licence_key: data.licence_key
+      licence_key: ivr.licence_key
     }).then(function(client) {
-
-      if (typeof client[index] !== 'undefined' && client[index] !== null) {
-
-
+      if (client) {
         $version.findOne({
           client_id: client.id
         }).then(function(version) {
-
           return version.updateAttributes({
             server_id: data.server_id,
             server_id: data.url,
@@ -261,9 +240,10 @@ function updateIVR(data) {
           return rejcet(error)
         });
 
-      } else {
+      }
+      else {
 
-        return resolve('Invaled Key');
+        return reject('Invaled Key');
       }
 
     }).catch(function(error) {
@@ -303,33 +283,33 @@ function insert_into_sip(data) {
       licence_key: data.licence_key,
       sip: sip,
       password: password,
-      domain: domain
+      domain: domain,
+      creation_date:moment().format('YYYY-MM-DD HH:mm:ss')
     }).then(function(device) {
       return resolve(result);
-    }).otherwise(function(error) {
+    }).catch(function(error) {
       return reject(error);
     });
   });
 }
 //function to update client tabel used in get_sip api
 
-
-function update_client(client) {
+function update_client(id) {
   return when.promise(function(resolve, reject) {
     $client.update({
       count: count + 1
     }, {
       where: {
-        id: client.id
+        id:id
       }
     }).then(function(updated) {
       return resolve(updated);
-    }).otherwise(function(error) {
+    }).catch(function(error) {
       return reject(error);
     });
   });
 }
-//TODO
+
 function insert_sipfriends(data,password,sip) {
   //TODO review this function
     return when.promise(function(resolve,reject){
@@ -351,7 +331,7 @@ function insert_sipfriends(data,password,sip) {
       }).then(function(device){
         return resolve(result);
 
-      }).otherwise(function(error){
+      }).catch(function(error){
         return reject (error);
       });
     });
@@ -367,6 +347,7 @@ module.exports = {
   scheduleDemoCall: scheduleDemoCall,
   getQueue: getQueue,
   feedback: feedback,
+  getAdmin:getAdmin,
   updateIVR: updateIVR,
   getClients: getClients,
   insert_into_sip: insert_into_sip,
