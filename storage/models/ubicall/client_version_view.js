@@ -1,10 +1,10 @@
 /* jshint indent: 2 */
 
 /**
-* CREATE view client_version_view
+* CREATE view ubicall.client_version_view
 * AS
-* SELECT 
-*      client_id , name , licence_key , url , 
+* SELECT
+*      client_id , name , licence_key , url ,
 *      server_id , version, enabled , demo
 *      FROM ubicall.client JOIN ubicall.version ON ubicall.client.id = ubicall.version.client_id;
 **/
