@@ -204,186 +204,176 @@ function init(_settings, _storage) {
       data.license_key = req.body.license_key;
       var next_client;
 
-      if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token || !data.device_name || !data.device_model || !data.device_version || !data.license_key)
-      {
+      if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token || !data.device_name || !data.device_model || !data.device_version || !data.license_key) {
         return res.status(500).json({
           message: "missing parameters ",
           hint: "shoud send All Parameters"
         });
-      }
-
-      else {
+      } else {
 
         var client_exist = 1;
-        var sip ="";
+        var sip = "";
         var password = "";
-        var domain ="";
+        var domain = "";
         log.info(data.device_token);
         storage.getDevice(data.device_token).then(function(result) {
 
-         if(result){
-           sip = result.sip;
-           password = result.password;
-           domain= result.domain;
-         }
-
-         else{
-           storage.getClient(data).then(function(client){
+          if (result) {
+            sip = result.sip;
+            password = result.password;
+            domain = result.domain;
+          } else {
+            storage.getClient(data).then(function(client) {
               count = client.id;
-             if(client)
-             {
-               	client_exist =	1;
+              if (client) {
+                client_exist = 1;
                 var next_client = client.count + 1;
                 sip = sprintf("[%'09s]", next_client);
                 sip = client.id + "000" + sip;
                 var domain = "104.239.166.30";
                 var password = randomstring.generate(16);
-                storage.insert_into_sip(data,password,sip).then(function(device){
+                storage.insert_into_sip(data, password, sip).then(function(device) {
                   return resolve(device);
-                }).otherwise(function(error){
-                  return reject (error);
+                }).otherwise(function(error) {
+                  return reject(error);
                 });
-                storage.insert_into_sip(data).then(function(device){
+                storage.insert_into_sip(data).then(function(device) {
                   return resolve(device);
-                }).otherwise(function(error){
-                  return reject (error);
+                }).otherwise(function(error) {
+                  return reject(error);
                 });
-                storage.update_client(count).then(function(client){
+                storage.update_client(count).then(function(client) {
                   return resolve(client);
-                }).otherwise(function(error){
-                  return reject (error);
+                }).otherwise(function(error) {
+                  return reject(error);
                 });
-                storage.insert_sipfriends(data).then(function(result){
+                storage.insert_sipfriends(data).then(function(result) {
                   return resolve(result);
-                }).otherwise(function(error){
-                  return reject (error);
+                }).otherwise(function(error) {
+                  return reject(error);
                 });
-             }
-             else
-             {
-               client_exist =	0;
-             }
-           }).otherwise(function(error){
-             return reject(error);
-           });
-           if(client_exist > 0){
+              } else {
+                client_exist = 0;
+              }
+            }).otherwise(function(error) {
+              return reject(error);
+            });
+            if (client_exist > 0) {
 
-             return res.status(200).json({
-               message: 'data retrieved successfully',
-               username: sip,
-               password: password,
-               domain:domain
-             });
-           }
-           else{
-             return res.status(403).json({
-               message:'license key invalid',
+              return res.status(200).json({
+                message: 'data retrieved successfully',
+                username: sip,
+                password: password,
+                domain: domain
+              });
+            } else {
+              return res.status(403).json({
+                message: 'license key invalid',
 
-             });
-           }
-         }
+              });
+            }
+          }
 
-         if(client_exist > 0){
-         return res.status(200).json({
-           message: 'data retrieved successfully',
-           username: sip,
-           password: password,
-           domain:domain
-         });
-       }
-      }).otherwise(function(error) {
+          if (client_exist > 0) {
+            return res.status(200).json({
+              message: 'data retrieved successfully',
+              username: sip,
+              password: password,
+              domain: domain
+            });
+          }
+        }).otherwise(function(error) {
 
-        log.error('error : ' + error);
-        return res.status(500).json({
-          message: 'unable to get sip'
+          log.error('error : ' + error);
+          return res.status(500).json({
+            message: 'unable to get sip'
+          });
         });
-      });
 
       }
-  });
-
-
-  apiApp.put('/webacc',function(req,res,next){
-    var data = {};
-    data.sdk_name = req.body.sdk_name;
-    data.sdk_version = req.body.sdk_version;
-    data.deviceuid = req.body.deviceuid;
-    data.device_token = req.body.device_token;
-    data.device_name = req.body.device_name;
-    data.device_model = req.body.device_model;
-    data.device_version = req.body.device_version;
-    data.license_key = req.body.license_key;
-    var next_client;
-
-    if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token
-      || !data.device_name || !data.device_model || !data.device_version || !data.license_key){
-      return res.status(500).json({
-        message: "missing parameters ",
-        hint: "shoud send All Parameters"
-      });
-    }else {
-      var client_exist = 1;
-      var sip ="";
-      var password = "";
-      var domain ="";
-      var next_client;
-      storage.getClient(data.license_key).then(function(client){
-         count = client.id;
-         log.info('Count is',count);
-        if(client) {
-          log.info('there is a client');
-           client_exist =	1;
-           next_client = client.count + 1;
-           sip = sprintf("[%'09s]", next_client);
-           sip = client.id + "000" + sip;
-           var domain = "104.239.166.30";
-           var password = randomstring.generate(16);
-          //TODO device name mysql real escape
-
-          storage.update_client(client.id).then(function(updated){
-            log.info('client updated');
-            return res.status(200).json({
-              message:'client record updated'
-            });
-          }).otherwise(function(error){
-            log.error(error);
-            return res.status(400).json({
-              message:'cannot update client record'
-            });
-          });
-        }else {
-          client_exist =	0;
-          return res.status(403).json({
-            message:'license key invalid'
-          });
-        }
-   });
-  }
-});
-
-apiApp.get('/queue/:key',function(req,res,next){
-  var key = req.params.key;
-  if(!key){
-    return res.status(400).json({
-      message:'Invalid request',
-      hint:'should submit a key'
     });
-  }else {
-    storage.findQueue(key).then(function(queue){
-        return res.status(200).json({
-          message: 'queue retrieved successfully',
-          id: queue.id,
-          name: queue.url
-        });
-      }).otherwise(function(error){
-          return res.status(404).json({
-            message:'cannot get queue data'
-          });
-      });
-  }
-});
 
-apiApp.post('/feedback/:call_id', function(req, res, next) {
+
+    apiApp.put('/webacc', function(req, res, next) {
+      var data = {};
+      data.sdk_name = req.body.sdk_name;
+      data.sdk_version = req.body.sdk_version;
+      data.deviceuid = req.body.deviceuid;
+      data.device_token = req.body.device_token;
+      data.device_name = req.body.device_name;
+      data.device_model = req.body.device_model;
+      data.device_version = req.body.device_version;
+      data.license_key = req.body.license_key;
+      var next_client;
+
+      if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token || !data.device_name || !data.device_model || !data.device_version || !data.license_key) {
+        return res.status(500).json({
+          message: "missing parameters ",
+          hint: "shoud send All Parameters"
+        });
+      } else {
+        var client_exist = 1;
+        var sip = "";
+        var password = "";
+        var domain = "";
+        var next_client;
+        storage.getClient(data.license_key).then(function(client) {
+          count = client.id;
+          log.info('Count is', count);
+          if (client) {
+            log.info('there is a client');
+            client_exist = 1;
+            next_client = client.count + 1;
+            sip = sprintf("[%'09s]", next_client);
+            sip = client.id + "000" + sip;
+            var domain = "104.239.166.30";
+            var password = randomstring.generate(16);
+            //TODO device name mysql real escape
+
+            storage.update_client(client.id).then(function(updated) {
+              log.info('client updated');
+              return res.status(200).json({
+                message: 'client record updated'
+              });
+            }).otherwise(function(error) {
+              log.error(error);
+              return res.status(400).json({
+                message: 'cannot update client record'
+              });
+            });
+          } else {
+            client_exist = 0;
+            return res.status(403).json({
+              message: 'license key invalid'
+            });
+          }
+        });
+      }
+    });
+
+    apiApp.get('/queue/:key', function(req, res, next) {
+      var key = req.params.key;
+      if (!key) {
+        return res.status(400).json({
+          message: 'Invalid request',
+          hint: 'should submit a key'
+        });
+      } else {
+        storage.findQueue(key).then(function(queue) {
+          return res.status(200).json({
+            message: 'queue retrieved successfully',
+            id: queue.id,
+            name: queue.url
+          });
+        }).otherwise(function(error) {
+          return res.status(404).json({
+            message: 'cannot get queue data'
+          });
+        });
+      }
+    });
+
+    apiApp.post('/feedback/:call_id', function(req, res, next) {
       var data = {};
       data.call_id = req.params.call_id
       data.feedback = req.body.feedback
@@ -394,21 +384,21 @@ apiApp.post('/feedback/:call_id', function(req, res, next) {
           message: "missing parameters ",
           hint: "missing parameters : call_id ,feedback or both"
         });
-      }else {
+      } else {
         storage.feedback(data).then(function(feedback) {
           return res.status(200).json({
             message: "feedback sent successfully"
           });
-      }).otherwise(function(error) {
-        log.error('error : ' + error);
-        return res.status(500).json({
-          message: "something is broken , try again later"
+        }).otherwise(function(error) {
+          log.error('error : ' + error);
+          return res.status(500).json({
+            message: "something is broken , try again later"
+          });
         });
-      });
-    }
-});
+      }
+    });
 
-apiApp.put('/ivr/:license_key/:version', function(req, res, next) {
+    apiApp.put('/ivr/:license_key/:version', function(req, res, next) {
 
       var data = {};
       data.license_key = req.params.license_key;
@@ -424,35 +414,35 @@ apiApp.put('/ivr/:license_key/:version', function(req, res, next) {
         });
       }
 
-        __deployToWeb(settings.widgetHost , settings.plistHost , data.license_key , data.version).then(function(){
-          storage.updateIVR(data).then(function(updated) {
-            return res.status(200).json({
-              message: "mobile & web clients updated successfully"
-            });
-          }).otherwise(function(error) {
-            log.error('error : ' + error);
-            storage.getIVR(data.license_key).then(function(ivr){ // get & deploy old ivr version
-              __deployToWeb(settings.widgetHost, plistHost , ivr.licence_key , ivr.version).then(function(){
-                return res.status(500).json({
-                  message: "Unable to update Mobile,hence rollback web"
-                });
-              }).otherwise(function(error){
-                return res.status(500).json({
-                  message: "Unable to update Mobile or rollback web"
-                });
+      __deployToWeb(settings.widgetHost, settings.plistHost, data.license_key, data.version).then(function() {
+        storage.updateIVR(data).then(function(updated) {
+          return res.status(200).json({
+            message: "mobile & web clients updated successfully"
+          });
+        }).otherwise(function(error) {
+          log.error('error : ' + error);
+          storage.getIVR(data.license_key).then(function(ivr) { // get & deploy old ivr version
+            __deployToWeb(settings.widgetHost, plistHost, ivr.licence_key, ivr.version).then(function() {
+              return res.status(500).json({
+                message: "Unable to update Mobile,hence rollback web"
               });
-            }).otherwise(function(error){
-              log.error('error : ' + error);
+            }).otherwise(function(error) {
               return res.status(500).json({
                 message: "Unable to update Mobile or rollback web"
               });
             });
-          });
-        }).otherwise(function(error){
-          return res.status(500).json({
-            message: "Unable to update Web,hence cannot update Mobile "
+          }).otherwise(function(error) {
+            log.error('error : ' + error);
+            return res.status(500).json({
+              message: "Unable to update Mobile or rollback web"
+            });
           });
         });
+      }).otherwise(function(error) {
+        return res.status(500).json({
+          message: "Unable to update Web,hence cannot update Mobile "
+        });
+      });
     });
 
 
@@ -469,17 +459,17 @@ apiApp.put('/ivr/:license_key/:version', function(req, res, next) {
       });
     });
 
-    apiApp.get('/queue/:key',function(req,res,next){
+    apiApp.get('/queue/:key', function(req, res, next) {
       //TODO call strorage.getQueues
       var key = req.params.key;
-      storage.getQueues(key).then(function(queue){
+      storage.getQueues(key).then(function(queue) {
         return res.status(200).json({
           id: queue.id,
           name: queue.name
-        }).otherwise(function(error){
-          log.error('error:'+error);
+        }).otherwise(function(error) {
+          log.error('error:' + error);
           return res.status(500).json({
-            message:""
+            message: ""
           });
         });
       });
@@ -488,19 +478,19 @@ apiApp.put('/ivr/:license_key/:version', function(req, res, next) {
   });
 }
 
-function __deployToWeb(widgetHost, plistHost , license_key , version){
-  return when.promise(function(resolve,reject){
+function __deployToWeb(widgetHost, plistHost, license_key, version) {
+  return when.promise(function(resolve, reject) {
     var options = {
-        url: widgetHost + license_key + '/' + version,
-        method: 'POST',
-        headers:{
-          plistHost : plistHost
-        }
+      url: widgetHost + license_key + '/' + version,
+      method: 'POST',
+      headers: {
+        plistHost: plistHost
+      }
     };
 
     request(options, function(error, response, body) {
       if (!error && response.statusCode == 200) {
-          return resolve(response.data);
+        return resolve(response.data);
       } else {
         return reject(error);
       }
