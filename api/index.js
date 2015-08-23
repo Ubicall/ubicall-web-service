@@ -5,15 +5,17 @@ var router = express.Router();
 var when = require('when');
 var bodyParser = require('body-parser');
 var validator = require('validator');
-var cors = require('cors');
-var ubicallCors = require('../ubicallCors');
-var log = require('../log');
-var settings, storage;
-var apiApp;
 var request = require('request');
 var sprintf = require('sprintf');
 var randomstring = require('randomstring');
+var cors = require('cors');
+var ubicallCors = require('../ubicallCors');
+var log = require('../log');
 
+
+
+var settings, storage;
+var apiApp;
 
 function init(_settings, _storage) {
   return when.promise(function(resolve, reject) {
@@ -56,7 +58,7 @@ function init(_settings, _storage) {
       }
       //If request from web
       if (call.pstn && call.pstn == 1) {
-        console.log('this is web');
+        log.info('this is web');
         if (!call.sip) {
           return res.status(400).json({
             message: 'unable to schedule call',
@@ -64,13 +66,13 @@ function init(_settings, _storage) {
           });
         }
         storage.scheduleCall(call).then(function(call) {
-          console.log('this is the call', call);
+          log.info('this is the call', call);
           return res.status(200).json({
             message: 'call retrieved successfully',
             call: call.id
           });
         }).otherwise(function(error) {
-          console.log(error);
+          log.error(error);
           return res.status(500).json({
             message: 'unable to get call,try again later'
           });
@@ -81,7 +83,7 @@ function init(_settings, _storage) {
           var _device = device;
 
           storage.getClient(call.license_key).then(function(client) {
-            console.log(client);
+            log.info(client);
             if (client.demo == 0) {
 
               call.sip = device.sip;
@@ -96,7 +98,7 @@ function init(_settings, _storage) {
                 }
                 http.get(options, function(error, response, body) {
                   if (error) {
-                    console.log('request error', error);
+                    log.info('request error', error);
                   }
                 });
 
@@ -112,7 +114,7 @@ function init(_settings, _storage) {
                 });
               });
             } else {
-              console.log('demo is 1');
+              log.info('demo is 1');
               storage.scheduleCall(call).then(function(call) {
                 return res.status(200).json({
                   message: 'call retrieved successfully',
@@ -141,7 +143,7 @@ function init(_settings, _storage) {
 
     apiApp.get('/versionToken/:key', function(req, res) {
       var input_key = req.params.key; //change to params
-      console.log('key is ' + input_key);
+      log.info('key is ' + input_key);
       if (!input_key) {
         return res.status(400).json({
           message: 'unable to get version',
@@ -215,7 +217,7 @@ function init(_settings, _storage) {
         var sip ="";
         var password = "";
         var domain ="";
-        console.log(data.device_token);
+        log.info(data.device_token);
         storage.getDevice(data.device_token).then(function(result) {
 
          if(result){
@@ -312,15 +314,13 @@ function init(_settings, _storage) {
     data.license_key = req.body.license_key;
     var next_client;
 
-    if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token || !data.device_name || !data.device_model || !data.device_version || !data.license_key)
-    {
+    if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token
+      || !data.device_name || !data.device_model || !data.device_version || !data.license_key){
       return res.status(500).json({
         message: "missing parameters ",
         hint: "shoud send All Parameters"
       });
-    }
-  else{
-
+    }else {
       var client_exist = 1;
       var sip ="";
       var password = "";
@@ -328,10 +328,9 @@ function init(_settings, _storage) {
       var next_client;
       storage.getClient(data.license_key).then(function(client){
          count = client.id;
-         console.log('Count is',count);
-        if(client)
-        {
-          console.log('there is a client');
+         log.info('Count is',count);
+        if(client) {
+          log.info('there is a client');
            client_exist =	1;
            next_client = client.count + 1;
            sip = sprintf("[%'09s]", next_client);
@@ -341,7 +340,7 @@ function init(_settings, _storage) {
           //TODO device name mysql real escape
 
           storage.update_client(client.id).then(function(updated){
-            console.log('client updated');
+            log.info('client updated');
             return res.status(200).json({
               message:'client record updated'
             });
@@ -351,62 +350,54 @@ function init(_settings, _storage) {
               message:'cannot update client record'
             });
           });
-        }
-        else
-        {
+        }else {
           client_exist =	0;
           return res.status(403).json({
             message:'license key invalid'
           });
         }
-
-  });
-}
+   });
+  }
 });
 
 apiApp.get('/queue/:key',function(req,res,next){
   var key = req.params.key;
-  if(!key)
-  {
-    return res.status(500).json({
+  if(!key){
+    return res.status(400).json({
       message:'Invalid request',
       hint:'should submit a key'
     });
-  }
-  else{
+  }else {
     storage.findQueue(key).then(function(queue){
         return res.status(200).json({
           message: 'queue retrieved successfully',
           id: queue.id,
           name: queue.url
-
         });
       }).otherwise(function(error){
           return res.status(404).json({
             message:'cannot get queue data'
           });
-        });
+      });
   }
 });
 
-apiApp.post('/feedback', function(req, res, next) {
+apiApp.post('/feedback/:call_id', function(req, res, next) {
       var data = {};
-      data.call_id = req.body.call_id
+      data.call_id = req.params.call_id
       data.feedback = req.body.feedback
       data.feedback_text = req.body.feedback_text
 
       if (!data.call_id || !data.feedback) {
-        return res.status(500).json({
+        return res.status(400).json({
           message: "missing parameters ",
-          hint: "shoud send call_id,feedback Parameters"
+          hint: "missing parameters : call_id ,feedback or both"
         });
-      }
-
-    else{
+      }else {
         storage.feedback(data).then(function(feedback) {
-        return res.status(200).json({
-          message: "feedback sent successfully"
-        });
+          return res.status(200).json({
+            message: "feedback sent successfully"
+          });
       }).otherwise(function(error) {
         log.error('error : ' + error);
         return res.status(500).json({
@@ -414,25 +405,17 @@ apiApp.post('/feedback', function(req, res, next) {
         });
       });
     }
+});
 
-    });
-
-apiApp.put('/ivr/:license_key/:server_id', function(req, res, next) {
+apiApp.put('/ivr/:license_key/:version', function(req, res, next) {
 
       var data = {};
-      var mainPlistURL;
       data.license_key = req.params.license_key;
-      data.server_id = req.params.server_id;
-      if(req.header("plisturl")){
-        //TODO check on plisturl concatenated with slash
-          mainPlistURL = req.header("plisturl");
-      }
-      else{
-        mainPlistURL = settings.defaultPlistURL;
-      }
-      data.url = mainPlistURL+data.license_key+'/'+data.server_id;
+      data.version = req.params.version;
 
-
+      //TODO check on plistHost concatenated with slash
+      var plistHost = req.header("plistHost") || settings.plistHost;
+      data.url = plistHost + data.license_key + '/' + data.server_id;
       if (!data.license_key) {
         return res.status(400).json({
           message: "missing license key ",
@@ -440,35 +423,35 @@ apiApp.put('/ivr/:license_key/:server_id', function(req, res, next) {
         });
       }
 
-        var options = {
-          url: 'https://platform.ubicall.com/api/widget/'+data.license_key+'/'+data.server_id,
-          method: 'POST',
-          headers: {
-            'plistURL': mainPlistURL
-          }
-        }
-
-        request(options, function(error, response, body) {
-          if (!error && response.statusCode == 200) {
-            storage.updateIVR(data).then(function(IVR) {
-              return res.status(200).json({
-                message: "mobile & web updated successfully"
+        __deployToWeb(settings.widgetHost , settings.plistHost , data.license_key , data.version).then(function(){
+          storage.updateIVR(data).then(function(updated) {
+            return res.status(200).json({
+              message: "mobile & web clients updated successfully"
+            });
+          }).otherwise(function(error) {
+            log.error('error : ' + error);
+            storage.getIVR(data.license_key).then(function(ivr){ // get & deploy old ivr version
+              __deployToWeb(settings.widgetHost, plistHost , ivr.licence_key , ivr.version).then(function(){
+                return res.status(500).json({
+                  message: "Unable to update Mobile,hence rollback web"
+                });
+              }).otherwise(function(error){
+                return res.status(500).json({
+                  message: "Unable to update Mobile or rollback web"
+                });
               });
-            }).otherwise(function(error) {
-              //TODO roll back widget to current version in DB
+            }).otherwise(function(error){
               log.error('error : ' + error);
               return res.status(500).json({
-                message: "web cannot be updated"
+                message: "Unable to update Mobile or rollback web"
               });
             });
-          } else {
-            return res.status(500).json({
-              message: "Unable to update Web,hence cannot update Mobile "
-            });
-          }
+          });
+        }).otherwise(function(error){
+          return res.status(500).json({
+            message: "Unable to update Web,hence cannot update Mobile "
+          });
         });
-
-
     });
 
 
@@ -492,17 +475,35 @@ apiApp.put('/ivr/:license_key/:server_id', function(req, res, next) {
         return res.status(200).json({
           id: queue.id,
           name: queue.name
-
         }).otherwise(function(error){
           log.error('error:'+error);
-        return res.status(500).json({
+          return res.status(500).json({
             message:""
           });
         });
       });
     });
-
     return resolve(apiApp);
+  });
+}
+
+function __deployToWeb(widgetHost, plistHost , license_key , version){
+  return when.promise(function(resolve,reject){
+    var options = {
+        url: widgetHost + license_key + '/' + version,
+        method: 'POST',
+        headers:{
+          plistHost : plistHost
+        }
+    };
+
+    request(options, function(error, response, body) {
+      if (!error && response.statusCode == 200) {
+          return resolve(response.data);
+      } else {
+        return reject(error);
+      }
+    });
   });
 }
 

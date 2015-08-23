@@ -79,5 +79,6 @@ module.exports = {
             queuesttl: 600
         }
     },
-    defaultPlistURL : 'https://designer.ubicall.com/plist/'
+    plistHost : config.defaultPlistHost,
+    widgetHost : config.endPoints.widgetDeploy
 }

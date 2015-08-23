@@ -336,6 +336,23 @@ function insert_sipfriends(data,password,sip) {
     });
 }
 
+function getIVR(license_key){
+  return when.promise(function(resolve,reject){
+    $client_version_view.findOne({
+      where: {
+        licence_key : license_key
+      }
+    }).then(function(ivr) {
+      if (!ivr) {
+        return reject('No Clients Found ');
+      }
+      return resolve(ivr);
+    }).catch(function(error) {
+      return reject(error);
+    });
+  });
+}
+
 module.exports = {
   init: init,
   scheduleCall: scheduleCall,
@@ -348,6 +365,7 @@ module.exports = {
   feedback: feedback,
   getAdmin:getAdmin,
   updateIVR: updateIVR,
+  getIVR:getIVR,
   getClients: getClients,
   insert_into_sip: insert_into_sip,
   insert_sipfriends: insert_sipfriends,

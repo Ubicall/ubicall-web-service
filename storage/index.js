@@ -203,7 +203,6 @@ var storageModuleInterface = {
   getClients: function(data) {
     return when.promise(function(resolve, rejcet) {
       ubicallStorageModule.getClients().then(function(clients) {
-
         return resolve(clients);
       }).otherwise(function(error) {
         return rejcet(error);
@@ -211,6 +210,15 @@ var storageModuleInterface = {
     });
   },
 
+  getIVR : function(license_key){
+    return when.promise(function(resolve,reject){
+      ubicallStorageModule.getIVR(license_key).then(function(ivr) {
+        return resolve(ivr);
+      }).otherwise(function(error) {
+        return rejcet(error);
+      });
+    });
+  },
 
   insert_sipfriends: function(sipfriends) {
     return when.promise(function(resolve, reject) {
