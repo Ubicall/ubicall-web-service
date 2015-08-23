@@ -4,7 +4,7 @@ var Sequelize = require('sequelize');
 var settings, _sequelize;
 
 function sequlizeImport(model) {
-  return _sequelize.import(__dirname + "/models/ast_rt/" + model);
+  return _sequelize.import(__dirname + "/../models/ast_rt/" + model);
 }
 
 function init(_settings) {

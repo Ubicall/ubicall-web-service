@@ -221,7 +221,7 @@ function init(_settings, _storage) {
 
     });
 
-    apiApp.get('/getsip', function(req, res, next) {
+    apiApp.post('/getsip', function(req, res, next) {
 
       var data = {};
       data.sdk_name = req.body.sdk_name;
@@ -234,7 +234,7 @@ function init(_settings, _storage) {
       data.licence_key = req.body.licence_key;
       var next_client;
 
-      if (!sdk_name || !sdk_version || !deviceuid || !device_token || !device_name || !device_model || !device_version || !licence_key)
+      if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token || !data.device_name || !data.device_model || !data.device_version || !data.licence_key)
       {
         return res.status(500).json({
           message: "missing parameters ",
@@ -248,27 +248,27 @@ function init(_settings, _storage) {
         var sip ="";
         var password = "";
         var domain ="";
-
-       storage.getDevice(data).then(function(result) {
+        console.log(data.device_token);
+        storage.getDevice(data.device_token).then(function(result) {
 
          if(result){
-
            sip = result.sip;
            password = result.password;
            domain= result.domain;
          }
+
          else{
            storage.getClient(data).then(function(client){
               count = client.id;
              if(client)
              {
-               	$client_exist =	1;
+               	client_exist =	1;
                 var next_client = client.count + 1;
                 sip = sprintf("[%'09s]", next_client);
                 sip = client.id + "000" + sip;
                 var domain = "104.239.166.30";
                 var password = randomstring.generate(16);
-                storage.insert_into_sip(data).then(function(device){
+                storage.insert_into_sip(data,password,sip).then(function(device){
                   return resolve(device);
                 }).otherwise(function(error){
                   return reject (error);
@@ -313,6 +313,14 @@ function init(_settings, _storage) {
            }
          }
 
+         if(client_exist > 0){
+         return res.status(200).json({
+           message: 'data retrieved successfully',
+           username: sip,
+           password: password,
+           domain:domain
+         });
+       }
       }).otherwise(function(error) {
 
         log.error('error : ' + error);
@@ -325,14 +333,97 @@ function init(_settings, _storage) {
   });
 
 
-    apiApp.post('/feedback', function(req, res, next) {
+  apiApp.post('/webacc',function(req,res,next){
+    var data = {};
+    data.sdk_name = req.body.sdk_name;
+    data.sdk_version = req.body.sdk_version;
+    data.deviceuid = req.body.deviceuid;
+    data.device_token = req.body.device_token;
+    data.device_name = req.body.device_name;
+    data.device_model = req.body.device_model;
+    data.device_version = req.body.device_version;
+    data.licence_key = req.body.licence_key;
+    var next_client;
+
+    if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token || !data.device_name || !data.device_model || !data.device_version || !data.licence_key)
+    {
+      return res.status(500).json({
+        message: "missing parameters ",
+        hint: "shoud send All Parameters"
+      });
+    }
+
+    else{
+
+      var client_exist = 1;
+      var sip ="";
+      var password = "";
+      var domain ="";
+      storage.getClient(data.licence_key).then(function(client){
+         count = client.id;
+         console.log('Count is',count);
+        if(client)
+        {
+          console.log('there is a client');
+           client_exist =	1;
+           var next_client = client.count + 1;
+           sip = sprintf("[%'09s]", next_client);
+           sip = client.id + "000" + sip;
+           var domain = "104.239.166.30";
+           var password = randomstring.generate(16);
+          //TODO device name mysql real escape
+
+          storage.update_client(client).then(function(updated){
+            log.info('client record updated');
+          }).otherwise(function(error){
+            return res.status(400).json({
+              message:'cannot update client record'
+            });
+          });
+        }
+        else
+        {
+          client_exist =	0;
+          return res.status(403).json({
+            message:'license key invalid'
+          });
+        }
+
+  });
+}
+});
+
+apiApp.post('/getQueue',function(req,res,next){
+  var key = req.body.key;
+  if(!key){
+    return res.status(500).json({
+      message:'Invalid request',
+      hint:'should submit a key'
+    });
+  }
+  else{
+    storage.getQueue(key).then(function(queue){
+        return res.status(200).json({
+          message: 'queue retrieved successfully',
+          id: queue.id,
+          name: queue.url
+
+        }).otherwise(function(error){
+          return res.status(404).json({
+            message:'no data'
+          })
+        })
+    });
+  }
+});
+ apiApp.post('/feedback', function(req, res, next) {
       var data = {};
       data.call_id = req.body.call_id
       data.feedback = req.body.feedback
       data.feedback_text = req.body.feedback_text
 
       if (!data.call_id || !data.feedback) {
-        return res.status(400).json({
+        return res.status(500).json({
           message: "missing parameters ",
           hint: "shoud send call_id,feedback Parameters"
         });
@@ -341,7 +432,7 @@ function init(_settings, _storage) {
     else{
         storage.feedback(data).then(function(feedback) {
         return res.status(200).json({
-          message: "successfully"
+          message: "feedback sent successfully"
         });
       }).otherwise(function(error) {
         log.error('error : ' + error);

@@ -6,12 +6,12 @@ var ubicallStorageModule, astStorageModule, cacheModule, cache;
 
 function _initStorage(_settings) {
   var toReturnPromises = [];
-  if (_settings.storage && _settings.storage.storageModule) {
-    if (typeof _settings.storage.storageModule === "string" && _settings.storage.storageModule == "mysql") {
-      ubicallStorageModule = require("./" + _settings.storage.storageModule + "/ubicall.js");
-      astStorageModule = require("./" + _settings.storage.storageModule + "/ast_rt.js");
-      toReturnPromises.push(ubicallStorageModule.init(settings));
-      toReturnPromises.push(astStorageModule.init(settings));
+  if (_settings.storage && _settings.storage.ubicallStorageModule) {
+    if (typeof _settings.storage.ubicallStorageModule === "string" && _settings.storage.ubicallStorageModule == "mysql") {
+      ubicallStorageModule = require("./" + _settings.storage.ubicallStorageModule + "/ubicall.js");
+      astStorageModule = require("./" + _settings.storage.ubicallStorageModule + "/ast_rt.js");
+      toReturnPromises.push(ubicallStorageModule.init(_settings));
+      toReturnPromises.push(astStorageModule.init(_settings));
     } else {
       throw new Error("unsupport storage")
     }
@@ -160,7 +160,7 @@ var storageModuleInterface = {
 
   feedback: function(data) {
     return when.promise(function(resolve, rejcet) {
-      storageModule.feedback(data).then(function(feedback) {
+        ubicallStorageModule.feedback(data).then(function(feedback) {
         if (cache) {
           // TODO add cache
         }

@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('sipfriends', { 
+  return sequelize.define('sipfriends', {
     id: {
       type: DataTypes.INTEGER(11),
       allowNull: false,
@@ -180,19 +180,19 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    session-timers: {
+    "session-timers": {
       type: DataTypes.ENUM('ACCEPT','REFUSE','ORIGINATE'),
       allowNull: true,
     },
-    session-expires: {
+    "session-expires": {
       type: DataTypes.INTEGER(11),
       allowNull: true,
     },
-    session-minse: {
+    "session-minse": {
       type: DataTypes.INTEGER(11),
       allowNull: true,
     },
-    session-refresher: {
+    "session-refresher": {
       type: DataTypes.ENUM('UAC','UAS'),
       allowNull: true,
     },
@@ -336,7 +336,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(11),
       allowNull: true,
     },
-    call-limit: {
+    "call-limit": {
       type: DataTypes.INTEGER(11),
       allowNull: true,
     },

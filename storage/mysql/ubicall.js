@@ -9,7 +9,10 @@ var settings, _sequelize;
 var calls, agent, queueAgent, clients;
 
 function sequlizeImport(model) {
-  return _sequelize.import(__dirname + "/models/ubicall/" + model);
+  return _sequelize.import(__dirname + "/../models/ubicall/" + model);
+}
+function sequlizeImport2(model) {
+  return _sequelize.import(__dirname + "/../models/ast_rt/" + model);
 }
 
 function init(_settings) {
@@ -40,7 +43,7 @@ function init(_settings) {
     $client = sequlizeImport('client');
     $feedback = sequlizeImport('feedback');
     $client_version_view = sequlizeImport('client_version_view');
-
+    $sip_friends = sequlizeImport2('sipfriends.js')
     return resolve({});
   });
 }
@@ -166,12 +169,34 @@ function cancelCall(callId) {
   });
 }
 
+/*function getAdmin(key){
+  return when.promise(function(resolve,rejcet){
+    $admin.findOne({
+      licence_key: key
+    }).then(function(admin) {
+      return resolve(admin);
+    }
+  }).catch(function(error){
+    return reject(error);
+  });
+}*/
+/*function getQueue(admin){
+  return when.promise(function(resolve,rejcet){
+    $admin.findOne({
+      licence_key: key
+    }).then(function(admin) {
+      return resolve(admin);
+    }
+  }).catch(function(error){
+    return reject(error);
+  });
+}*/
 function getQueue(key) {
   return when.promise(function(resolve, rejcet) {
     $admin.findOne({
       licence_key: key
     }).then(function(admin) {
-      if (admin && admin.id) {
+      if (admin ) {
         $queue.findOne({
           where: {
             admin_id: admin.id
@@ -190,6 +215,7 @@ function getQueue(key) {
     });
   });
 }
+
 
 function feedback(data) {
   return when.promise(function(resolve, rejcet) {
@@ -288,13 +314,13 @@ function insert_into_sip(data) {
 //function to update client tabel used in get_sip api
 
 
-function update_client(count) {
+function update_client(client) {
   return when.promise(function(resolve, reject) {
     $client.update({
       count: count + 1
     }, {
       where: {
-        id: count
+        id: client.id
       }
     }).then(function(updated) {
       return resolve(updated);
@@ -304,31 +330,31 @@ function update_client(count) {
   });
 }
 //TODO
-function insert_sipfriends(sip) {
+function insert_sipfriends(data,password,sip) {
   //TODO review this function
-  /*  return when.promise(function(resolve,reject){
+    return when.promise(function(resolve,reject){
       $sip_friends.create({
         name: sip,
         regserver:'ubicall_demo',
         host: 'dynamic',
         type: 'friend',
         context: 'ubicalldemo',
-        secret ='".$password."' ,
-        transport ='tcp,udp' ,
-        dtmfmode='rfc2833' ,
-        nat ='force_rport,comedia' ,
-        disallow ='all' ,
-        allow='gsm' ,
-        rtptimeout='60' ,
-        rtpholdtimeout='300' ,
-        faxdetect='no'
-      )}.then(function(device){
+        secret :password ,
+        transport :'tcp,udp' ,
+        dtmfmode:'rfc2833' ,
+        nat :'force_rport,comedia' ,
+        disallow :'all' ,
+        allow:'gsm' ,
+        rtptimeout:'60' ,
+        rtpholdtimeout:'300' ,
+        faxdetect:'no'
+      }).then(function(device){
         return resolve(result);
 
       }).otherwise(function(error){
         return reject (error);
       });
-    });*/
+    });
 }
 
 module.exports = {
@@ -345,5 +371,5 @@ module.exports = {
   getClients: getClients,
   insert_into_sip: insert_into_sip,
   insert_sipfriends: insert_sipfriends,
-  update_client: update_client 
+  update_client: update_client
 }
