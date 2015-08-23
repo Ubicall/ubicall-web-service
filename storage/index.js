@@ -160,7 +160,7 @@ var storageModuleInterface = {
 
   feedback: function(data) {
     return when.promise(function(resolve, rejcet) {
-        ubicallStorageModule.feedback(data).then(function(feedback) {
+      storageModule.feedback(data).then(function(feedback) {
         if (cache) {
           // TODO add cache
         }
