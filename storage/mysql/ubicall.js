@@ -217,10 +217,10 @@ function feedback(feedback) {
   });
 }
 
-function updateIVR(ivr) {
-  return when.promise(function(resolve, rejcet) {
+function updateIVR(data) {
+  return when.promise(function(resolve, reject) {
     $client_version_view.findOne({
-      licence_key: ivr.licence_key
+      licence_key: data.license_key
     }).then(function(client) {
       if (client) {
         $version.findOne({
@@ -228,8 +228,11 @@ function updateIVR(ivr) {
         }).then(function(version) {
           return version.updateAttributes({
             server_id: data.server_id,
-            server_id: data.url,
-            server_id: data.url
+            version: data.server_id,
+            url: data.url,
+             where: {
+                id:client.id,
+              }
           }).then(function(updated) {
             return resolve(updated);
           }).catch(function(error) {
@@ -237,17 +240,13 @@ function updateIVR(ivr) {
           });
 
         }).catch(function(error) {
-          return rejcet(error)
+          return reject(error);
         });
-
-      }
-      else {
-
+      }else {
         return reject('Invaled Key');
       }
-
     }).catch(function(error) {
-      return rejcet(error)
+      return reject(error)
     });
   });
 }

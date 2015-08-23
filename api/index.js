@@ -417,15 +417,15 @@ apiApp.post('/feedback', function(req, res, next) {
 
     });
 
-apiApp.put('/ivr/:license_key/:version', function(req, res, next) {
+apiApp.put('/ivr/:license_key/:server_id', function(req, res, next) {
 
       var data = {};
       var mainPlistURL;
       data.license_key = req.params.license_key;
       data.server_id = req.params.server_id;
-      if(req.headers.plisturl){
+      if(req.header("plisturl")){
         //TODO check on plisturl concatenated with slash
-          mainPlistURL = req.headers.plisturl;
+          mainPlistURL = req.header("plisturl");
       }
       else{
         mainPlistURL = settings.defaultPlistURL;
@@ -440,35 +440,34 @@ apiApp.put('/ivr/:license_key/:version', function(req, res, next) {
         });
       }
 
-      storage.updateIVR(data).then(function(IVR) {
-
-          var options = {
-            url: 'https://platform.ubicall.com/api/widget/'+data.license_key+'/'+data.server_id,
-            method: 'POST',
-            headers: {
-              'plistURL': mainPlistURL
-            }
+        var options = {
+          url: 'https://platform.ubicall.com/api/widget/'+data.license_key+'/'+data.server_id,
+          method: 'POST',
+          headers: {
+            'plistURL': mainPlistURL
           }
+        }
 
-          request(options, function(error, response, body) {
-            if (!error && response.statusCode == 200) {
+        request(options, function(error, response, body) {
+          if (!error && response.statusCode == 200) {
+            storage.updateIVR(data).then(function(IVR) {
               return res.status(200).json({
-                message: "successfully"
+                message: "mobile & web updated successfully"
               });
-            } else {
+            }).otherwise(function(error) {
+              //TODO roll back widget to current version in DB
+              log.error('error : ' + error);
               return res.status(500).json({
-                message: "something is broken , try again later"
+                message: "web cannot be updated"
               });
-            }
-          });
-
-
-      }).otherwise(function(error) {
-        log.error('error : ' + error);
-        return res.status(500).json({
-          message: "something is broken , try again later"
+            });
+          } else {
+            return res.status(500).json({
+              message: "Unable to update Web,hence cannot update Mobile "
+            });
+          }
         });
-      });
+
 
     });
 

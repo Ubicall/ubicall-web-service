@@ -165,9 +165,9 @@ var storageModuleInterface = {
     });
   },
 
-  updateIVR: function(ivr) {
+  updateIVR: function(data) {
     return when.promise(function(resolve, rejcet) {
-      ubicallStorageModule.checkIVR(ivr).then(function(ivr) {
+      ubicallStorageModule.updateIVR(data).then(function(ivr) {
 
         return resolve(ivr);
       }).otherwise(function(error) {
