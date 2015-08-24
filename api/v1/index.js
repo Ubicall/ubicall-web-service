@@ -305,12 +305,9 @@ function init(_settings, _storage) {
       });
     });
 
-<<<<<<< HEAD:api/index.js
-=======
   return resolve(apiApp);
   });
 }
->>>>>>> 195dc1a3ea30ec488dc854716fe7f5a7878e1bba:api/v1/index.js
 
 function __deployToWeb(widgetHost, plistHost, license_key, version) {
   return when.promise(function(resolve, reject) {
