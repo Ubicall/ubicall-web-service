@@ -3,6 +3,7 @@ exposed ubicall web service for public and internal use , to make CRUD operation
 
 **create model from db using :**
 ``` bash
-sequelize-auto -o "./storage/ubicall/models" -d ubicall -h localhost -u sand -p 3306 -x sand -e mysql
-sequelize-auto -o "./storage/ast_rt/models" -d ast_rt -h localhost -u sand -p 3306 -x sand -e mysql
+sequelize-auto -o "./storage/models/ubicall" -d ubicall -h localhost -u root -p 3306 -x root -e mysql
+sequelize-auto -o "./storage/models/ast_rt" -d ast_rt -h localhost -u root -p 3306 -x root -e mysql
+sequelize-auto -o "./storage/models/web_fs_db" -d WEB_FS_DB -h localhost -u root -p 3306 -x root -e mysql
 ```

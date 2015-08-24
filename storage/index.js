@@ -8,10 +8,12 @@ function _initStorage(_settings) {
   var toReturnPromises = [];
   if (_settings.storage && _settings.storage.ubicallStorageModule) {
     if (typeof _settings.storage.ubicallStorageModule === "string" && _settings.storage.ubicallStorageModule == "mysql") {
-      ubicallStorageModule = require("./" + _settings.storage.ubicallStorageModule + "/ubicall.js");
-      astStorageModule = require("./" + _settings.storage.ubicallStorageModule + "/ast_rt.js");
+      ubicallStorageModule = require("./musql/ubicall.js");
+      astStorageModule = require("./mysql/ast_rt.js");
+      webFSStorageModule = require("./musql/web_fs_db.js");
       toReturnPromises.push(ubicallStorageModule.init(_settings));
       toReturnPromises.push(astStorageModule.init(_settings));
+      toReturnPromises.push(webFSStorageModule.init(_settings));
     } else {
       throw new Error("unsupport storage")
     }
@@ -231,7 +233,23 @@ var storageModuleInterface = {
         return reject(error);
       });
     });
-  }
+  } ,
+
+  createSipDirectory : function(sip , password , dialString){
+    return when.promise(function(resolve,reject){
+      var _directory;
+      webFSStorageModule.createSipDirectory(sip).then(function(directory){
+        _directory = directory;
+        webFSStorageModule.createSipDirectoryParams(directory , password , dialString).then(function(dp1,dp2){
+          return resolve(_directory);
+        }).otherwise(function(error){
+            return rejcet(error);
+        });
+      }).otherwise(function(error){
+        return rejcet(error);
+      });
+    });
+  },
 
 };
 

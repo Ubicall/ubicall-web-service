@@ -2,6 +2,7 @@ var when = require('when');
 var Sequelize = require('sequelize');
 
 var settings, _sequelize;
+var $sipfriends;
 
 function sequlizeImport(model) {
   return _sequelize.import(__dirname + "/../models/ast_rt/" + model);

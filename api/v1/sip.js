@@ -8,6 +8,7 @@ var BadRequest = require('../errors').BadRequest;
 var MissedParams = require('../errors').MissedParams;
 var Forbidden = require('../errors').Forbidden;
 
+var DIAL_STRING = settings.infra.clientServer.web.dialString;
 
 function createSip(req, res, next) {
   var data = {};
@@ -79,14 +80,18 @@ function createWebSip(req, res, next) {
     var clientCount = client.count + 1;
     var sip = sprintf("[%'09s]", clientCount);
     sip = client.id + "000" + sip;
-    var domain = settings.infra.clientServer.mobile.public;
+    var domain = settings.infra.clientServer.web.public;
     var password = randomstring.generate(16);
 
     storage.incrementClientCount(client.id).then(function(incremented) {
-      return res.status(200).json({
-        username: sip,
-        password: password,
-        domain: domain
+      storage.createSipDirectory(sip , password , DIAL_STRING).then(function(directory){
+        return res.status(200).json({
+          username: sip,
+          password: password,
+          domain: domain
+        });
+      }).otherwise(function(error){
+        return next(new ServerError(req.path));
       });
     }).otherwise(function(error) {
       return next(new ServerError(req.path));

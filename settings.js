@@ -39,6 +39,12 @@ module.exports = {
             password: config.storage.mysql.ast_rt.password,
             host: config.storage.mysql.ast_rt.host
         },
+        web_fs_db_mysql: {
+            database: config.storage.mysql.WEB_FS_DB.database,
+            username: config.storage.mysql.WEB_FS_DB.username,
+            password: config.storage.mysql.WEB_FS_DB.password,
+            host: config.storage.mysql.WEB_FS_DB.host
+        },
         fake: {
             locale: 'de',
             options: { // these options take precedence in fakeStorage.js
