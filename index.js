@@ -4,7 +4,7 @@ var express = require('express');
 var fs = require("fs");
 var storage = require('./storage')
 var settings = require('./settings');
-var api = require('./api');
+var apiv1 = require('./api/v1');
 var log = require('./log');
 
 var server;
@@ -24,13 +24,13 @@ storage.init(settings).then(function() {
 
   var meta = function(req, res) {
     res.status(200).json({
-      'info': 'meta info'
+      'apiv1': 'https://api.ubicall.com/v1/'
     })
   };
 
   app.get('/', meta);
 
-  api.init(settings, storage).then(function(apia) {
+  apiv1.init(settings, storage).then(function(apia) {
 
     app.use('/v1' , apia);
 
