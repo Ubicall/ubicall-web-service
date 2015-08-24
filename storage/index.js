@@ -195,18 +195,11 @@ var storageModuleInterface = {
 
   incrementClientCount: function(clientId) {
     return when.promise(function(resolve, reject) {
-<<<<<<< HEAD
-    ubicallStorageModule.update_client(id).then(function(client) {
-        return resolve(client)
-      }).otherwise(function(error) {
-        return reject(error);
-=======
       ubicallStorageModule.incrementClientCount(clientId).then(function(client) {
           return resolve(client)
         }).otherwise(function(error) {
           return reject(error);
         });
->>>>>>> 195dc1a3ea30ec488dc854716fe7f5a7878e1bba
       });
   },
 
@@ -230,13 +223,9 @@ var storageModuleInterface = {
     });
   },
 
-<<<<<<< HEAD
-  insert_sipfriends: function(s) {
-=======
   createSipFriend: function(sip , password) {
->>>>>>> 195dc1a3ea30ec488dc854716fe7f5a7878e1bba
     return when.promise(function(resolve, reject) {
-      ubicallStorageModule.createSipFriend(sip , password).then(function(result) {
+      astStorageModule.createSipFriend(sip , password).then(function(result) {
         return resolve(result);
       }).otherwise(function(error) {
         return reject(error);

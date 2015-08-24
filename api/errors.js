@@ -47,10 +47,20 @@ function Forbidden(resource){
 Forbidden.prototype = UbicallError.prototype;
 
 
+function ServerError(resource){
+  this.name = "Server Error";
+  this.status = 500;
+  this.response = {};
+  this.response.message = "Unexpected Condition Was Encountered";
+}
+ServerError.prototype = UbicallError.prototype;
+
+
 module.exports = {
   UbicallError: UbicallError,
   NotImplementedError: NotImplementedError,
   BadRequest: BadRequest,
   MissedParams: MissedParams,
-  Forbidden : Forbidden
+  Forbidden : Forbidden,
+  ServerError : ServerError
 }

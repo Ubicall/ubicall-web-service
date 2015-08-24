@@ -194,54 +194,8 @@ function init(_settings, _storage) {
 
     apiApp.post('/sip', sip.createSip , errorHandler.handle);
 
-    apiApp.put('/webacc', function(req, res, next) {
-      var data = {};
-      data.sdk_name = req.body.sdk_name;
-      data.sdk_version = req.body.sdk_version;
-      data.deviceuid = req.body.deviceuid;
-      data.device_token = req.body.device_token;
-      data.device_name = req.body.device_name;
-      data.device_model = req.body.device_model;
-      data.device_version = req.body.device_version;
-      data.license_key = req.body.license_key;
-      var next_client;
-      var domain = "162.242.253.195"; //static;
-      if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token || !data.device_name || !data.device_model || !data.device_version || !data.license_key)
-      {
-        return res.status(500).json({
-          message: "missing parameters ",
-          hint: "shoud send All Parameters"
-        });
-      }
-      else {
+    apiApp.post('/webacc', sip.createWebSip , errorHandler.handle);
 
-        storage.getClient(data.license_key).then(function(client){
-            next_client = client.count + 1;
-            sip = sprintf("[%'09s]", next_client);
-            sip = client.id + "000" + sip;
-            var domain = "104.239.166.30";
-            var password = randomstring.generate(16);
-            storage.update_client(client.id).then(function(updated_client){
-              return res.status(200).json({
-                message:'client updated successfully',
-                username:sip,
-                password:password,
-                domain:domain
-              })
-            }).otherwise(function(error){
-              return res.status(400).json({
-                message:'cannot update client'
-              });
-            });
-
-        }).otherwise(function(error){
-          return res.status(500).json({
-            message:'cannot find client with licesne key'
-          });
-        });
-        }
-
-        });
 
     apiApp.get('/queue/:key', function(req, res, next) {
       var key = req.params.key;
