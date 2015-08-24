@@ -5,7 +5,7 @@
 * AS
 * SELECT
 *      client_id as id , client_id , name , licence_key , url ,
-*      server_id , version, enabled , demo
+*      server_id , version, enabled , demo , count
 *      FROM ubicall.client JOIN ubicall.version ON ubicall.client.id = ubicall.version.client_id;
 **/
 
@@ -33,6 +33,11 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(10),
       allowNull: true,
       defaultValue: '1'
+    },
+    count: {
+      type: DataTypes.INTEGER(10),
+      allowNull: false,
+      defaultValue: '0'
     },
     demo: {
       type: DataTypes.INTEGER(2),

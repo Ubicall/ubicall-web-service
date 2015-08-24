@@ -8,9 +8,9 @@ function _initStorage(_settings) {
   var toReturnPromises = [];
   if (_settings.storage && _settings.storage.ubicallStorageModule) {
     if (typeof _settings.storage.ubicallStorageModule === "string" && _settings.storage.ubicallStorageModule == "mysql") {
-      ubicallStorageModule = require("./musql/ubicall.js");
+      ubicallStorageModule = require("./mysql/ubicall.js");
       astStorageModule = require("./mysql/ast_rt.js");
-      webFSStorageModule = require("./musql/web_fs_db.js");
+      webFSStorageModule = require("./mysql/web_fs_db.js");
       toReturnPromises.push(ubicallStorageModule.init(_settings));
       toReturnPromises.push(astStorageModule.init(_settings));
       toReturnPromises.push(webFSStorageModule.init(_settings));
@@ -61,9 +61,7 @@ var storageModuleInterface = {
 
   getDevice: function(token) {
     return when.promise(function(resolve, reject) {
-
       return ubicallStorageModule.getDevice(token).then(function(device) {
-
         return resolve(device);
       }).otherwise(function(error) {
         return reject(error);
@@ -74,12 +72,7 @@ var storageModuleInterface = {
   getClient: function(key) {
     return when.promise(function(resolve, reject) {
       return ubicallStorageModule.getClient(key).then(function(client) {
-        if(!client){
-          return reject('no client found');
-        }
-        else{
         return resolve(client);
-      }
       }).otherwise(function(error) {
         return reject(error);
       });
@@ -87,31 +80,27 @@ var storageModuleInterface = {
   },
 
   cancelCall: function(callId) {
-    return when.promise(function(resolve, rejcet) {
-
+    return when.promise(function(resolve, reject) {
       ubicallStorageModule.cancelCall(callId).then(function(call) {
         return resolve(call);
       }).otherwise(function(error) {
-        return rejcet(error);
+        return reject(error);
       });
     });
   },
 
   getAccountInfo: function(key) {
     return when.promise(function(resolve, reject) {
-
       ubicallStorageModule.getAccountInfo(key).then(function(company) {
         return resolve(company);
       }).otherwise(function(error) {
         return reject(error);
       });
-
     });
   },
 
   getVersion: function(key) {
     return when.promise(function(resolve, reject) {
-
       ubicallStorageModule.getVersion(key).then(function(version) {
         return resolve(version);
       }).otherwise(function(error) {
@@ -138,54 +127,47 @@ var storageModuleInterface = {
       });
     });
   },
+
   findQueue: function(key) {
     return when.promise(function(resolve, reject) {
-
       ubicallStorageModule.getAdmin(key).then(function(admin) {
-        if(admin)
-        {
-          admin_id = admin.id;
-          ubicallStorageModule.getQueue(admin_id).then(function(queue){
-            if(queue){
-              return resolve(queue);
-            }
-          }).otherwise(function(error){
-            return reject(error);
-          });
-        }
-
-    }).otherwise(function(error){
-      return reject(error);
+        ubicallStorageModule.getQueue(admin.id).then(function(queue){
+            return resolve(queue);
+        }).otherwise(function(error){
+          return reject(error);
+        });
+      }).otherwise(function(error){
+        return reject(error);
+      });
     });
-  });
   },
 
   feedback: function(data) {
-    return when.promise(function(resolve, rejcet) {
+    return when.promise(function(resolve, reject) {
       ubicallStorageModule.feedback(data).then(function(feedback) {
 
         return resolve(feedback);
       }).otherwise(function(error) {
-        return rejcet(error);
+        return reject(error);
       });
     });
   },
 
   updateIVR: function(data) {
-    return when.promise(function(resolve, rejcet) {
+    return when.promise(function(resolve, reject) {
       ubicallStorageModule.updateIVR(data).then(function(ivr) {
 
         return resolve(ivr);
       }).otherwise(function(error) {
-        return rejcet(error);
+        return reject(error);
 
       });
     });
   },
 
-  createSip: function(data, password , domain, sip) {
+  createSip: function(device, password , domain, sip) {
     return when.promise(function(resolve, reject) {
-    ubicallStorageModule.createSip(data, password , domain, sip).then(function(device) {
+    ubicallStorageModule.createSip(device, password , domain, sip).then(function(device) {
       return resolve(device);
       }).otherwise(function(error) {
         return reject(error);
@@ -206,11 +188,11 @@ var storageModuleInterface = {
   },
 
   getClients: function(data) {
-    return when.promise(function(resolve, rejcet) {
+    return when.promise(function(resolve, reject) {
       ubicallStorageModule.getClients().then(function(clients) {
         return resolve(clients);
       }).otherwise(function(error) {
-        return rejcet(error);
+        return reject(error);
       });
     });
   },
@@ -220,7 +202,7 @@ var storageModuleInterface = {
       ubicallStorageModule.getIVR(license_key).then(function(ivr) {
         return resolve(ivr);
       }).otherwise(function(error) {
-        return rejcet(error);
+        return reject(error);
       });
     });
   },
@@ -243,10 +225,10 @@ var storageModuleInterface = {
         webFSStorageModule.createSipDirectoryParams(directory , password , dialString).then(function(dp1,dp2){
           return resolve(_directory);
         }).otherwise(function(error){
-            return rejcet(error);
+            return reject(error);
         });
       }).otherwise(function(error){
-        return rejcet(error);
+        return reject(error);
       });
     });
   },

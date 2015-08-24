@@ -192,9 +192,9 @@ function init(_settings, _storage) {
 
     });
 
-    apiApp.post('/sip', sip.createSip , errorHandler.handle);
+    apiApp.post('/sip/account', sip.createSipAccount , errorHandler.handle);
 
-    apiApp.post('/webacc', sip.createWebSip , errorHandler.handle);
+    apiApp.post('/web/account', sip.createWebAccount , errorHandler.handle);
 
 
     apiApp.get('/queue/:key', function(req, res, next) {

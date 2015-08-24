@@ -42,7 +42,7 @@ function createSipDirectory(sip) {
     }).then(function(directory) {
       return resolve(directory);
     }).catch(function(error) {
-      return rejcet(error)
+      return reject(error)
     });
   });
 }
@@ -69,12 +69,13 @@ function createSipDirectoryParams(directory , password , dialString){
         return reject(error);
       });
     }).catch(function(error){
-      return rejcet(error);
+      return reject(error);
     });
   });
 }
 
 module.exports = {
   init: init,
-  createSipFriend: createSipFriend
+  createSipDirectory : createSipDirectory,
+  createSipDirectoryParams: createSipDirectoryParams
 }

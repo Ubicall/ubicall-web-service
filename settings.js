@@ -93,7 +93,8 @@ module.exports = {
         },
         web :{
           public : config.infra.clientServer.web.public,
-          internal: config.infra.clientServer.web.internal
+          internal: config.infra.clientServer.web.internal,
+          dialString: config.infra.clientServer.web.dialString
         }
       }
     },

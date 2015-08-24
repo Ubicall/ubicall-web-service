@@ -131,19 +131,17 @@ function getDevice(device) {
     });
   });
 }
-///Get Version API
-function getVersion(key) {
-  return when.promise(function(resolve, reject) { //Get Clients with a specific license_key
 
+function getVersion(key) {
+  return when.promise(function(resolve, reject) {
     $client_version_view.findOne({
       where: {
         licence_key: key,
       }
     }).then(function(version) {
       if (!version) {
-        return reject('no version found');
+        return reject("no result found");
       }
-      //Now I have client attributes with a specific license_key
       return resolve(version);
     }).catch(function(error) {
 
@@ -153,7 +151,7 @@ function getVersion(key) {
 }
 
 function cancelCall(callId) {
-  return when.promise(function(resolve, rejcet) {
+  return when.promise(function(resolve, reject) {
     $calls.findById(callId).then(function(call) {
       // Now i have call and i should update it now withh cancel flag
       return call.updateAttributes({
@@ -164,7 +162,7 @@ function cancelCall(callId) {
         return reject(error);
       });
     }).catch(function(error) {
-      return rejcet(error)
+      return reject(error)
     });
   });
 }
@@ -176,6 +174,9 @@ function getAdmin(key){
         licence_key: key,
       }
     }).then(function(admin){
+      if(!admin){
+        return reject("no result found");
+      }
       return resolve(admin);
     }).catch(function(error){
       return reject(error);
@@ -184,23 +185,26 @@ function getAdmin(key){
 }
 
 function getQueue(id){
-  return when.promise(function(resolve,rejcet){
+  return when.promise(function(resolve,reject){
     $queue.findOne({
       where: {
       admin_id: id,
       }
     }).then(function(queue) {
+      if(!queue){
+        return reject("no result found");
+      }
       return resolve(queue);
-  }).catch(function(error){
-    return reject(error);
+    }).catch(function(error){
+      return reject(error);
+    });
   });
-});
 }
 
 function feedback(feedback) {
-  return when.promise(function(resolve, rejcet) {
+  return when.promise(function(resolve, reject) {
     if (!feedback.call_id) {
-      return rejcet("no call found to sumit this feedback")
+      return reject("no call found to sumit this feedback")
     }
     //update create to upsert , inside db the call id should be unique
     //TODO update time from server time to local time
@@ -212,7 +216,7 @@ function feedback(feedback) {
     }).then(function(feedback) {
       return resolve(feedback);
     }).catch(function(error) {
-      return rejcet(error);
+      return reject(error);
     });
   });
 }
@@ -252,7 +256,7 @@ function updateIVR(data) {
 }
 
 function getClients() {
-  return when.promise(function(resolve, rejcet) {
+  return when.promise(function(resolve, reject) {
     $client_version_view.findAll({
       where: {
         enabled: 1
@@ -260,7 +264,7 @@ function getClients() {
       attributes: ['name', 'licence_key', 'url']
     }).then(function(clients) {
       if (!clients) {
-        return reject('No Clients Found ');
+        return reject("no result found");
       }
       return resolve(clients);
     }).catch(function(error) {
@@ -271,21 +275,23 @@ function getClients() {
 
 //function to insert in device sip table used in get_sip api
 
-function createSip(data, password , domain, sip) {
+function createSip(device, password , domain, sip) {
   return when.promise(function(resolve, reject) {
     $device_sip.create({
-      sdk_name: data.sdk_name,
-      sdk_version: data.sdk_version,
-      device_token: data.device_token,
-      device_name: data.device_name,
-      device_model: data.device_model,
-      licence_key: data.licence_key,
+      sdk_name: device.sdk_name,
+      sdk_version: device.sdk_version,
+      device_token: device.token,
+      device_name: device.name,
+      device_model: device.model,
+      licence_key: device.license_key,
+      device_version : device.version,
+      deviceuid : device.uid,
       sip: sip,
       password: password,
       domain: domain,
       creation_date:moment().format('YYYY-MM-DD HH:mm:ss')
-    }).then(function(device) {
-      return resolve(result);
+    }).then(function(sipDevice) {
+      return resolve(sipDevice);
     }).catch(function(error) {
       return reject(error);
     });
@@ -315,7 +321,7 @@ function getIVR(license_key){
       }
     }).then(function(ivr) {
       if (!ivr) {
-        return reject('No Clients Found ');
+        return reject("no result found");
       }
       return resolve(ivr);
     }).catch(function(error) {
