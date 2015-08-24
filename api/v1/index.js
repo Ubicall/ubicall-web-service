@@ -9,8 +9,10 @@ var request = require('request');
 var sprintf = require('sprintf');
 var randomstring = require('randomstring');
 var cors = require('cors');
-var ubicallCors = require('../ubicallCors');
-var log = require('../log');
+var ubicallCors = require('../../ubicallCors');
+var log = require('../../log');
+var sip = require('./sip');
+var errorHandler = require('./errorHandler');
 
 
 
@@ -191,93 +193,7 @@ function init(_settings, _storage) {
 
     });
 
-    apiApp.post('/sip', function(req, res, next) {
-
-      var data = {};
-      data.sdk_name = req.body.sdk_name;
-      data.sdk_version = req.body.sdk_version;
-      data.deviceuid = req.body.deviceuid;
-      data.device_token = req.body.device_token;
-      data.device_name = req.body.device_name;
-      data.device_model = req.body.device_model;
-      data.device_version = req.body.device_version;
-      data.license_key = req.body.license_key;
-      var next_client;
-
-      if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token || !data.device_name || !data.device_model
-        || !data.device_version || !data.license_key) {
-        return res.status(400).json({
-          message: "missing parameters ",
-          hint: "shoud send All Parameters"
-        });
-      } else {
-
-        var client_exist = 1;
-        var sip = "";
-        var password = "";
-        var domain = "";
-        log.info(data.device_token);
-        storage.getDevice(data.device_token).then(function(result) {
-
-          if (result) {
-            sip = result.sip;
-            password = result.password;
-            domain = result.domain;
-          } else {
-            storage.getClient(data).then(function(client) {
-              count = client.id;
-              if (client) {
-                client_exist = 1;
-                var next_client = client.count + 1;
-                sip = sprintf("[%'09s]", next_client);
-                sip = client.id + "000" + sip;
-                var domain = "104.239.166.30";
-                var password = randomstring.generate(16);
-
-                storage.createSip(data, password , domain, sip);
-                storage.update_client(count);
-                storage.insert_sipfriends(data);
-
-              } else {
-                client_exist = 0;
-              }
-            }).otherwise(function(error) {
-              return reject(error);
-            });
-            if (client_exist > 0) {
-
-              return res.status(200).json({
-                message: 'data retrieved successfully',
-                username: sip,
-                password: password,
-                domain: domain
-              });
-            } else {
-              return res.status(403).json({
-                message: 'license key invalid',
-
-              });
-            }
-          }
-
-          if (client_exist > 0) {
-            return res.status(200).json({
-              message: 'data retrieved successfully',
-              username: sip,
-              password: password,
-              domain: domain
-            });
-          }
-        }).otherwise(function(error) {
-
-          log.error('error : ' + error);
-          return res.status(500).json({
-            message: 'unable to get sip'
-          });
-        });
-
-      }
-    });
+    apiApp.post('/sip', sip.createSip , errorHandler.handle);
 
 
     apiApp.put('/webacc', function(req, res, next) {
@@ -445,6 +361,8 @@ function init(_settings, _storage) {
       });
     });
 
+  return resolve(apiApp);
+  });
 }
 
 function __deployToWeb(widgetHost, plistHost, license_key, version) {

@@ -189,15 +189,14 @@ var storageModuleInterface = {
 
 
 
-  update_client: function(id) {
+  incrementClientCount: function(clientId) {
     return when.promise(function(resolve, reject) {
-    ubicallStorageModule.update_client(id).then(function(client) {
-
-        return resolve(client)
-      }).otherwise(function(error) {
-        return reject(error);
+      ubicallStorageModule.incrementClientCount(clientId).then(function(client) {
+          return resolve(client)
+        }).otherwise(function(error) {
+          return reject(error);
+        });
       });
-    });
   },
 
   getClients: function(data) {
@@ -220,13 +219,12 @@ var storageModuleInterface = {
     });
   },
 
-  insert_sipfriends: function(sipfriends) {
+  createSipFriend: function(sip , password) {
     return when.promise(function(resolve, reject) {
-      ubicallStorageModule.insert_sipfriends(sipfriends).then(function(result) {
-      return resolve(result);
+      ubicallStorageModule.createSipFriend(sip , password).then(function(result) {
+        return resolve(result);
       }).otherwise(function(error) {
         return reject(error);
-
       });
     });
   }
