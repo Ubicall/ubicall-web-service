@@ -71,9 +71,13 @@ var storageModuleInterface = {
 
   getClient: function(key) {
     return when.promise(function(resolve, reject) {
-
       return ubicallStorageModule.getClient(key).then(function(client) {
+        if(!client){
+          return reject('no client found');
+        }
+        else{
         return resolve(client);
+      }
       }).otherwise(function(error) {
         return reject(error);
       });
@@ -192,7 +196,6 @@ var storageModuleInterface = {
   update_client: function(id) {
     return when.promise(function(resolve, reject) {
     ubicallStorageModule.update_client(id).then(function(client) {
-
         return resolve(client)
       }).otherwise(function(error) {
         return reject(error);
@@ -220,7 +223,7 @@ var storageModuleInterface = {
     });
   },
 
-  insert_sipfriends: function(sipfriends) {
+  insert_sipfriends: function(s) {
     return when.promise(function(resolve, reject) {
       ubicallStorageModule.insert_sipfriends(sipfriends).then(function(result) {
       return resolve(result);

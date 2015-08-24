@@ -13,7 +13,6 @@ var ubicallCors = require('../ubicallCors');
 var log = require('../log');
 
 
-
 var settings, storage;
 var apiApp;
 
@@ -38,7 +37,7 @@ function init(_settings, _storage) {
       call.license_key = req.body.license || req.body.license_key;
       call.call_data = req.body.form_data || req.body.json || req.body.call_data;
       call.longitude = req.body.longitude || req.body.long;
-      call.longitude = req.body.latitude || req.body.lat;
+      call.latitude = req.body.latitude || req.body.lat;
       call.pstn = req.body.pstn || '0'; // mobile or web
       call.address = req.body.address;
       call.time = req.body.time || req.body.call_time;
@@ -230,8 +229,9 @@ function init(_settings, _storage) {
                 var next_client = client.count + 1;
                 sip = sprintf("[%'09s]", next_client);
                 sip = client.id + "000" + sip;
-                var domain = "104.239.166.30";
-                var password = randomstring.generate(16);
+                domain = "104.239.166.30";
+                password = randomstring.generate(16);
+
                 storage.insert_into_sip(data, password, sip).then(function(device) {
                   return resolve(device);
                 }).otherwise(function(error) {
@@ -305,51 +305,43 @@ function init(_settings, _storage) {
       data.device_version = req.body.device_version;
       data.license_key = req.body.license_key;
       var next_client;
-
-      if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token || !data.device_name || !data.device_model || !data.device_version || !data.license_key) {
+      var domain = "162.242.253.195"; //static;
+      if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token || !data.device_name || !data.device_model || !data.device_version || !data.license_key)
+      {
         return res.status(500).json({
           message: "missing parameters ",
           hint: "shoud send All Parameters"
         });
-      } else {
-        var client_exist = 1;
-        var sip = "";
-        var password = "";
-        var domain = "";
-        var next_client;
-        storage.getClient(data.license_key).then(function(client) {
-          count = client.id;
-          log.info('Count is', count);
-          if (client) {
-            log.info('there is a client');
-            client_exist = 1;
+      }
+      else {
+
+        storage.getClient(data.license_key).then(function(client){
             next_client = client.count + 1;
             sip = sprintf("[%'09s]", next_client);
             sip = client.id + "000" + sip;
             var domain = "104.239.166.30";
             var password = randomstring.generate(16);
-            //TODO device name mysql real escape
-
-            storage.update_client(client.id).then(function(updated) {
-              log.info('client updated');
+            storage.update_client(client.id).then(function(updated_client){
               return res.status(200).json({
-                message: 'client record updated'
-              });
-            }).otherwise(function(error) {
-              log.error(error);
+                message:'client updated successfully',
+                username:sip,
+                password:password,
+                domain:domain
+              })
+            }).otherwise(function(error){
               return res.status(400).json({
-                message: 'cannot update client record'
+                message:'cannot update client'
               });
             });
-          } else {
-            client_exist = 0;
-            return res.status(403).json({
-              message: 'license key invalid'
-            });
-          }
+
+        }).otherwise(function(error){
+          return res.status(500).json({
+            message:'cannot find client with licesne key'
+          });
         });
-      }
-    });
+        }
+
+        });
 
     apiApp.get('/queue/:key', function(req, res, next) {
       var key = req.params.key;
@@ -459,24 +451,6 @@ function init(_settings, _storage) {
       });
     });
 
-    apiApp.get('/queue/:key', function(req, res, next) {
-      //TODO call strorage.getQueues
-      var key = req.params.key;
-      storage.getQueues(key).then(function(queue) {
-        return res.status(200).json({
-          id: queue.id,
-          name: queue.name
-        }).otherwise(function(error) {
-          log.error('error:' + error);
-          return res.status(500).json({
-            message: ""
-          });
-        });
-      });
-    });
-    return resolve(apiApp);
-  });
-}
 
 function __deployToWeb(widgetHost, plistHost, license_key, version) {
   return when.promise(function(resolve, reject) {
