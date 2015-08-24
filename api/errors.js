@@ -30,7 +30,6 @@ function MissedParams(resource, params) {
   this.response.errors = [];
   for (var i = 0; i < params.length; i++) {
     this.response.errors.push({
-      resource: resource,
       field: params[i],
       "code": "missing_field"
     });
