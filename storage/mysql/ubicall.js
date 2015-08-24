@@ -271,7 +271,7 @@ function getClients() {
 
 //function to insert in device sip table used in get_sip api
 
-function insert_into_sip(data) {
+function createSip(data, password , domain, sip) {
   return when.promise(function(resolve, reject) {
     $device_sip.create({
       sdk_name: data.sdk_name,
@@ -367,7 +367,7 @@ module.exports = {
   updateIVR: updateIVR,
   getIVR:getIVR,
   getClients: getClients,
-  insert_into_sip: insert_into_sip,
+  createSip: createSip,
   insert_sipfriends: insert_sipfriends,
   update_client: update_client
 }

@@ -177,9 +177,9 @@ var storageModuleInterface = {
     });
   },
 
-  insert_into_sip: function(sip) {
+  createSip: function(data, password , domain, sip) {
     return when.promise(function(resolve, reject) {
-    ubicallStorageModule.insert_into_sip(sip).then(function(device) {
+    ubicallStorageModule.createSip(data, password , domain, sip).then(function(device) {
       return resolve(device);
       }).otherwise(function(error) {
         return reject(error);

@@ -204,8 +204,9 @@ function init(_settings, _storage) {
       data.license_key = req.body.license_key;
       var next_client;
 
-      if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token || !data.device_name || !data.device_model || !data.device_version || !data.license_key) {
-        return res.status(500).json({
+      if (!data.sdk_name || !data.sdk_version || !data.deviceuid || !data.device_token || !data.device_name || !data.device_model
+        || !data.device_version || !data.license_key) {
+        return res.status(400).json({
           message: "missing parameters ",
           hint: "shoud send All Parameters"
         });
@@ -232,26 +233,11 @@ function init(_settings, _storage) {
                 sip = client.id + "000" + sip;
                 var domain = "104.239.166.30";
                 var password = randomstring.generate(16);
-                storage.insert_into_sip(data, password, sip).then(function(device) {
-                  return resolve(device);
-                }).otherwise(function(error) {
-                  return reject(error);
-                });
-                storage.insert_into_sip(data).then(function(device) {
-                  return resolve(device);
-                }).otherwise(function(error) {
-                  return reject(error);
-                });
-                storage.update_client(count).then(function(client) {
-                  return resolve(client);
-                }).otherwise(function(error) {
-                  return reject(error);
-                });
-                storage.insert_sipfriends(data).then(function(result) {
-                  return resolve(result);
-                }).otherwise(function(error) {
-                  return reject(error);
-                });
+
+                storage.createSip(data, password , domain, sip);
+                storage.update_client(count);
+                storage.insert_sipfriends(data);
+
               } else {
                 client_exist = 0;
               }
@@ -446,7 +432,7 @@ function init(_settings, _storage) {
     });
 
 
-    apiApp.get('/get-clients', function(req, res, next) {
+    apiApp.get('/clients', function(req, res, next) {
       storage.getClients().then(function(clients) {
         return res.status(200).json({
           data: clients
@@ -459,23 +445,6 @@ function init(_settings, _storage) {
       });
     });
 
-    apiApp.get('/queue/:key', function(req, res, next) {
-      //TODO call strorage.getQueues
-      var key = req.params.key;
-      storage.getQueues(key).then(function(queue) {
-        return res.status(200).json({
-          id: queue.id,
-          name: queue.name
-        }).otherwise(function(error) {
-          log.error('error:' + error);
-          return res.status(500).json({
-            message: ""
-          });
-        });
-      });
-    });
-    return resolve(apiApp);
-  });
 }
 
 function __deployToWeb(widgetHost, plistHost, license_key, version) {
