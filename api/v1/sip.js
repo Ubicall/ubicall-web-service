@@ -1,8 +1,12 @@
+var sprintf = require('sprintf');
+var randomstring = require('randomstring');
+var settings = require('../../settings');
+var storage = require('../../storage');
+var log = require('../../log');
 var NotImplementedError = require('../errors').NotImplementedError;
 var BadRequest = require('../errors').BadRequest;
 var MissedParams = require('../errors').MissedParams;
 var Forbidden = require('../errors').Forbidden;
-var settings = require('../../settings');
 
 
 function createSip(req, res, next) {
@@ -21,7 +25,6 @@ function createSip(req, res, next) {
   if (missingParams.length > 0) {
     return next(new MissedParams(req.path, missingParams));
   }
-
 
   storage.getDevice(data.device_token).then(function(device) {
     return res.status(200).json({

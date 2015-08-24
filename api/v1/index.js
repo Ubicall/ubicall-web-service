@@ -12,7 +12,7 @@ var cors = require('cors');
 var ubicallCors = require('../../ubicallCors');
 var log = require('../../log');
 var sip = require('./sip');
-var errorHandler = require('./errorHandler');
+var errorHandler = require('../errorHandler');
 
 
 
