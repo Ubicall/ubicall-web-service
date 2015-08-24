@@ -12,12 +12,19 @@ function NotImplementedError(resource) {
 }
 NotImplementedError.prototype = UbicallError.prototype;
 
-function BadRequest(resource) {
+function BadRequest(resource , field) {
   this.name = "BadRequest";
   this.status = 400;
   this.response = {};
   this.response.resource = resource;
   this.response.message = "Problems parsing JSON";
+  if(field){
+    this.response.errors = [] ;
+    this.response.errors.push({
+      field: field,
+      "code": "invalid_field"
+    });
+  }
 }
 BadRequest.prototype = UbicallError.prototype;
 
