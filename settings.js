@@ -79,6 +79,18 @@ module.exports = {
             queuesttl: 600
         }
     },
+    infra:{
+      clientServer: {
+        mobile :{
+          public : config.infra.clientServer.mobile.public,
+          internal: config.infra.clientServer.mobile.internal
+        },
+        web :{
+          public : config.infra.clientServer.web.public,
+          internal: config.infra.clientServer.web.internal
+        }
+      }
+    },
     plistHost : config.defaultPlistHost,
     widgetHost : config.endPoints.widgetDeploy
 }

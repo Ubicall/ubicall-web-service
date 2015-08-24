@@ -271,7 +271,7 @@ function getClients() {
 
 //function to insert in device sip table used in get_sip api
 
-function insert_into_sip(data) {
+function createSip(data, password , domain, sip) {
   return when.promise(function(resolve, reject) {
     $device_sip.create({
       sdk_name: data.sdk_name,
@@ -293,47 +293,18 @@ function insert_into_sip(data) {
 }
 //function to update client tabel used in get_sip api
 
-function update_client(id) {
+function incrementClientCount(clientId) {
   return when.promise(function(resolve, reject) {
-    $client.update({
-      count: count + 1
-    }, {
-      where: {
-        id:id
-      }
-    }).then(function(updated) {
-      return resolve(updated);
-    }).catch(function(error) {
+    $client.findOne({where : { id : clientId} }).then(function(client){
+      client.increment('count').then(function(incremented){
+          return resolve(incremented);
+      }).catch(function(error){
+          return reject(error);
+      });
+    }).catch(function(error){
       return reject(error);
     });
   });
-}
-
-function insert_sipfriends(data,password,sip) {
-  //TODO review this function
-    return when.promise(function(resolve,reject){
-      $sip_friends.create({
-        name: sip,
-        regserver:'ubicall_demo',
-        host: 'dynamic',
-        type: 'friend',
-        context: 'ubicalldemo',
-        secret :password ,
-        transport :'tcp,udp' ,
-        dtmfmode:'rfc2833' ,
-        nat :'force_rport,comedia' ,
-        disallow :'all' ,
-        allow:'gsm' ,
-        rtptimeout:'60' ,
-        rtpholdtimeout:'300' ,
-        faxdetect:'no'
-      }).then(function(device){
-        return resolve(result);
-
-      }).catch(function(error){
-        return reject (error);
-      });
-    });
 }
 
 function getIVR(license_key){
@@ -367,7 +338,6 @@ module.exports = {
   updateIVR: updateIVR,
   getIVR:getIVR,
   getClients: getClients,
-  insert_into_sip: insert_into_sip,
-  insert_sipfriends: insert_sipfriends,
-  update_client: update_client
+  createSip: createSip,
+  incrementClientCount: incrementClientCount
 }

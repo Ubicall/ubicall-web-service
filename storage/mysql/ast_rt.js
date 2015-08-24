@@ -46,7 +46,6 @@ function createSipFriend(sip , password) {
       rtptimeout: '60',
       rtpholdtimeout: '300',
       faxdetect: 'no'
-
     }).then(function(sipfriends) {
       result = {};
       result.sip = sip;

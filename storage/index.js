@@ -181,9 +181,9 @@ var storageModuleInterface = {
     });
   },
 
-  insert_into_sip: function(sip) {
+  createSip: function(data, password , domain, sip) {
     return when.promise(function(resolve, reject) {
-    ubicallStorageModule.insert_into_sip(sip).then(function(device) {
+    ubicallStorageModule.createSip(data, password , domain, sip).then(function(device) {
       return resolve(device);
       }).otherwise(function(error) {
         return reject(error);
@@ -193,14 +193,21 @@ var storageModuleInterface = {
 
 
 
-  update_client: function(id) {
+  incrementClientCount: function(clientId) {
     return when.promise(function(resolve, reject) {
+<<<<<<< HEAD
     ubicallStorageModule.update_client(id).then(function(client) {
         return resolve(client)
       }).otherwise(function(error) {
         return reject(error);
+=======
+      ubicallStorageModule.incrementClientCount(clientId).then(function(client) {
+          return resolve(client)
+        }).otherwise(function(error) {
+          return reject(error);
+        });
+>>>>>>> 195dc1a3ea30ec488dc854716fe7f5a7878e1bba
       });
-    });
   },
 
   getClients: function(data) {
@@ -223,13 +230,16 @@ var storageModuleInterface = {
     });
   },
 
+<<<<<<< HEAD
   insert_sipfriends: function(s) {
+=======
+  createSipFriend: function(sip , password) {
+>>>>>>> 195dc1a3ea30ec488dc854716fe7f5a7878e1bba
     return when.promise(function(resolve, reject) {
-      ubicallStorageModule.insert_sipfriends(sipfriends).then(function(result) {
-      return resolve(result);
+      ubicallStorageModule.createSipFriend(sip , password).then(function(result) {
+        return resolve(result);
       }).otherwise(function(error) {
         return reject(error);
-
       });
     });
   }
