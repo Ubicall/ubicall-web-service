@@ -2,9 +2,10 @@ var when = require('when');
 var Sequelize = require('sequelize');
 
 var settings, _sequelize;
+var $sipfriends;
 
 function sequlizeImport(model) {
-  return _sequelize.import(__dirname + "/models/ast_rt/" + model);
+  return _sequelize.import(__dirname + "/../models/ast_rt/" + model);
 }
 
 function init(_settings) {
@@ -46,15 +47,13 @@ function createSipFriend(sip , password) {
       rtptimeout: '60',
       rtpholdtimeout: '300',
       faxdetect: 'no'
-
-    }).then(function(sipfriends) {
-      result = {};
-      result.sip = sip;
-      result.password = password;
-      result.domain = domain;
-      return resolve(result);
+    }).then(function(sipfriend) {
+      if(!sipfriend){
+          return reject("no result found");
+      }
+      return resolve(sipfriend);
     }).catch(function(error) {
-      return rejcet(error)
+      return reject(error)
     });
   });
 }

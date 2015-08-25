@@ -39,6 +39,12 @@ module.exports = {
             password: config.storage.mysql.ast_rt.password,
             host: config.storage.mysql.ast_rt.host
         },
+        web_fs_db_mysql: {
+            database: config.storage.mysql.WEB_FS_DB.database,
+            username: config.storage.mysql.WEB_FS_DB.username,
+            password: config.storage.mysql.WEB_FS_DB.password,
+            host: config.storage.mysql.WEB_FS_DB.host
+        },
         fake: {
             locale: 'de',
             options: { // these options take precedence in fakeStorage.js
@@ -78,5 +84,20 @@ module.exports = {
             //time to live ttl for queues in seconds
             queuesttl: 600
         }
-    }
+    },
+    infra:{
+      clientServer: {
+        mobile :{
+          public : config.infra.clientServer.mobile.public,
+          internal: config.infra.clientServer.mobile.internal
+        },
+        web :{
+          public : config.infra.clientServer.web.public,
+          internal: config.infra.clientServer.web.internal,
+          dialString: config.infra.clientServer.web.dialString
+        }
+      }
+    },
+    plistHost : config.defaultPlistHost,
+    widgetHost : config.endPoints.widgetDeploy
 }
