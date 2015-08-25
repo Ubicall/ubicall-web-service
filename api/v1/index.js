@@ -59,7 +59,9 @@ function init(_settings, _storage) {
 
     });
 
-    apiApp.post('/call', call.create , errorHandler.handle);
+    apiApp.post('/sip/call', call.extract , call.createSipCall , errorHandler.handle);
+
+    apiApp.post('/web/call', call.extract , call.createWebCall , errorHandler.handle);
 
     apiApp.delete('/call/:call_id', call.cancel , errorHandler.handle);
 
