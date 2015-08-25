@@ -65,7 +65,6 @@ function scheduleCall(call, device) {
       call_data: call.call_data,
       schedule_time: call.time
     }).then(function(call) {
-      console.log(call);
       return resolve(call);
     }).catch(function(error) {
       return reject(error);
