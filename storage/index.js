@@ -151,7 +151,6 @@ var storageModuleInterface = {
   feedback: function(data) {
     return when.promise(function(resolve, reject) {
       ubicallStorageModule.feedback(data).then(function(feedback) {
-
         return resolve(feedback);
       }).otherwise(function(error) {
         return reject(error);
@@ -159,14 +158,12 @@ var storageModuleInterface = {
     });
   },
 
-  updateIVR: function(data) {
+  updateIVR: function(ivr) {
     return when.promise(function(resolve, reject) {
-      ubicallStorageModule.updateIVR(data).then(function(ivr) {
-
+      ubicallStorageModule.updateIVR(ivr).then(function(ivr) {
         return resolve(ivr);
       }).otherwise(function(error) {
         return reject(error);
-
       });
     });
   },

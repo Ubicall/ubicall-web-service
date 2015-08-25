@@ -217,19 +217,19 @@ function feedback(feedback) {
   });
 }
 
-function updateIVR(data) {
+function updateIVR(ivr) {
   return when.promise(function(resolve, reject) {
     $client_version_view.findOne({
-      licence_key: data.license_key
+      licence_key: ivr.license_key
     }).then(function(client) {
       if (client) {
         $version.findOne({
           client_id: client.id
         }).then(function(version) {
           return version.updateAttributes({
-            server_id: data.server_id,
-            version: data.server_id,
-            url: data.url,
+            server_id: ivr.version,
+            version: ivr.version,
+            url: ivr.url,
              where: {
                 id:client.id,
               }

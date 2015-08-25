@@ -53,12 +53,21 @@ function Forbidden(resource){
 }
 Forbidden.prototype = UbicallError.prototype;
 
+function NotFound(resource){
+  this.name = "Not Found";
+  this.status = 404;
+  this.response = {};
+  this.response.resource = resource;
+  this.response.message = "Not Found";
+}
+ServerError.NotFound = UbicallError.prototype;
 
-function ServerError(resource){
+
+function ServerError(resource , message){
   this.name = "Server Error";
   this.status = 500;
   this.response = {};
-  this.response.message = "Unexpected Condition Was Encountered";
+  this.response.message = message || "Unexpected Condition Was Encountered";
 }
 ServerError.prototype = UbicallError.prototype;
 
@@ -69,5 +78,6 @@ module.exports = {
   BadRequest: BadRequest,
   MissedParams: MissedParams,
   Forbidden : Forbidden,
-  ServerError : ServerError
+  ServerError : ServerError,
+  NotFound : NotFound
 }

@@ -1,5 +1,6 @@
 var when = require('when');
 var request = require('request');
+var validator = require('validator');
 var settings = require('../../settings');
 var storage = require('../../storage');
 var log = require('../../log');
