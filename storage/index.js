@@ -61,6 +61,9 @@ var storageModuleInterface = {
 
   getDevice: function(token) {
     return when.promise(function(resolve, reject) {
+      if(!token){
+        return reject("undefined device_token");
+      }
       return ubicallStorageModule.getDevice(token).then(function(device) {
         return resolve(device);
       }).otherwise(function(error) {
@@ -72,7 +75,7 @@ var storageModuleInterface = {
   getClient: function(key) {
     return when.promise(function(resolve, reject) {
       if(!key){
-        return reject("undefined licence_key")
+        return reject("undefined licence_key");
       }
       return ubicallStorageModule.getClient(key).then(function(client) {
         return resolve(client);

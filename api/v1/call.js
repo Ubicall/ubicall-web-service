@@ -40,6 +40,12 @@ function extract(req, res, next) {
   // pstn - flag to distinguish between mobile app [android - iphone] , web and regular phone call
   // pstn {iphone : 0 , android : 1 , web : 2 , phone : 3}
   call.pstn = req.body.pstn || missingParams.push("pstn");
+  // if this is mobile call then device_token is critical parameter otherwise it not so important
+  if(call.pstn == 0 || call.pstn == 1){
+      call.device_token = req.body.device_token || missingParams.push("device_token");
+  }else {
+    call.device_token = req.body.device_token;
+  }
   call.device_token = req.body.device_token;
   call.sip = req.body.sip || req.body.voiceuser_id;
   //TODO licence_key should be critical but why this changed ? search for #1 in current file
@@ -110,6 +116,9 @@ function createSipCall(req, res, next) {
       log.error('error : ' + error);
       return next(new ServerError(req.path));
     });
+  }).otherwise(function(error){
+    log.error('error : ' + error);
+    return next(new ServerError(req.path));
   });
 }
 
