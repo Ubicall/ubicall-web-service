@@ -1,3 +1,5 @@
+var when = require('when');
+var request = require('request');
 var settings = require('../../settings');
 var storage = require('../../storage');
 var log = require('../../log');
@@ -13,7 +15,7 @@ var ServerError = require('../errors').ServerError;
 */
 function __scheduleDemo(call) {
   return when.promise(function(resolve, reject) {
-    return storage.scheduleDemoCall(call).then(function(dCall) {
+    return storage.scheduleDemoCall(call).then(function(demoCall) {
       var options = {
         url: 'http://' + settings.infra.clientServer.mobile.public + '/generate/new_call/callfile/generate_file.php',
         method: 'GET',
@@ -24,7 +26,7 @@ function __scheduleDemo(call) {
       };
       request(options, function(error, response, body) {
         if (!error && response.statusCode == 200) {
-          return resolve();
+          return resolve(demoCall);
         } else {
           return reject(error);
         }
@@ -85,21 +87,22 @@ function extract(req, res, next) {
 /**
 * schedule demo call if client is undefined or client is exist but with demo flag equal zero
 * schedule regular call if client exist and has demo flag equal one
-* @return ServerError if device_token not exist , __scheduleDemo failed or storage.scheduleCall failed
+* @return {@link ServerError} if device_token not exist , __scheduleDemo failed or storage.scheduleCall failed
 * @return HTTP 200 if your call submitted successfully
+* @example {message: 'demo call scheduled successfully', call: XXXX }
+* @example {message: 'call scheduled successfully', call: XXXX }
 */
 function createSipCall(req, res, next) {
 
   var call = req.ubi.call;
 
   storage.getDevice(call.device_token).then(function(device) {
-    var _device = device;
     storage.getClient(call.license_key).then(function(client) {
       if (client.demo == 0) { // schedule demo call if client demo flag is ZERO
         call.sip = device.sip;
-        __scheduleDemo(call).then(function() {
+        __scheduleDemo(call).then(function(dCall) {
           return res.status(200).json({
-            message: 'Demo call inserted successfully',
+            message: 'demo call scheduled successfully',
             call: dCall.id
           });
         }).otherwise(function(error) {
@@ -109,7 +112,7 @@ function createSipCall(req, res, next) {
       } else { //schedule regualr call if client exist and has demo flag wity value other than zero
         storage.scheduleCall(call).then(function(call) {
           return res.status(200).json({
-            message: 'call retrieved successfully',
+            message: 'call scheduled successfully',
             call: call.id
           });
         }).otherwise(function(error) {
@@ -118,9 +121,9 @@ function createSipCall(req, res, next) {
         });
       }
     }).otherwise(function(error) { // schedule demo call if license_key is undefined or no client found with this license_key
-      __scheduleDemo(call).then(function() {
+      __scheduleDemo(call).then(function(dCall) {
         return res.status(200).json({
-          message: 'Demo call inserted successfully',
+          message: 'demo call scheduled successfully',
           call: dCall.id
         }).otherwise(function(error) {
           log.error('error : ' + error);
@@ -139,8 +142,10 @@ function createSipCall(req, res, next) {
 
 /**
 * schedule demo call if licence_key is undefined otherwise schedule regular call
-* @return ServerError if__scheduleDemo failed or storage.scheduleCall failed
+* @return {@link ServerError} if__scheduleDemo failed or storage.scheduleCall failed
 * @return HTTP 200 if your call submitted successfully
+* @example {message: 'call scheduled successfully', call: XXXX }
+* @example {message: 'demo call scheduled successfully', call: XXXX }
 */
 function createWebCall(req, res, next) {
 
@@ -148,9 +153,9 @@ function createWebCall(req, res, next) {
 
   //TODO #1 should be removed but else statment , why ? based on broken code on IOS
   if (!call.license_key) {
-    __scheduleDemo(call).then(function() {
+    __scheduleDemo(call).then(function(dCall) {
       return res.status(200).json({
-        message: 'Demo call inserted successfully',
+        message: 'demo call scheduled successfully',
         call: dCall.id
       });
     }).otherwise(function(error) {
@@ -160,7 +165,7 @@ function createWebCall(req, res, next) {
   } else {
     storage.scheduleCall(call).then(function(call) {
       return res.status(200).json({
-        message: 'call retrieved successfully',
+        message: 'call scheduled successfully',
         call: call.id
       });
     }).otherwise(function(error) {
@@ -174,8 +179,9 @@ function createWebCall(req, res, next) {
 * cancel call with id @param call_id
 * @param {integer} call_id - call_id to cancel
 * @return MissedParams if @param call_id is undefined
-* @return ServerError if storage.cancelCall failed
+* @return {@link ServerError} if storage.cancelCall failed
 * @return HTTP 200 if your call canceled successfully
+* @example {message: 'call canceled successfully'}
 */
 function cancel(req, res, next) {
   var call_id = req.params.call_id;
@@ -197,8 +203,9 @@ function cancel(req, res, next) {
 * submit feedback for call with id @param call_id
 * @param {integer} call_id - call_id to submit feedback on
 * @return MissedParams if @param call_id is undefined or (@param feedback and @param feedback_text)
-* @return ServerError if storage.feedback failed
+* @return {@link ServerError} if storage.feedback failed
 * @return HTTP 200 if your call's feedback submitted successfully
+* @example {message: "feedback sent successfully"}
 */
 function submitFeedback(req, res, next) {
   var feedback = {};

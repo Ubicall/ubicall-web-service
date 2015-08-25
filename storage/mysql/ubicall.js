@@ -79,16 +79,13 @@ function scheduleCall(call, device) {
 function scheduleDemoCall(call) {
   return when.promise(function(resolve, reject) {
     $demo_calls.create({
-      api_key: call.license_key,
-      queue_id: call.queue,
       phone: call.sip,
       address: call.address,
-      longitude: call.longitude,
-      latitude: call.latitude,
-      caller_type: call.pstn,
-      call_data: call.call_data,
+      long: call.longitude,
+      lat: call.latitude,
       id_campaign: "1",
-      created_time: call.time
+      time : call.time || moment().format('YYYY-MM-DD HH:mm:ss'),
+      created_time: moment().format('YYYY-MM-DD HH:mm:ss')
     }).then(function(call) {
       return resolve(call);
     }).catch(function(error) {
