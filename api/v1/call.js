@@ -39,11 +39,11 @@ function __scheduleDemo(call) {
 
 /**
 * extract call attributes from request body
-* @param {integer} pstn - flag to distinguish between mobile app [android - iphone] , web and regular phone call as {iphone : 0 , android : 1 , web : 2 , phone : 3}
-* @param {integer} sip - your phone number , virtual which generated from /sip/account or /web/account APIs or your real phone number if you will recieve un voip call
-* @param {uid} device_token - your mobile device_token ,critiacl if your client is mobile and not required if you use web client
+* @param {integer} pstn - flag to distinguish between mobile app [android - iphone] , web and regular phone call as {iphone : 0 , android : 1 , web : 2 , phone : 3}, @return {@link MissedParams} if is missed
+* @param {integer} sip - your phone number , virtual which generated from /sip/account or /web/account APIs or your real phone number if you will recieve un voip call , @return {@link MissedParams} if missing
+* @param {uid} device_token - your mobile device_token, not required if you use web client @return {@link MissedParams} if is missed and your client is mobile.
 * @param {uid} licence_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
-* @param {json} call_data - json object contain your call meta info
+* @param {json} call_data - json object contain your call meta info , if exist @return {@link BadRequest} if json is not valid
 * @param {uid} longitude - your location longitude and it grabbed automatically
 * @param {uid} latitude - your location latitude and it grabbed automatically
 * @param {string} address - your location address and it grabbed automatically , but not provided if you use web client
@@ -62,10 +62,11 @@ function extract(req, res, next) {
   }else {
     call.device_token = req.body.device_token;
   }
-  call.sip = req.body.sip || req.body.voiceuser_id || req.body.phone  || missingParams.push("phone");
+  call.sip = req.body.phone || req.body.sip || req.body.voiceuser_id || missingParams.push("phone");
   //TODO licence_key should be critical but why this changed ? search for #1 in current file
-  call.license_key = req.body.license || req.body.license_key;
-  call.call_data = req.body.form_data || req.body.json || req.body.call_data;
+  call.license_key = req.body.license || req.body.licence || req.body.license_key;
+  //TODO check if call.call_data is valid json if exist
+  call.call_data = req.body.json || req.body.call_data || req.body.form_data;
   call.longitude = req.body.longitude || req.body.long;
   call.latitude = req.body.latitude || req.body.lat;
   call.address = req.body.address;
@@ -125,10 +126,10 @@ function createSipCall(req, res, next) {
         return res.status(200).json({
           message: 'demo call scheduled successfully',
           call: dCall.id
-        }).otherwise(function(error) {
-          log.error('error : ' + error);
-          return next(new ServerError(req.path));
         });
+      }).otherwise(function(error) {
+        log.error('error : ' + error);
+        return next(new ServerError(req.path));
       });
     }).otherwise(function(error) {
       log.error('error : ' + error);

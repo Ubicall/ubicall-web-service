@@ -17,12 +17,13 @@ function BadRequest(resource , field) {
   this.status = 400;
   this.response = {};
   this.response.resource = resource;
-  this.response.message = "Problems parsing JSON";
+  this.response.message = "Problems In Parsing";
   if(field){
+    this.response.message = "Problems parsing " + field;
     this.response.errors = [] ;
     this.response.errors.push({
       field: field,
-      "code": "invalid_field"
+      "code": "invalid_field_value"
     });
   }
 }
