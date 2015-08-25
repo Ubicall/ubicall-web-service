@@ -12,11 +12,15 @@ function __scheduleDemo(call) {
   return when.promise(function(resolve, reject) {
     return storage.scheduleDemoCall(call).then(function(dCall) {
       var options = {
-        host: settings.infra.clientServer.mobile.public,
-        path: '/generate/new_call/callfile/generate_file.php?extension="' + call.sip + '"&time="' + call.time + '"'
-      }
-      http.get(options, function(error, response, body) {
-        if (!error && response.status == 200) {
+        url: 'http://' + settings.infra.clientServer.mobile.public + '/generate/new_call/callfile/generate_file.php',
+        method: 'GET',
+        qs: {
+          extension: call.sip,
+          time: call.time
+        }
+      };
+      request(options, function(error, response, body) {
+        if (!error && response.statusCode == 200) {
           return resolve();
         } else {
           return reject(error);
@@ -38,7 +42,7 @@ function extract(req, res, next) {
   call.pstn = req.body.pstn || missingParams.push("pstn");
   call.device_token = req.body.device_token;
   call.sip = req.body.sip || req.body.voiceuser_id;
-  //TODO licence_key should be critical n but why this moved search for #1 in curent file
+  //TODO licence_key should be critical but why this changed ? search for #1 in current file
   call.license_key = req.body.license || req.body.license_key;
   call.call_data = req.body.form_data || req.body.json || req.body.call_data;
   call.longitude = req.body.longitude || req.body.long;
@@ -66,50 +70,46 @@ function createSipCall(req, res, next) {
 
   storage.getDevice(call.device_token).then(function(device) {
     var _device = device;
-
-    //TODO #1 should be removed but else statment , why ? based in broken code on IOS
-    if (!call.license_key) {
+    storage.getClient(call.license_key).then(function(client) {
+      if (client.demo == 0) { // schedule demo call if client demo flag is ZERO
+        call.sip = device.sip;
+        __scheduleDemo(call).then(function() {
+          return res.status(200).json({
+            message: 'Demo call inserted successfully',
+            call: dCall.id
+          }).otherwise(function(error) {
+            log.error('error : ' + error);
+            return next(new ServerError(req.path));
+          });
+        }).otherwise(function(error) {
+          log.error('error : ' + error);
+          return next(new ServerError(req.path));
+        });
+      } else { //schedule regualr call if client exist and has demo flag wity value other than zero
+        storage.scheduleCall(call).then(function(call) {
+          return res.status(200).json({
+            message: 'call retrieved successfully',
+            call: call.id
+          });
+        }).otherwise(function(error) {
+          log.error('error : ' + error);
+          return next(new ServerError(req.path));
+        });
+      }
+    }).otherwise(function(error) { // schedule demo call if license_key is undefined or no client found with this license_key
       __scheduleDemo(call).then(function() {
         return res.status(200).json({
           message: 'Demo call inserted successfully',
           call: dCall.id
+        }).otherwise(function(error) {
+          log.error('error : ' + error);
+          return next(new ServerError(req.path));
         });
-      }).otherwise(function(error) {
-        log.error('error : ' + error);
-        return next(new ServerError(req.path));
       });
-    } else {
-      storage.getClient(call.license_key).then(function(client) {
-        if (client.demo == 0) {
-          call.sip = device.sip;
-          __scheduleDemo(call).then(function() {
-            return res.status(200).json({
-              message: 'Demo call inserted successfully',
-              call: dCall.id
-            });
-          }).otherwise(function(error) {
-            log.error('error : ' + error);
-            return next(new ServerError(req.path));
-          });
-        } else {
-          storage.scheduleCall(call).then(function(call) {
-            return res.status(200).json({
-              message: 'call retrieved successfully',
-              call: call.id
-            });
-          }).otherwise(function(error) {
-            log.error('error : ' + error);
-            return next(new ServerError(req.path));
-          });
-        }
-      }).otherwise(function(error) {
-        log.error('error : ' + error);
-        return next(new ServerError(req.path));
-      });
-    }
-  }).otherwise(function(error) {
-    log.error('error : ' + error);
-    return next(new ServerError(req.path));
+    }).otherwise(function(error) {
+      log.error('error : ' + error);
+      return next(new ServerError(req.path));
+    });
   });
 }
 
@@ -118,7 +118,7 @@ function createWebCall(req, res, next) {
 
   var call = req.ubi.call;
 
-  //TODO #1 should be removed but else statment , why ? based in broken code on IOS
+  //TODO #1 should be removed but else statment , why ? based on broken code on IOS
   if (!call.license_key) {
     __scheduleDemo(call).then(function() {
       return res.status(200).json({

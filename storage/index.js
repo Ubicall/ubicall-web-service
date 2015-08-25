@@ -71,6 +71,9 @@ var storageModuleInterface = {
 
   getClient: function(key) {
     return when.promise(function(resolve, reject) {
+      if(!key){
+        return reject("undefined licence_key")
+      }
       return ubicallStorageModule.getClient(key).then(function(client) {
         return resolve(client);
       }).otherwise(function(error) {
