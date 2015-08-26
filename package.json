@@ -31,6 +31,8 @@
     "winston": "^1.0.1"
   },
   "devDependencies": {
-    "grunt": "~0.4.5"
+    "grunt": "~0.4.5",
+    "jsdoc": "~3.3.2",
+    "docco": "~0.7.0"
   }
 }
