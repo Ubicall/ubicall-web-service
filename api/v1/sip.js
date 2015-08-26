@@ -19,10 +19,11 @@ var DIAL_STRING = settings.infra.clientServer.web.dialString;
 * @param {String} device.model - the model of the device. (Ex: IPhone 5, iPhone 6, Samsung S3)
 * @param {String} device.uid - each device has a unique user id
 * @param {String} device.version - device’s version . (Ex:IOS 7 , IOS 8, Kitkat, Lollipop)
-* @param {String} device.token -  your mobile device_token, not required if you use web client @return {@link MissedParams} if is missed and your client is mobile.
+* @param {String} device.token -  your mobile device_token, not required if you use web client
 * @return HTTP status 200 - data = {username:'XXXX',password:'XXXXX',domain:'XXXX.XX.XX.X'}
 * @return HTTP status 500 {@link ServerError} Unexpected Condition Was Encountered
 * @return HTTP status 403  {@link Forbidden} Bad credentials
+* @return {@link MissedParams} if @param device.token missed and your client is mobile.
 */
 function createSipAccount(req, res, next) {
   var device = {};
@@ -94,7 +95,8 @@ function createSipAccount(req, res, next) {
 * @param {String} device.model - the model of the device. (Ex: IPhone 5, iPhone 6, Samsung S3)
 * @param {String} device.uid - each device has a unique user id
 * @param {String} device.version - device’s version . (Ex:IOS 7 , IOS 8, Kitkat, Lollipop)
-* @param {String} device.token -  your mobile device_token, not required if you use web client @return {@link MissedParams} if is missed and your client is mobile.
+* @param {String} device.token -  your mobile device_token, not required if you use web client
+* @return {@link MissedParams} if is missed and your client is mobile.
 * @return HTTP status 200 - data = {username:'XXXX',password:'XXXXX',domain:'XXXX.XX.XX.X'}
 * @return HTTP status 500 {@link ServerError} Unexpected Condition Was Encountered
 * @return HTTP status 403  {@link Forbidden} Bad credentials
