@@ -109,7 +109,7 @@ function createSipCall(req, res, next) {
           });
         }).otherwise(function(error) {
           log.error('error : ' + error);
-          return next(new ServerError(req.path));
+          return next(new ServerError(error , req.path));
         });
       } else { //schedule regualr call if client exist and has demo flag wity value other than zero
         storage.scheduleCall(call).then(function(call) {
@@ -119,7 +119,7 @@ function createSipCall(req, res, next) {
           });
         }).otherwise(function(error) {
           log.error('error : ' + error);
-          return next(new ServerError(req.path));
+          return next(new ServerError(error , req.path));
         });
       }
     }).otherwise(function(error) { // schedule demo call if license_key is undefined or no client found with this license_key
@@ -130,15 +130,15 @@ function createSipCall(req, res, next) {
         });
       }).otherwise(function(error) {
         log.error('error : ' + error);
-        return next(new ServerError(req.path));
+        return next(new ServerError(error , req.path));
       });
     }).otherwise(function(error) {
       log.error('error : ' + error);
-      return next(new ServerError(req.path));
+      return next(new ServerError(error , req.path));
     });
   }).otherwise(function(error){
     log.error('error : ' + error);
-    return next(new ServerError(req.path));
+    return next(new ServerError(error , req.path));
   });
 }
 
@@ -162,7 +162,7 @@ function createWebCall(req, res, next) {
       });
     }).otherwise(function(error) {
       log.error('error : ' + error);
-      return next(new ServerError(req.path));
+      return next(new ServerError(error , req.path));
     });
   } else {
     storage.scheduleCall(call).then(function(call) {
@@ -172,7 +172,7 @@ function createWebCall(req, res, next) {
       });
     }).otherwise(function(error) {
       log.error('error : ' + error);
-      return next(new ServerError(req.path));
+      return next(new ServerError(error , req.path));
     });
   }
 }
@@ -196,7 +196,7 @@ function cancel(req, res, next) {
     });
   }).otherwise(function(error) {
     log.error('error : ' + error);
-    return next(new ServerError(req.path));
+    return next(new ServerError(error , req.path));
   });
 
 }
@@ -226,7 +226,7 @@ function submitFeedback(req, res, next) {
     });
   }).otherwise(function(error) {
     log.error('error : ' + error);
-    return next(new ServerError(req.path));
+    return next(new ServerError(error , req.path));
   });
 
 }

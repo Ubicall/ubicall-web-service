@@ -32,23 +32,23 @@ function init(_settings, _storage) {
     // apiApp.use(cors(ubicallCors.options));
     // apiApp.use(ubicallCors.cors);
 
-    apiApp.post('/sip/call', call.extract, call.createSipCall, errorHandler.handle);
+    apiApp.post('/sip/call', call.extract, call.createSipCall);
 
-    apiApp.post('/web/call', call.extract, call.createWebCall, errorHandler.handle);
+    apiApp.post('/web/call', call.extract, call.createWebCall);
 
-    apiApp.delete('/call/:call_id', call.cancel, errorHandler.handle);
+    apiApp.delete('/call/:call_id', call.cancel);
 
-    apiApp.post('/call/feedback/:call_id', call.submitFeedback, errorHandler.handle);
+    apiApp.post('/call/feedback/:call_id', call.submitFeedback);
 
-    apiApp.post('/sip/account', sip.createSipAccount, errorHandler.handle);
+    apiApp.post('/sip/account', sip.createSipAccount);
 
-    apiApp.post('/web/account', sip.createWebAccount, errorHandler.handle);
+    apiApp.post('/web/account', sip.createWebAccount);
 
-    apiApp.get('/ivr/:license_key', ivr.fetchIvr, errorHandler.handle);
+    apiApp.get('/ivr/:license_key', ivr.fetchIvr);
 
-    apiApp.post('/ivr/:license_key/:version', ivr.createIvr, errorHandler.handle);
+    apiApp.post('/ivr/:license_key/:version', ivr.createIvr);
 
-    apiApp.put('/ivr/:license_key/:version', ivr.createIvr, errorHandler.handle);
+    apiApp.put('/ivr/:license_key/:version', ivr.createIvr);
 
 
     apiApp.get('/queue/:key', function(req, res, next) {
@@ -63,9 +63,9 @@ function init(_settings, _storage) {
           name: queue.url
         });
       }).otherwise(function(error) {
-        return next(new NotFound(req.originalUrl));
+        return next(new NotFound(error , eq.originalUrl));
       });
-    }, errorHandler.handle);
+    });
 
     apiApp.get('/clients', function(req, res, next) {
       storage.getClients().then(function(clients) {
@@ -74,9 +74,13 @@ function init(_settings, _storage) {
         });
       }).otherwise(function(error) {
         log.error('error : ' + error);
-        return next(new ServerError(req.path));
+        return next(new ServerError(error , req.path));
       });
-    }, errorHandler.handle);
+    });
+
+    apiApp.use(errorHandler.log);
+    apiApp.use(errorHandler.handle);
+
 
     return resolve(apiApp);
   });

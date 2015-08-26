@@ -10,5 +10,11 @@ module.exports = {
       log.error("error : " + err);
       next();
     }
+  },
+  log : function (err, req, res, next) {
+    if(err.stack){
+        log.error(err.stack);
+    }
+    next(err);
   }
 }

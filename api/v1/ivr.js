@@ -40,7 +40,7 @@ function fetchIvr(req, res , next) {
     });
   }).otherwise(function(error) {
     log.error('error : ' + error);
-    return next(new ServerError(req.path));
+    return next(new ServerError(error , req.path));
   });
 }
 
@@ -65,18 +65,18 @@ function createIvr(req, res, next) {
       log.error('error : ' + error);
       storage.getIVR(ivr.license_key).then(function(ivr) { // get & deploy old ivr version
         __deployToWeb(settings.widgetHost, plistHost, ivr.licence_key, ivr.version).then(function() {
-          return next(new ServerError(req.path , "Unable to update Mobile,hence rollback web"));
+          return next(new ServerError( {} , req.path , "Unable to update Mobile,hence rollback web"));
         }).otherwise(function(error) {
-          return next(new ServerError(req.path , "Unable to update Mobile or rollback web"));
+          return next(new ServerError({} , req.path , "Unable to update Mobile or rollback web"));
         });
       }).otherwise(function(error) {
         log.error('error : ' + error);
-        return next(new ServerError(req.path , "Unable to update Mobile or rollback web"));
+        return next(new ServerError(error ,req.path , "Unable to update Mobile or rollback web"));
       });
     });
   }).otherwise(function(error) {
     log.error('error : ' + error);
-    return next(new ServerError(req.path , "Unable to update Web,hence cannot update Mobile"));
+    return next(new ServerError(error, eq.path , "Unable to update Web,hence cannot update Mobile"));
   });
 }
 
