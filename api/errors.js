@@ -75,6 +75,7 @@ function Forbidden(origin , resource){
   this.name = "Forbidden";
   this.status = 403;
   this.response = {};
+  this.response.resource = resource;
   this.response.message = "Bad credentials";
 }
 Forbidden.prototype = UbicallError.prototype;
@@ -105,6 +106,7 @@ function ServerError(origin ,resource , message){
   this.name = "Server Error";
   this.status = 500;
   this.response = {};
+  this.response.resource = resource;
   this.response.message = message || "Unexpected Condition Was Encountered";
 }
 ServerError.prototype = UbicallError.prototype;
