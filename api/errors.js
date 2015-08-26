@@ -1,17 +1,31 @@
+/**
+* ubicall parent object Error
+*/
 function UbicallError() {
 
 }
 UbicallError.prototype = Error.prototype;
 
+/**
+* return HTTP 501 error with message "Not Implemented"
+* @param resource - current resource url path
+* @return HTTP 501
+*/
 function NotImplementedError(resource) {
   this.name = "NotImplementedError";
   this.status = 501;
   this.response = {};
   this.response.resource = resource;
-  this.response.message = "501 Not Implemented";
+  this.response.message = "Not Implemented";
 }
 NotImplementedError.prototype = UbicallError.prototype;
 
+/**
+* return HTTP 400 error with message "Problems In Parsing" or "Problems parsing" + @param field
+* @param resource - current resource url path
+* @param field - field which has error
+* @return HTTP 501
+*/
 function BadRequest(resource , field) {
   this.name = "BadRequest";
   this.status = 400;
@@ -29,6 +43,12 @@ function BadRequest(resource , field) {
 }
 BadRequest.prototype = UbicallError.prototype;
 
+/**
+* return HTTP 422 error with message "Validation Failed"
+* @param resource - current resource url path
+* @param params - all missed params
+* @return HTTP 422
+*/
 function MissedParams(resource, params) {
   this.name = "MissedParams";
   this.status = 422;
@@ -45,28 +65,48 @@ function MissedParams(resource, params) {
 }
 MissedParams.prototype = UbicallError.prototype;
 
-function Forbidden(resource){
+/**
+* return HTTP 403 error with message "Bad credentials"
+* @param origin - original error object
+* @param resource - current resource url path
+* @return HTTP 403
+*/
+function Forbidden(origin , resource){
   this.name = "Forbidden";
   this.status = 403;
   this.response = {};
+  this.response.resource = resource;
   this.response.message = "Bad credentials";
 }
 Forbidden.prototype = UbicallError.prototype;
 
-function NotFound(resource){
+/**
+* return HTTP 404 error with message "Not Found"
+* @param origin - original error object
+* @param resource - current resource url path
+* @return HTTP 404
+*/
+function NotFound(origin, resource){
   this.name = "Not Found";
   this.status = 404;
   this.response = {};
   this.response.resource = resource;
   this.response.message = "Not Found";
 }
-ServerError.NotFound = UbicallError.prototype;
+NotFound.prototype = UbicallError.prototype;
 
-
-function ServerError(resource , message){
+/**
+* return HTTP 500 error with @param message or  "Unexpected Condition Was Encountered"
+* @param origin - original error object
+* @param resource - current resource url path
+* @param message - custom error message
+* @return HTTP 404
+*/
+function ServerError(origin ,resource , message){
   this.name = "Server Error";
   this.status = 500;
   this.response = {};
+  this.response.resource = resource;
   this.response.message = message || "Unexpected Condition Was Encountered";
 }
 ServerError.prototype = UbicallError.prototype;

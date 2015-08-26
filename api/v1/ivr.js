@@ -1,3 +1,5 @@
+var when = require('when');
+var request = require('request');
 var settings = require('../../settings');
 var storage = require('../../storage');
 var log = require('../../log');
@@ -6,6 +8,7 @@ var BadRequest = require('../errors').BadRequest;
 var MissedParams = require('../errors').MissedParams;
 var Forbidden = require('../errors').Forbidden;
 var ServerError =require('../errors').ServerError;
+var NotFound =require('../errors').NotFound;
 
 function __deployToWeb(widgetHost, plistHost, license_key, version) {
   return when.promise(function(resolve, reject) {
@@ -20,8 +23,10 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
     request(options, function(error, response, body) {
       if (!error && response.statusCode == 200) {
         return resolve(response.data);
-      } else {
+      } else if(error) {
         return reject(error);
+      }else if(response.statusCodes = 404) {
+        return reject(new NotFound( {} , options.url))
       }
     });
   });
@@ -40,7 +45,7 @@ function fetchIvr(req, res , next) {
     });
   }).otherwise(function(error) {
     log.error('error : ' + error);
-    return next(new ServerError(req.path));
+    return next(new NotFound(error , req.path));
   });
 }
 
@@ -49,12 +54,17 @@ function createIvr(req, res, next) {
   ivr.license_key = req.params.license_key;
   ivr.version = req.params.version;
 
-  //TODO check on plistHost concatenated with slash
-  var plistHost = req.header("plistHost") || settings.plistHost;
-  ivr.url = plistHost + ivr.license_key + '/' + ivr.version;
   if (!ivr.license_key) {
     return next(new MissedParams(req.path, "license_key"));
   }
+
+  if (!ivr.version) {
+    return next(new MissedParams(req.path, "version"));
+  }
+
+  //TODO check on plistHost concatenated with slash
+  var plistHost = req.header("plistHost") || settings.plistHost;
+  ivr.url = plistHost + ivr.license_key + '/' + ivr.version;
 
   __deployToWeb(settings.widgetHost, settings.plistHost, ivr.license_key, ivr.version).then(function() {
     storage.updateIVR(ivr).then(function(updated) {
@@ -65,18 +75,18 @@ function createIvr(req, res, next) {
       log.error('error : ' + error);
       storage.getIVR(ivr.license_key).then(function(ivr) { // get & deploy old ivr version
         __deployToWeb(settings.widgetHost, plistHost, ivr.licence_key, ivr.version).then(function() {
-          return next(new ServerError(req.path , "Unable to update Mobile,hence rollback web"));
+          return next(new ServerError( {} , req.path , "Unable to update Mobile,hence rollback web"));
         }).otherwise(function(error) {
-          return next(new ServerError(req.path , "Unable to update Mobile or rollback web"));
+          return next(new ServerError({} , req.path , "Unable to update Mobile or rollback web"));
         });
       }).otherwise(function(error) {
         log.error('error : ' + error);
-        return next(new ServerError(req.path , "Unable to update Mobile or rollback web"));
+        return next(new ServerError(error ,req.path , "Unable to update Mobile or rollback web"));
       });
     });
   }).otherwise(function(error) {
     log.error('error : ' + error);
-    return next(new ServerError(req.path , "Unable to update Web,hence cannot update Mobile"));
+    return next(new ServerError(error, req.path , "Unable to update Mobile,hence cannot update Web"));
   });
 }
 
