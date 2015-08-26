@@ -63,7 +63,7 @@ function init(_settings, _storage) {
           name: queue.url
         });
       }).otherwise(function(error) {
-        return next(new NotFound(error , eq.originalUrl));
+        return next(new NotFound(error , req.originalUrl));
       });
     });
 

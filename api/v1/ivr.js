@@ -76,7 +76,7 @@ function createIvr(req, res, next) {
     });
   }).otherwise(function(error) {
     log.error('error : ' + error);
-    return next(new ServerError(error, eq.path , "Unable to update Web,hence cannot update Mobile"));
+    return next(new ServerError(error, req.path , "Unable to update Web,hence cannot update Mobile"));
   });
 }
 

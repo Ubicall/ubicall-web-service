@@ -67,7 +67,7 @@ function createSipAccount(req, res, next) {
       });
     }).otherwise(function(error) {
       log.error("Error : " + error);
-      return next(new Forbidden(error,eq.path));
+      return next(new Forbidden(error,req.path));
     });
   });
 
