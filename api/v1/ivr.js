@@ -29,9 +29,11 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
 
 /**
 * @param {String} key - license_key unique for each client,your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
-* @return status 400 - unable to get versionToken
-* @return status HTTP 200 - version retrieved successfully @example 'message':version retrieved successfully,data:{'version':'version value','url':'url value'}
-* @return status 500 - {@link ServerError} unable to get version,try again later
+* @return HTTP status 400 {@link BadRequest} - unable to get versionToken
+* @return HTTP status 200
+* @return HTTP status 500 - {@link ServerError} unable to get version,try again later
+* @example
+* {message: "ivr with version "+ version.version +"retrieved successfully",version : version.version ,url : version.url}
 */
 function fetchIvr(req, res , next) {
   var license_key = req.params.license_key;
@@ -39,10 +41,10 @@ function fetchIvr(req, res , next) {
     return next(new MissedParams(req.path, "license_key"));
   }
   storage.getVersion(license_key).then(function(version) {
-    result ={'version':version.version,'url':version.url};
     return res.status(200).json({
-      message: 'version retrieved successfully',
-      data:result
+      message: "ivr with version "+ version.version +"retrieved successfully",
+      version : version.version ,
+      url : version.url
     });
   }).otherwise(function(error) {
     log.error('error : ' + error);
@@ -55,7 +57,11 @@ function fetchIvr(req, res , next) {
 * @param {String} ivr.license_key - license_key unique for each user,your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases @return {@link MissedParams} If no licence_key
 * @param {String} ivr.version - the version of plist file.
 * @return HTTP status 200 - message: mobile & web clients updated successfully
-* @return HTTP status 500 {@link ServerError}Unable to update Mobile,hence rollback web
+* @return HTTP status 500 {@link ServerError}
+* @example
+* {message: "mobile & web clients updated successfully"}
+* @example
+* {message:"Unable to update Mobile,hence rollback web"}
 */
 function createIvr(req, res, next) {
   var ivr = {};
