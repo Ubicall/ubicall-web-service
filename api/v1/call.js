@@ -13,6 +13,8 @@ var ServerError = require('../errors').ServerError;
 /**
 * helper function used to sumbit demo call by calling storage.scheduleDemoCall
 * and call external api to generate static call file and call you back
+
+* @param {Array} call -Call Array that contain call attributes
 */
 function __scheduleDemo(call) {
   return when.promise(function(resolve, reject) {
@@ -42,9 +44,11 @@ function __scheduleDemo(call) {
 * extract call attributes from request body
 * @param {integer} pstn - flag to distinguish between mobile app [android - iphone] , web and regular phone call as {iphone : 0 , android : 1 , web : 2 , phone : 3}, @return {@link MissedParams} if is missed
 * @param {integer} sip - your phone number , virtual which generated from /sip/account or /web/account APIs or your real phone number if you will recieve un voip call , @return {@link MissedParams} if missing
-* @param {uid} device_token - your mobile device_token, not required if you use web client @return {@link MissedParams} if is missed and your client is mobile.
+* @param {uid} device_token - your mobile device_token, not required if you use web client
+* @return {@link MissedParams} if is missed and your client is mobile.
 * @param {uid} licence_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
-* @param {json} call_data - json object contain your call meta info , if exist @return {@link BadRequest} if json is not valid
+* @param {json} call_data - json object contain your call meta info
+* @return {@link BadRequest} if @param json is not valid
 * @param {uid} longitude - your location longitude and it grabbed automatically
 * @param {uid} latitude - your location latitude and it grabbed automatically
 * @param {string} address - your location address and it grabbed automatically , but not provided if you use web client
@@ -180,10 +184,9 @@ function createWebCall(req, res, next) {
 /**
 * cancel call with id @param call_id
 * @param {integer} call_id - call_id to cancel
-* @return MissedParams if @param call_id is undefined
+* @return {@link MissedParams} if @param call_id is undefined
 * @return {@link ServerError} if storage.cancelCall failed
-* @return HTTP 200 if your call canceled successfully
-* @example {message: 'call canceled successfully'}
+* @return HTTP 200 if your call canceled successfully @example {message: 'call canceled successfully'}
 */
 function cancel(req, res, next) {
   var call_id = req.params.call_id;
@@ -203,11 +206,10 @@ function cancel(req, res, next) {
 
 /**
 * submit feedback for call with id @param call_id
-* @param {integer} call_id - call_id to submit feedback on
+* @param {String} call_id - call_id to submit feedback on
 * @return MissedParams if @param call_id is undefined or (@param feedback and @param feedback_text)
-* @return {@link ServerError} if storage.feedback failed
-* @return HTTP 200 if your call's feedback submitted successfully
-* @example {message: "feedback sent successfully"}
+* @return HTTP status 500 {@link ServerError} if storage.feedback failed
+* @return HTTP status - 200 message: "feedback sent successfully"
 */
 function submitFeedback(req, res, next) {
   var feedback = {};
