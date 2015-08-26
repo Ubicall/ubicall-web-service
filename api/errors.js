@@ -92,7 +92,7 @@ function NotFound(origin, resource){
   this.response.resource = resource;
   this.response.message = "Not Found";
 }
-ServerError.NotFound = UbicallError.prototype;
+NotFound.prototype = UbicallError.prototype;
 
 /**
 * return HTTP 500 error with @param message or  "Unexpected Condition Was Encountered"

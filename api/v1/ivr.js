@@ -6,6 +6,7 @@ var BadRequest = require('../errors').BadRequest;
 var MissedParams = require('../errors').MissedParams;
 var Forbidden = require('../errors').Forbidden;
 var ServerError =require('../errors').ServerError;
+var NotFound =require('../errors').NotFound;
 
 function __deployToWeb(widgetHost, plistHost, license_key, version) {
   return when.promise(function(resolve, reject) {
@@ -40,7 +41,7 @@ function fetchIvr(req, res , next) {
     });
   }).otherwise(function(error) {
     log.error('error : ' + error);
-    return next(new ServerError(error , req.path));
+    return next(new NotFound(error , req.path));
   });
 }
 
