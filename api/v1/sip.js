@@ -10,22 +10,7 @@ var Forbidden = require('../errors').Forbidden;
 var ServerError =require('../errors').ServerError;
 
 var DIAL_STRING = settings.infra.clientServer.web.dialString;
-/**
-* @param {Array} device - Array containing all attributes of a device
-* @param {String} device.license_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
-* @param {String} device.sdk_name -the name of the sdk. Each client have a unique name
-* @param {String} device.sdk_version -version of the client’s sdk.
-* @param {String} device.name - name of your device
-* @param {String} device.model - the model of the device. (Ex: IPhone 5, iPhone 6, Samsung S3)
-* @param {String} device.uid - each device has a unique user id
-* @param {String} device.version - device’s version . (Ex:IOS 7 , IOS 8, Kitkat, Lollipop)
-* @param {String} device.token -  your mobile device_token, not required if you use web client
-* @return HTTP status 200
-* @return HTTP status 500 {@link ServerError} Unexpected Condition Was Encountered
-* @return HTTP status 403  {@link Forbidden} Bad credentials
-* @return {@link MissedParams} if @param device.token missed and your client is mobile.
-* @example {username:'XXXX',password:'XXXXX',domain:'XXXX.XX.XX.X'}
-*/
+
 function createSipAccount(req, res, next) {
   var device = {};
   var missingParams = [];
@@ -64,9 +49,9 @@ function createSipAccount(req, res, next) {
         storage.createSip(device, password, domain, sip).then(function(sipDevice){
           storage.createSipFriend(sip, password).then(function(friend){
             return res.status(200).json({
-            username:friend.sip,
-            password:friend.secret,
-            domain : domain
+              username: friend.name,
+              password: friend.secret,
+              domain: domain
             });
           }).otherwise(function(error){
             log.error("Error : " + error);
@@ -88,22 +73,6 @@ function createSipAccount(req, res, next) {
 
 }
 
-/**
-* @param {Array} device - Array containing all attributes of a device
-* @param {String} device.license_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
-* @param {String} device.sdk_name -the name of the sdk. Each client have a unique name
-* @param {String} device.sdk_version -version of the client’s sdk.
-* @param {String} device.name - name of your device
-* @param {String} device.model - the model of the device. (Ex: IPhone 5, iPhone 6, Samsung S3)
-* @param {String} device.uid - each device has a unique user id
-* @param {String} device.version - device’s version . (Ex:IOS 7 , IOS 8, Kitkat, Lollipop)
-* @param {String} device.token -  your mobile device_token, not required if you use web client
-* @return {@link MissedParams} if is missed and your client is mobile.
-* @return HTTP status 200
-* @return HTTP status 500 {@link ServerError} Unexpected Condition Was Encountered
-* @return HTTP status 403  {@link Forbidden} Bad credentials
-* @example {username:'XXXX',password:'XXXXX',domain:'XXXX.XX.XX.X'}
-*/
 
 function createWebAccount(req, res, next) {
   var device = {};
@@ -134,9 +103,10 @@ function createWebAccount(req, res, next) {
 
     storage.incrementClientCount(client.id).then(function(incremented) {
       storage.createSipDirectory(sip , password , DIAL_STRING).then(function(directory){
-        result ={'username': sip,'password': password,'domain': domain};
         return res.status(200).json({
-          data:result
+          username: sip,
+          password: password,
+          domain: domain
         });
       }).otherwise(function(error){
         log.error("Error : " + error);
