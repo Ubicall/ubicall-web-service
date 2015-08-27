@@ -50,7 +50,14 @@ function init(_settings, _storage) {
 
     apiApp.put('/ivr/:license_key/:version', ivr.createIvr);
 
-
+    /**
+    * @param {String} key - license_key should be unique for each user.
+    * @return {@link MissedParams} @param key doesn't exist
+    * @return HTTP status - 200
+    * @return HTTP status - 404 {@link NotFound} If can't return queue data
+    * @example
+    * {'message':'queue retrieved successfully','id':id_no ,'name':url}
+    */
     apiApp.get('/queue/:key', function(req, res, next) {
       var key = req.params.key;
       if (!key) {
@@ -67,6 +74,11 @@ function init(_settings, _storage) {
       });
     });
 
+    /**
+    * @return HTTP status - 200
+    * @return HTTP status - 500 {@link ServerError}
+    * @example data={license_key:'licence_key_value','name':'name_value','url':'url_value'}
+    */
     apiApp.get('/clients', function(req, res, next) {
       storage.getClients().then(function(clients) {
         return res.status(200).json({

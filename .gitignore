@@ -138,3 +138,6 @@ dist/
 # winston Daily Rotate File
 .log/
 
+# jsdoc generation folders
+out/
+docs/
