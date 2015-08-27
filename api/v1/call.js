@@ -51,9 +51,9 @@ function __scheduleDemo(call) {
 * @param {string} address - your location address and it grabbed automatically , but not provided if you use web client
 * @param {Date} time - time you like to call you , if not existed you will be called using FIFO algorithm (this may changed in next releases)
 * @param {integer} queue - what queue id you like to submit your call
-* @return {@link MissedParams} if @param integeris missed
+* @return {@link MissedParams} if @param pstn is missing
 * @return {@link MissedParams} if @param sip is missing
-* @return {@link MissedParams} if @param uid is missed and your client is mobile.
+* @return {@link MissedParams} if @param uid is missing and your client is mobile.
 * @return {@link BadRequest} if @param json is not valid
 */
 function extract(req, res, next) {
