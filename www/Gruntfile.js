@@ -21,7 +21,7 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-jsdoc');
-  grunt.loadNpmTasks('grunt-contrib-copy');
+grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.registerTask('default', ['jsdoc']);
 
 }

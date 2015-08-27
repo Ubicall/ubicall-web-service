@@ -9,10 +9,6 @@ npm install
 ``` bash
 grunt jsdoc
 ```
-**Deploy Documentation on nginx :**
-``` bash
-grunt copy
-```
 **create model from db using :**
 ``` bash
 sequelize-auto -o "./storage/models/ubicall" -d ubicall -h localhost -u root -p 3306 -x root -e mysql
