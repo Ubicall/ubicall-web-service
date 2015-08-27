@@ -4,9 +4,9 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     jsdoc: {
       dist: {
-  //      src : ["api/*.js"],
+        src: ['./api/**.js'],
         options: {
-          configure : './jsdoc.conf'
+          configure : "./jsdoc.conf"
         }
       }
     }
