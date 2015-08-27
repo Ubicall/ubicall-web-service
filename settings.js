@@ -99,5 +99,8 @@ module.exports = {
       }
     },
     plistHost : config.defaultPlistHost,
-    widgetHost : config.endPoints.widgetDeploy
+    widgetHost : config.endPoints.widgetDeploy,
+
+    //where to deploy API documentation
+    apiDeployFolder:"/var/www/html/"
 }
