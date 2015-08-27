@@ -6,7 +6,7 @@ module.exports = function(grunt) {
     jsdoc: {
       docs: {
         dest:'./docs/',
-        src:['api/*.js'],
+        src:['./api/*.js'],
         options: {
           configure : "./jsdoc.conf"
         }
