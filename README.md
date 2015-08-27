@@ -5,9 +5,9 @@ exposed ubicall web service for public and internal use , to make CRUD operation
 ```
 npm install
 ```
-**generate API documentation :**
+**generate & deploy API documentation :**
 ``` bash
-grunt jsdoc
+grunt jsdoc:docs copy:docs
 ```
 **create model from db using :**
 ``` bash

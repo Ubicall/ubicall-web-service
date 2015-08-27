@@ -39,6 +39,7 @@
     "grunt-jsdoc": "~0.6.8",
     "jsdoc": "~3.3.2",
     "docco": "~0.7.0",
-    "ink-docstrap": "~0.5.2"
+    "ink-docstrap": "~0.5.2",
+    "grunt-contrib-copy": "~0.8.1"
   }
 }
