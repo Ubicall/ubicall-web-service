@@ -1,13 +1,13 @@
 # ubicall-web-service
-exposed ubicall web service for public and internal use , to make CRUD operations on calls , feedback , agent and queues tables
+exposed ubicall web service for public and internal use
 
-**How to install :**
-```
-npm install
-```
+
 **generate & deploy API documentation :**
+  *make sure user who run grunt command has folder   __~./conf/ubicall.js__  in his home directory*
 ``` bash
+npm install
 grunt jsdoc:docs copy:docs
+node index.js
 ```
 **create model from db using :**
 ``` bash
