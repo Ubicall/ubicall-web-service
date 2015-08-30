@@ -65,6 +65,9 @@ function scheduleCall(call, device) {
       call_data: call.call_data,
       schedule_time: call.time
     }).then(function(call) {
+      if(!call){
+        return reject('cannot schedule call');
+      }
       return resolve(call);
     }).catch(function(error) {
       return reject(error);
@@ -87,6 +90,9 @@ function scheduleDemoCall(call) {
       time : call.time || moment().format('YYYY-MM-DD HH:mm:ss'),
       created_time: moment().format('YYYY-MM-DD HH:mm:ss')
     }).then(function(call) {
+      if(!call){
+        return reject('cannot schedule Demo call');
+      }
       return resolve(call);
     }).catch(function(error) {
       return reject(error);
@@ -153,8 +159,12 @@ function cancelCall(callId) {
       return call.updateAttributes({
         status: 'CANCELED'
       }).then(function(updated) {
+        if(!updated){
+          return reject ('cannot cancel call');
+        }
         return resolve(updated);
       }).catch(function(error) {
+
         return reject(error);
       });
     }).catch(function(error) {
@@ -210,6 +220,9 @@ function feedback(feedback) {
       feedback_text: feedback.feedback_text,
       time: moment().format('YYYY-MM-DD HH:mm:ss')
     }).then(function(feedback) {
+      if(!feedback){
+        return reject('cannot send feedback');
+      }
       return resolve(feedback);
     }).catch(function(error) {
       return reject(error);
@@ -226,6 +239,9 @@ function updateIVR(ivr) {
         $version.findOne({
           client_id: client.id
         }).then(function(version) {
+          if(!version){
+            return reject('cannot find client');
+          }
           return version.updateAttributes({
             server_id: ivr.version,
             version: ivr.version,
@@ -287,6 +303,9 @@ function createSip(device, password , domain, sip) {
       domain: domain,
       creation_date:moment().format('YYYY-MM-DD HH:mm:ss')
     }).then(function(sipDevice) {
+      if(!sipDevice){
+      return reject ('cannot create sip Device');
+    }
       return resolve(sipDevice);
     }).catch(function(error) {
       return reject(error);
@@ -299,6 +318,9 @@ function incrementClientCount(clientId) {
   return when.promise(function(resolve, reject) {
     $client.findOne({where : { id : clientId} }).then(function(client){
       client.increment('count').then(function(incremented){
+        if(!incremented){
+          return reject('cannot update client count');
+        }
           return resolve(incremented);
       }).catch(function(error){
           return reject(error);

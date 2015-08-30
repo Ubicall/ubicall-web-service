@@ -40,6 +40,9 @@ function createSipDirectory(sip) {
       cache : 0,
       creation_date : moment().format('YYYY-MM-DD HH:mm:ss')
     }).then(function(directory) {
+      if(!directory){
+        return reject('cannot create directory');
+      }
       return resolve(directory);
     }).catch(function(error) {
       return reject(error)
@@ -64,6 +67,9 @@ function createSipDirectoryParams(directory , password , dialString){
         param_name : "dial-string",
         param_value : dialString
       }).then(function(dparam2){
+        if(!dparam2){
+          return reject('cannot create directoryParams');
+        }
         return resolve(dparam ,dparam2);
       }).catch(function(error){
         return reject(error);
