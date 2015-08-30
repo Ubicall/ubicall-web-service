@@ -41,6 +41,7 @@ function __scheduleDemo(call) {
 
 /**
 * extract call attributes from request body
+* @param {Array} call -An array that contains call atributes
 * @param {integer} pstn - flag to distinguish between mobile app [android - iphone] , web and regular phone call as {iphone : 0 , android : 1 , web : 2 , phone : 3}
 * @param {integer} sip - your phone number , virtual which generated from /sip/account or /web/account APIs or your real phone number if you will recieve un voip call
 * @param {uid} device_token - your mobile device_token, not required if you use web client
