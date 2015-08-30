@@ -41,6 +41,7 @@ function __scheduleDemo(call) {
 
 /**
 * extract call attributes from request body
+* @param {Array} call -An array that contains call atributes
 * @param {integer} pstn - flag to distinguish between mobile app [android - iphone] , web and regular phone call as {iphone : 0 , android : 1 , web : 2 , phone : 3}
 * @param {integer} sip - your phone number , virtual which generated from /sip/account or /web/account APIs or your real phone number if you will recieve un voip call
 * @param {uid} device_token - your mobile device_token, not required if you use web client
@@ -51,9 +52,9 @@ function __scheduleDemo(call) {
 * @param {string} address - your location address and it grabbed automatically , but not provided if you use web client
 * @param {Date} time - time you like to call you , if not existed you will be called using FIFO algorithm (this may changed in next releases)
 * @param {integer} queue - what queue id you like to submit your call
-* @return {@link MissedParams} if @param integeris missed
+* @return {@link MissedParams} if @param pstn is missing
 * @return {@link MissedParams} if @param sip is missing
-* @return {@link MissedParams} if @param uid is missed and your client is mobile.
+* @return {@link MissedParams} if @param uid is missing and your client is mobile.
 * @return {@link BadRequest} if @param json is not valid
 */
 function extract(req, res, next) {

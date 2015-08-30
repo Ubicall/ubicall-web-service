@@ -30,8 +30,8 @@ function createSipAccount(req, res, next) {
   var device = {};
   var missingParams = [];
 
-  device.license_key = req.body.license_key || missingParams.push("license_key");;
-  device.sdk_name = req.body.sdk_name || missingParams.push("sdk_name");;
+  device.license_key = req.body.license_key || missingParams.push("license_key");
+  device.sdk_name = req.body.sdk_name || missingParams.push("sdk_name");
   device.sdk_version = req.body.sdk_version || missingParams.push("sdk_version");
   device.uid = req.body.device_uid || '0000';
   device.token = req.body.device_token || missingParams.push("device_token");
