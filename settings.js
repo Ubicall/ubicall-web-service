@@ -102,5 +102,5 @@ module.exports = {
     widgetHost : config.endPoints.widgetDeploy,
 
     //where to deploy API documentation
-    apiDeployFolder:"/var/www/html/"
+    apiDeployFolder:"/var/www/html/docs/"
 }
