@@ -17,6 +17,9 @@ function isAuthenticated(req, res, next) {
       message: "user not found"
     }, req.path));
   }
+  if(req.headers['x-rtmp-session']){
+      req.user.rtmp = req.headers['x-rtmp-session'];
+  }
   next();
 }
 

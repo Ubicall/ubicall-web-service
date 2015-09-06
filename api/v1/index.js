@@ -40,7 +40,9 @@ function init(_settings, _storage) {
 
     apiApp.delete('/call/:call_id', call.cancel);
 
-    apiApp.get('/call/:call_id',midware.isAuthenticated , midware.isCallExist, call.get);
+    apiApp.get('/call/:call_id',midware.isAuthenticated , midware.isCallExist, call.getDetail);
+
+    apiApp.get('/call/queue/:queue_id/:queue_slug',midware.isAuthenticated , call.call);
 
     apiApp.put('/call/:call_id/done',midware.isAuthenticated , midware.isCallExist, call.done);
 

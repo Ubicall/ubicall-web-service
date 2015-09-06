@@ -139,7 +139,7 @@ function createWebCall(req, res, next) {
 * @return HTTP status 200 if call found and returned successfully
 * @example {call: {id:'xx',agent:'xxx'}}
 */
-function get(req,res,next){
+function getDetail(req,res,next){
   var call_id = req.call_id;
   storage.getCall(call_id).then(function(call){
     return res.status(200).json({
@@ -150,6 +150,43 @@ function get(req,res,next){
     return next(new NotFound(error , req.path));
   })
 }
+
+/**
+* process call from queue with id @param queue_id it will reset call if error occur in infrastructure servers
+* @param queue_id - queue_id where we fetch the call
+* @param queue_slug - slug of queue name
+* @return {@link MissedParams} if @param queue_id not found
+* @return {@link MissedParams} if @param queue_slug not found
+* @return {@link MissedParams} if header @param x-rtmp-session not found
+* @return HTTP status 200 if your call fetched successfully from queue
+* @example {message: 'call updated successfully',call: {id:'xx',agent:'xxx'}}
+*/
+function call(req,res,next){
+    var queue_id = req.params.queue_id;
+    var queue_slug = req.params.queue_slug;
+    if (!queue_id) {
+      return next(new MissedParams(req.path, "queue_id"));
+    }
+    if (!queue_slug) {
+      return next(new MissedParams(req.path, "queue_slug"));
+    }
+    if(!req.user.rtmp){
+      return next(new MissedParams(req.path, "x-rtmp-session"));
+    }
+    storage.getCall(req.user,queue_id,queue_slug).then(function(call){
+      res.status(200).json(call);
+      infra.call(call,req.user).otherwise(function(error){
+        log.error('error : ' + error);
+        storage.markCallFail(call,req.user,error,{reset : true}).otherwise(function(error){
+          log.error('error : ' + error);
+        });
+      });
+    }).otherwise(function(error){
+      log.error('error : ' + error);
+      return next(new NotFound(error , req.path));
+    });
+}
+
 /**
 * mark call with id @param call_id as done
 * @param call_id - call_id to mark as done
@@ -274,7 +311,8 @@ module.exports = {
   extract: extract,
   createSipCall: createSipCall,
   createWebCall: createWebCall,
-  get:get,
+  getDetail:getDetail,
+  call:call,
   cancel: cancel,
   done:done,
   failed:failed,
