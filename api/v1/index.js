@@ -6,7 +6,9 @@ var ubicallCors = require('../../ubicallCors');
 var log = require('../../log');
 var sip = require('./sip');
 var call = require('./call');
+var agent = require('./agent');
 var ivr = require('./ivr');
+var midware = require('./midware');
 var errorHandler = require('../errorHandler');
 var NotImplementedError = require('../errors').NotImplementedError;
 var BadRequest = require('../errors').BadRequest;
@@ -32,15 +34,21 @@ function init(_settings, _storage) {
     // apiApp.use(cors(ubicallCors.options));
     // apiApp.use(ubicallCors.cors);
 
-    apiApp.post('/sip/call', call.extract, call.createSipCall);
+    apiApp.post('/sip/call', midware.extract, call.createSipCall);
 
-    apiApp.post('/web/call', call.extract, call.createWebCall);
+    apiApp.post('/web/call', midware.extract, call.createWebCall);
 
     apiApp.delete('/call/:call_id', call.cancel);
 
-    apiApp.get('/calls/:agent_id', call.getCalls);
+    apiApp.get('/call/:call_id',midware.isAuthenticated , midware.isCallExist, call.get);
 
-    apiApp.get('/queues/:agent_id', call.getQueues);
+    apiApp.put('/call/:call_id/done',midware.isAuthenticated , midware.isCallExist, call.done);
+
+    apiApp.put('/call/:call_id/failed',midware.isAuthenticated,midware.isCallExist, call.failed);
+
+    apiApp.get('/calls/:agent_id', midware.isAuthenticated, agent.calls);
+
+    apiApp.get('/queues/:agent_id', midware.isAuthenticated, call.queues);
 
     apiApp.post('/call/feedback/:call_id', call.submitFeedback);
 
