@@ -9,14 +9,14 @@ var sip = require('./sip');
 var call = require('./call');
 var agent = require('./agent');
 var ivr = require('./ivr');
-var midware = require('./midware');
-var errorHandler = require('../errorHandler');
-var NotImplementedError = require('../errors').NotImplementedError;
-var BadRequest = require('../errors').BadRequest;
-var MissedParams = require('../errors').MissedParams;
-var Forbidden = require('../errors').Forbidden;
-var ServerError = require('../errors').ServerError;
-var NotFound = require('../errors').NotFound;
+var midware = require('./utils/midware');
+var errorHandler = require('./utils/errorHandler');
+var NotImplementedError = require('./utils/errors').NotImplementedError;
+var BadRequest = require('./utils/errors').BadRequest;
+var MissedParams = require('./utils/errors').MissedParams;
+var Forbidden = require('./utils/errors').Forbidden;
+var ServerError = require('./utils/errors').ServerError;
+var NotFound = require('./utils/errors').NotFound;
 
 
 var settings, storage;
