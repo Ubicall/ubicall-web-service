@@ -47,7 +47,53 @@ function getQueues(req, res, next) {
   });
 }
 
+/**
+ * update agent profile , password till now
+ * @return {@link MissedParams} if @param currentPass not provide
+ * @return {@link ServerError} if storage.updateAgent failed
+ * @return HTTP status - 200 when agent profile updated successfully
+ * @example {message : "Your Info updated"}
+ */
+function update(req,res,next){
+  var update = {};
+  update.currentPass = req.body.currentPass;
+  if(req.body.newPass){
+    update.newPass = req.body.newPass;
+  }
+  if(!update.currentPass){
+    return next(new MissedParams(req.path, "currentPass"));
+  }
+  storage.updateAgent(req.user ,update).then(function(done){
+      return res.status(200).json({message : "Your Info updated"});
+    }).otherwise(function(error){
+      log.error('error : ' + error);
+      return next(new ServerError(error, req.path));
+  });
+}
+
+/**
+ * update agent image only
+ * @return {@link MissedParams} if @param image not provide
+ * @return {@link ServerError} if storage.updateAgentImage failed
+ * @return HTTP status - 200 when agent profile updated successfully
+ * @example {message : "Your Info updated"}
+ */
+function updateImage(req,res,next){
+  if(!req.files.image){
+    return next(new MissedParams(req.path, "image"));
+  }
+  var image = settings.cdn.agent.avatarHost + req.files.image.name;
+  storage.updateAgentImage(req.user,image).then(function(){
+    return res.status(200).json({message : "Your Image updated"});
+  }).otherwise(function(error){
+    log.error('error : ' + error);
+    return next(new ServerError(error, req.path));
+  });
+}
+
 module.exports = {
   queues: getQueues,
-  calls: getCalls
+  calls: getCalls,
+  update:update,
+  updateImage:updateImage
 }

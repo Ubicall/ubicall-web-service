@@ -2,6 +2,7 @@ var express = require('express');
 var when = require('when');
 var bodyParser = require('body-parser');
 var cors = require('cors');
+var multer = require('multer');
 var ubicallCors = require('../../ubicallCors');
 var log = require('../../log');
 var sip = require('./sip');
@@ -27,6 +28,10 @@ function init(_settings, _storage) {
     storage = _storage;
     apiApp = express();
 
+    var imageMulter = multer({
+      dest: settings.cdn.agent.avatarDestinationFolder
+    });
+
     apiApp.use(bodyParser.urlencoded({
       extended: true
     }));
@@ -48,11 +53,11 @@ function init(_settings, _storage) {
 
     apiApp.put('/call/:call_id/failed',midware.isAuthenticated,midware.isCallExist, call.failed);
 
+    apiApp.post('/call/:call_id/feedback', call.submitFeedback);
+
     apiApp.get('/calls/:agent_id', midware.isAuthenticated, agent.calls);
 
     apiApp.get('/queues/:agent_id', midware.isAuthenticated, call.queues);
-
-    apiApp.post('/call/feedback/:call_id', call.submitFeedback);
 
     apiApp.post('/sip/account', sip.createSipAccount);
 
@@ -63,6 +68,14 @@ function init(_settings, _storage) {
     apiApp.post('/ivr/:license_key/:version', ivr.createIvr);
 
     apiApp.put('/ivr/:license_key/:version', ivr.createIvr);
+
+    apiApp.post('/agent',midware.isAuthenticated,agent.update);
+
+    apiApp.put('/agent',midware.isAuthenticated,agent.update);
+
+    apiApp.post('/agent/image',midware.isAuthenticated , imageMulter , agent.updateImage);
+
+    apiApp.put('/agent/image',midware.isAuthenticated , imageMulter, agent.updateImage);
 
     /**
     * @param {String} key - license_key should be unique for each user.
