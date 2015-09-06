@@ -348,6 +348,105 @@ function getIVR(license_key){
   });
 }
 
+function getCalls(agent , options) {
+  return when.promise(function(resolve,reject){
+    return $calls.findAll({
+      where: {
+        id_agent: agent.id,
+        api_key: agent.api_key,
+        status: CALL_STATUS.done
+      },
+      order: 'schedule_time DESC',
+      offset: (options.page - 1) * options.per_page,
+      limit: options.page * options.per_page
+    }).then(function(calls) {
+      return resolve(calls);
+    }).catch(function(error) {
+      return reject(error);
+    });
+  });
+}
+
+function getQueues(_agent) {
+  return when.promise(function(resolve,reject){
+    var queues = [];
+    return $queueAgent.findAll({
+      where: {
+        agent_id: _agent.id
+      },
+      attributes: ['queue_name', 'queue_id']
+    }).then(function(_queues) {
+      // now get calls waiting in this queue
+      return when.all(_queues.map(function(queue) {
+        return getQueueCallsCount(queue).then(function(count) {
+          queue.setDataValue('calls' , count);
+          queue.setDataValue('queue_slug' , slug(queue.queue_name));
+          queues.push(queue);
+        });
+      })).then(function() {
+        return resolve(queues);
+      });
+    }).catch(function(error) {
+      return reject(error);
+    });
+  });
+}
+
+function getQueueCallsCount(_queue) {
+  return when.promise(function(resolve, reject) {
+    return $calls.count({
+      where : Sequelize.and(
+        { queue_id: _queue.queue_id },
+        Sequelize.or(
+          { status: {$eq: null} },
+          { status: CALL_STATUS.retry }
+        )
+      )
+    }).then(function(qCallsCount) {
+      return resolve(qCallsCount);
+    }).catch(function(err){
+      return reject(err);
+    });
+  });
+}
+
+function updateAgentImage(agnt , image){
+  var agnt = $agent.build(agnt);
+  agnt.isNewRecord = false;
+  return when.promise(function(resolve,reject){
+    return agnt.updateAttributes({
+      img : image
+    }).then(function(updated){
+      return resolve(updated);
+    }).catch(function(error) {
+      return reject(error);
+    });
+  });
+}
+
+function updateAgent(agnt, data){
+  var agnt = $agent.build(agnt);
+  agnt.isNewRecord = false;
+  return when.promise(function(resolve,reject){
+    if(agnt.password == data.currentPass){
+      var info = {};
+      if(data.newPass){
+        info.password = data.newPass;
+      }
+      if(data.image){
+        info.img = data.image;
+      }
+      return agnt.updateAttributes(info).then(function(updated){
+        return resolve(updated);
+      }).catch(function(error) {
+        return reject(error);
+      });
+    }else {
+      return reject("password not match");
+    }
+  });
+}
+
 module.exports = {
   init: init,
   scheduleCall: scheduleCall,
@@ -363,5 +462,9 @@ module.exports = {
   getIVR:getIVR,
   getClients: getClients,
   createSip: createSip,
-  incrementClientCount: incrementClientCount
+  incrementClientCount: incrementClientCount,
+  getQueues:getQueues,
+  getCalls: getCalls,
+  updateAgentImage : updateAgentImage,
+  updateAgent: updateAgent
 }

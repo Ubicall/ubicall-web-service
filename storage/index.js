@@ -1,6 +1,7 @@
 // inspired from https://github.com/node-red/node-red/tree/master/red/storage
 var when = require('when');
 var log = require('../log');
+var agentInterface = require('./agent');
 var ubicallStorageModule, astStorageModule, cacheModule, cache;
 
 
@@ -17,6 +18,7 @@ function _initStorage(_settings) {
     } else {
       throw new Error("unsupport storage")
     }
+    toReturnPromises.push(agentInterface.init(ubicallStorageModule,astStorageModule,cacheModule,cache));
     return when.all(toReturnPromises);
   }
 }
@@ -235,7 +237,10 @@ var storageModuleInterface = {
       });
     });
   },
-
+  getCalls : agentInterface.getCalls,
+  getQueues : agentInterface.getQueues,
+  updateAgent : agentInterface.updateAgent,
+  updateAgentImage : agentInterface.updateAgentImage
 };
 
 
