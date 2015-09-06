@@ -38,6 +38,10 @@ function init(_settings, _storage) {
 
     apiApp.delete('/call/:call_id', call.cancel);
 
+    apiApp.get('/calls/:agent_id', call.getCalls);
+
+    apiApp.get('/queues/:agent_id', call.getQueues);
+
     apiApp.post('/call/feedback/:call_id', call.submitFeedback);
 
     apiApp.post('/sip/account', sip.createSipAccount);
