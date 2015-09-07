@@ -55,7 +55,7 @@ function isCallExist(req, res, next) {
  * @return {@link MissedParams} if @param uid is missing and your client is mobile.
  * @return {@link BadRequest} if @param json is not valid
  */
-function extract(req, res, next) {
+function callExtract(req, res, next) {
 
   var call = {};
   var missingParams = [];
@@ -88,4 +88,10 @@ function extract(req, res, next) {
   req.ubi = {};
   req.ubi.call = call;
   next();
+}
+
+module.exports = {
+  isAuthenticated : isAuthenticated,
+  isCallExist : isCallExist,
+  callExtract : callExtract
 }

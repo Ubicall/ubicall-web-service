@@ -1,5 +1,5 @@
 var when = require('when');
-var log = require('../../../log');
+var log = require('../../log');
 var esl = require('modesl');
 
 var settings;

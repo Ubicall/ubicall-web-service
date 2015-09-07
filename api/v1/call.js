@@ -318,7 +318,6 @@ function submitFeedback(req, res, next) {
 }
 
 module.exports = {
-  extract: extract,
   createSipCall: createSipCall,
   createWebCall: createWebCall,
   getDetail:getDetail,

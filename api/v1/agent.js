@@ -79,10 +79,10 @@ function update(req,res,next){
  * @example {message : "Your Info updated"}
  */
 function updateImage(req,res,next){
-  if(!req.files.image){
+  if(!req.file){
     return next(new MissedParams(req.path, "image"));
   }
-  var image = settings.cdn.agent.avatarHost + req.files.image.name;
+  var image = settings.cdn.agent.avatarHost + req.file.name;
   storage.updateAgentImage(req.user,image).then(function(){
     return res.status(200).json({message : "Your Image updated"});
   }).otherwise(function(error){

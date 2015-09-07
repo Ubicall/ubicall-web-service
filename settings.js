@@ -86,6 +86,11 @@ module.exports = {
         }
     },
     infra:{
+      agentServer: {
+          ip: config.infra.agentServer.ip,
+          port:  config.infra.agentServer.port,
+          password:  config.infra.agentServer.password
+      },
       clientServer: {
         mobile :{
           public : config.infra.clientServer.mobile.public,
@@ -115,5 +120,13 @@ module.exports = {
       reset_code : 4,
       duration_format : "MMDDHHmm",
       date_format : "YYYY-MM-DD HH:mm:ss"
+    },
+    cdn:{
+      sharedStatic : '/var/www/static',
+      agent:{
+        avatarHost : 'https://cdn.ubicall.com/agent/avatar/',
+        avatarDestinationFolder : '/var/www/agent/avatar/',
+        staticDestinationFolder : '/var/www/agent/'
+      }
     }
 }

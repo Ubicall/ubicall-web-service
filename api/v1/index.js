@@ -28,9 +28,7 @@ function init(_settings, _storage) {
     storage = _storage;
     apiApp = express();
 
-    var imageMulter = multer({
-      dest: settings.cdn.agent.avatarDestinationFolder
-    });
+    var upload = multer({ dest: settings.cdn.agent.avatarDestinationFolder })
 
     apiApp.use(bodyParser.urlencoded({
       extended: true
@@ -39,9 +37,9 @@ function init(_settings, _storage) {
     // apiApp.use(cors(ubicallCors.options));
     // apiApp.use(ubicallCors.cors);
 
-    apiApp.post('/sip/call', midware.extract, call.createSipCall);
+    apiApp.post('/sip/call', midware.callExtract, call.createSipCall);
 
-    apiApp.post('/web/call', midware.extract, call.createWebCall);
+    apiApp.post('/web/call', midware.callExtract, call.createWebCall);
 
     apiApp.delete('/call/:call_id', call.cancel);
 
@@ -59,7 +57,7 @@ function init(_settings, _storage) {
 
     apiApp.get('/calls/:agent_id', midware.isAuthenticated, agent.calls);
 
-    apiApp.get('/queues/:agent_id', midware.isAuthenticated, call.queues);
+    apiApp.get('/queues/:agent_id', midware.isAuthenticated, agent.queues);
 
     apiApp.post('/sip/account', sip.createSipAccount);
 
@@ -75,9 +73,9 @@ function init(_settings, _storage) {
 
     apiApp.put('/agent',midware.isAuthenticated,agent.update);
 
-    apiApp.post('/agent/image',midware.isAuthenticated , imageMulter , agent.updateImage);
+    apiApp.post('/agent/image', midware.isAuthenticated , upload.single('image'),  agent.updateImage);
 
-    apiApp.put('/agent/image',midware.isAuthenticated , imageMulter, agent.updateImage);
+    apiApp.put('/agent/image',midware.isAuthenticated , upload.single('image') ,  agent.updateImage);
 
     /**
     * @param {String} key - license_key should be unique for each user.
