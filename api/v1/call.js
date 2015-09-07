@@ -4,6 +4,7 @@ var validator = require('validator');
 var settings = require('../../settings');
 var storage = require('../../storage');
 var log = require('../../log');
+var infra = require('../../infra');
 var NotImplementedError = require('./utils/errors').NotImplementedError;
 var BadRequest = require('./utils/errors').BadRequest;
 var MissedParams = require('./utils/errors').MissedParams;
