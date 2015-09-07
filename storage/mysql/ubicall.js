@@ -447,6 +447,111 @@ function updateAgent(agnt, data){
   });
 }
 
+function getCallDetail(agent , call_id){
+  return when.promise(function(resolve,reject){
+    $calls.findOne({
+      where: {
+        id : call_id,
+        api_key : agent.api_key
+      }
+    }).then(function(call) {
+      if (!call) {
+        return reject("no result found");
+      }
+      return resolve(call);
+    }).catch(function(error) {
+      return reject(error);
+    });
+  })
+}
+
+function getCall(agent , queue_id , queue_slug){
+  return when.promise(function(resolve,reject){
+    return $calls.findOne({
+      where: Sequelize.and(
+        { api_key: agent.api_key },
+        { queue_id: queue_id },
+        Sequelize.or(
+          { status: {$eq: null} },
+          { status: settings.call.status.retry }
+        )
+      ),
+      //get call from this queue depend on schedule_time (FIFO)
+      order: 'datetime_originate ASC , schedule_time ASC'
+    }).then(function(call) {
+      if(!call){
+        return reject("no result found");
+      }
+
+      var start_at = moment().format(settings.call.date_format);
+      var uAttrs = {
+        id_agent: agent.id,
+        agent: agent.email,
+        status: settings.call.status.progress,
+        start_time: start_at,
+        date_init: start_at,
+        time_init: start_at,
+        retries: (call.retries && call.retries > 0) ? call.retries + 1 : 0,
+        duration_wait: moment.utc(moment().diff(moment(call.schedule_time))).format(settings.call.duration_format),
+        datetime_originate: start_at,
+      };
+      return call.updateAttributes(uAttrs).then(function(updated) {
+        return resolve(updated);
+      }).catch(function(error) {
+        return reject(error);
+      });
+    }).catch(function(error) {
+      return reject(error);
+    });
+  });
+}
+
+function markCallDone(call){
+  return when.promise(function(resolve, reject) {
+    var endat;
+    if (call.duration){
+      var copyInitDate = new Date(call.date_init.getTime());
+      endat = copyInitDate.setSeconds(copyInitDate.getSeconds() + duration);
+      endat = moment(endat).format(settings.call.duration_format);
+    }else {
+      endat = moment().format(settings.call.duration_format);
+    }
+    return call.updateAttributes({
+      status: settings.call.status.done,
+      date_end: endat,
+      time_end: endat,
+      end_time: endat,
+      duration: moment.utc(moment(endat).diff(moment(call.date_init))).format(settings.call.duration_format)
+    }).then(function(updated) {
+      return resolve(updated);
+    }).catch(function(error) {
+      return reject(error);
+    });
+  });
+}
+
+function markCallFail(call){
+  return when.promise(function(resolve, reject) {
+    var uAttrs = {
+      status : call.status || settings.call.status.retry,
+      start_time:null,
+      date_init: null,
+      time_init: null,
+      end_time: null,
+      date_end: null,
+      time_end: null,
+      duration_wait: null,
+      failure_cause: call.failure_cause,
+      failure_cause_txt: call.failure_cause_txt
+    };
+    return call.updateAttributes(uAttrs).then(function(updated) {
+      return resolve(updated);
+    }).catch(function(error) {
+      return reject(error);
+    });
+  });
+}
+
 module.exports = {
   init: init,
   scheduleCall: scheduleCall,
@@ -466,5 +571,9 @@ module.exports = {
   getQueues:getQueues,
   getCalls: getCalls,
   updateAgentImage : updateAgentImage,
-  updateAgent: updateAgent
+  updateAgent: updateAgent,
+  getCallDetail:getCallDetail,
+  getCall : getCall,
+  markCallDone: markCallDone,
+  markCallFail: markCallFail
 }

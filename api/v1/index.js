@@ -55,6 +55,8 @@ function init(_settings, _storage) {
 
     apiApp.post('/call/:call_id/feedback', call.submitFeedback);
 
+    apiApp.put('/call/:call_id/feedback', call.submitFeedback);
+
     apiApp.get('/calls/:agent_id', midware.isAuthenticated, agent.calls);
 
     apiApp.get('/queues/:agent_id', midware.isAuthenticated, call.queues);

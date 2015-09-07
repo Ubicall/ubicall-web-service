@@ -141,7 +141,7 @@ function createWebCall(req, res, next) {
 */
 function getDetail(req,res,next){
   var call_id = req.call_id;
-  storage.getCall(call_id).then(function(call){
+  storage.getCallDetail(req.user , call_id).then(function(call){
     return res.status(200).json({
       call: call
     });
@@ -177,7 +177,10 @@ function call(req,res,next){
       res.status(200).json(call);
       infra.call(call,req.user).otherwise(function(error){
         log.error('error : ' + error);
-        storage.markCallFail(call,req.user,error,{reset : true}).otherwise(function(error){
+        call.status = settings.call.status.retry;
+        call.failure_cause = settings.call.reset_code;
+        call.failure_cause_txt = error.toString();
+        storage.markCallFail(call).otherwise(function(error){
           log.error('error : ' + error);
         });
       });
@@ -201,9 +204,9 @@ function done(req,res,next){
   var details = {};
   details.duration = req.body.duration || 0;
   var call_id = req.call_id;
-  storage.getCall(call_id).then(function(call){
-    if(call.id_agent != req.user.id){
-        return next(new Forbidden({message : "call not found to user " + req.user.name},req.path));
+  storage.getCall(req.user , call_id).then(function(call){
+    if(call.id_agent != req.user.id || call.status != settings.call.status.progress){
+        return next(new Forbidden({message : "you do not has call with id " + call_id },req.path));
     }
     call.duration = details.duration;
     storage.markCallDone(call).then(function(call){
@@ -235,11 +238,17 @@ function failed(req,res,next){
   var details = {};
   details.error = req.body.error || 'unable to contact client';
   var call_id = req.call_id;
-  storage.getCall(call_id).then(function(call){
-    if(call.id_agent != req.user.id){
-        return next(new Forbidden({message : "call not found to user " + req.user.name},req.path));
+  storage.getCall(req.user,call_id).then(function(call){
+    if(call.id_agent != req.user.id || call.status != settings.call.status.progress){
+        return next(new Forbidden({message : "you do not has call with id " + call_id },req.path));
     }
-    call.failure_cause = call.failure_cause_txt = details.error;
+    call.failure_cause = settings.call.failure_code;
+    call.failure_cause_txt = details.error;
+    if(call.retries > settings.call.retry_till){
+      call.status = settings.call.status.failure;
+    }else {
+      call.status = settings.call.status.retry;
+    }
     storage.markCallFail(call).then(function(call){
       return res.status(200).json({
         message: 'call updated successfully',
@@ -248,7 +257,7 @@ function failed(req,res,next){
     }).otherwise(function(error){
       log.error('error : ' + error);
       return next(new ServerError(error , req.path));
-    })
+    });
   }).otherwise(function(error){
     log.error('error : ' + error);
     return next(new NotFound(error , req.path));

@@ -102,5 +102,18 @@ module.exports = {
     widgetHost : config.endPoints.widgetDeploy,
 
     //where to deploy API documentation
-    apiDeployFolder:"/var/www/html/docs/"
+    apiDeployFolder:"/var/www/html/docs/",
+    call:{
+      status:{
+        progress: 'PROGRESS',
+        done: 'SUCCESSFUL',
+        failure: 'FAILURE',
+        retry: 'RETRY'
+      },
+      retry_till : 5,
+      failure_code : 3,
+      reset_code : 4,
+      duration_format : "MMDDHHmm",
+      date_format : "YYYY-MM-DD HH:mm:ss"
+    }
 }
