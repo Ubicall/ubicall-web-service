@@ -1,3 +1,10 @@
+/**
+* call main functionality
+* @version 0.0.1
+* @module api/v1/call
+* @exports .
+* @namespace call
+*/
 var when = require('when');
 var request = require('request');
 var validator = require('validator');
@@ -16,6 +23,8 @@ var NotFound = require('./utils/errors').NotFound;
 * helper function used to sumbit demo call by calling storage.scheduleDemoCall
 * and call external api to generate static call file and call you back
 * @param {Array} call -call Array that contain call attributes
+* @memberof call
+* @private
 */
 function __scheduleDemo(call) {
   return when.promise(function(resolve, reject) {
@@ -49,6 +58,7 @@ function __scheduleDemo(call) {
 * @return HTTP 200 if your call submitted successfully
 * @example {message: 'demo call scheduled successfully', call: XXXX }
 * @example {message: 'call scheduled successfully', call: XXXX }
+* @memberof call
 */
 function createSipCall(req, res, next) {
 
@@ -104,6 +114,7 @@ function createSipCall(req, res, next) {
 * @return HTTP status 200 if your call submitted successfully
 * @example {message: 'call scheduled successfully', call: XXXX }
 * @example {message: 'demo call scheduled successfully', call: XXXX }
+* @memberof call
 */
 function createWebCall(req, res, next) {
 
@@ -139,6 +150,7 @@ function createWebCall(req, res, next) {
 * @return {@link NotFound} if no call found with @param call_id
 * @return HTTP status 200 if call found and returned successfully
 * @example {call: {id:'xx',agent:'xxx'}}
+* @memberof call
 */
 function getDetail(req,res,next){
   var call_id = req.call_id;
@@ -161,6 +173,7 @@ function getDetail(req,res,next){
 * @return {@link MissedParams} if header @param x-rtmp-session not found
 * @return HTTP status 200 if your call fetched successfully from queue
 * @example {message: 'call updated successfully',call: {id:'xx',agent:'xxx'}}
+* @memberof call
 */
 function call(req,res,next){
     var queue_id = req.params.queue_id;
@@ -200,6 +213,7 @@ function call(req,res,next){
 * @return {@link ServerError} if storage.markCallFail failed
 * @return HTTP status 200 if your call state updated successfully
 * @example {message: 'call updated successfully',call: {id:'xx',agent:'xxx'}}
+* @memberof call
 */
 function done(req,res,next){
   var details = {};
@@ -234,6 +248,7 @@ function done(req,res,next){
 * @return {@link ServerError} if storage.markCallFail failed
 * @return HTTP status 200 if your call state updated successfully
 * @example {message: 'call updated successfully',call: {id:'xx',agent:'xxx'}}
+* @memberof call
 */
 function failed(req,res,next){
   var details = {};
@@ -271,7 +286,8 @@ function failed(req,res,next){
 * @return HTTP status 422 - {@link MissedParams} if @param call_id is undefined
 * @return HTTP status 500 {@link ServerError} if storage.cancelCall failed
 * @return HTTP 200 if your call canceled successfully
-*@example {message: 'call canceled successfully'}
+* @example {message: 'call canceled successfully'}
+* @memberof call
 */
 function cancel(req, res, next) {
   var call_id = req.params.call_id;
@@ -294,6 +310,7 @@ function cancel(req, res, next) {
 * @return MissedParams if @param call_id is undefined or (@param feedback and @param feedback_text)
 * @return HTTP status 500 {@link ServerError} if storage.feedback failed
 * @return HTTP status - 200 message: "feedback sent successfully"
+* @memberof call
 */
 function submitFeedback(req, res, next) {
   var feedback = {};

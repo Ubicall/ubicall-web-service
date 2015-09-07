@@ -1,3 +1,10 @@
+/**
+* agent main functionality
+* @version 0.0.1
+* @module api/v1/agent
+* @exports .
+* @namespace agent
+*/
 var when = require('when');
 var request = require('request');
 var validator = require('validator');
@@ -19,6 +26,7 @@ var NotFound = require('./utils/errors').NotFound;
  * @return {@link Forbidden} if user not provide
  * @return {@link ServerError} if storage.getCalls failed
  * @return HTTP status - 200 with agent calls as json
+ * @memberof agent
  */
 function getCalls(req, res, next) {
   var options = {};
@@ -37,6 +45,7 @@ function getCalls(req, res, next) {
  * @return {@link Forbidden} if user not provide
  * @return {@link ServerError} if storage.getQueues failed
  * @return HTTP status - 200 with agent queues as json
+ * @memberof agent
  */
 function getQueues(req, res, next) {
   storage.getQueues(req.user).then(function(queues) {
@@ -53,6 +62,7 @@ function getQueues(req, res, next) {
  * @return {@link ServerError} if storage.updateAgent failed
  * @return HTTP status - 200 when agent profile updated successfully
  * @example {message : "Your Info updated"}
+ * @memberof agent
  */
 function update(req,res,next){
   var update = {};
@@ -77,6 +87,7 @@ function update(req,res,next){
  * @return {@link ServerError} if storage.updateAgentImage failed
  * @return HTTP status - 200 when agent profile updated successfully
  * @example {message : "Your Info updated"}
+ * @memberof agent
  */
 function updateImage(req,res,next){
   if(!req.file){

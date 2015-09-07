@@ -1,3 +1,10 @@
+/**
+* sip main functionality
+* @version 0.0.1
+* @module api/v1/sip
+* @exports .
+* @namespace sip
+*/
 var sprintf = require('sprintf');
 var randomstring = require('randomstring');
 var settings = require('../../settings');
@@ -11,6 +18,7 @@ var ServerError =require('./utils/errors').ServerError;
 
 var DIAL_STRING = settings.infra.clientServer.web.dialString;
 /**
+* create sip account for mobile client
 * @param {Array} device - Array containing all attributes of a device
 * @param {String} device.license_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
 * @param {String} device.sdk_name -the name of the sdk. Each client have a unique name
@@ -25,6 +33,7 @@ var DIAL_STRING = settings.infra.clientServer.web.dialString;
 * @return HTTP status 403  {@link Forbidden} Bad credentials
 * @return {@link MissedParams} if @param device.token missed and your client is mobile.
 * @example {username:'XXXX',password:'XXXXX',domain:'XXXX.XX.XX.X'}
+* @memberof sip
 */
 function createSipAccount(req, res, next) {
   var device = {};
@@ -89,6 +98,7 @@ function createSipAccount(req, res, next) {
 }
 
 /**
+* create sip account for web client
 * @param {Array} device - Array containing all attributes of a device
 * @param {String} device.license_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
 * @param {String} device.sdk_name -the name of the sdk. Each client have a unique name
@@ -103,6 +113,7 @@ function createSipAccount(req, res, next) {
 * @return HTTP status 500 {@link ServerError} Unexpected Condition Was Encountered
 * @return HTTP status 403  {@link Forbidden} Bad credentials
 * @example {username:'XXXX',password:'XXXXX',domain:'XXXX.XX.XX.X'}
+* @memberof sip
 */
 
 function createWebAccount(req, res, next) {

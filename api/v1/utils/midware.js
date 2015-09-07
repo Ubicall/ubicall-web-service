@@ -1,3 +1,10 @@
+/**
+* api shared middleware
+* @version 0.0.1
+* @module api/v1/utils/midware
+* @exports .
+* @namespace middleware
+*/
 var when = require('when');
 var validator = require('validator');
 var settings = require('../../../settings');
@@ -10,6 +17,7 @@ var NotFound = require('./errors').NotFound;
 
 /**
  * demo middle ware to simulate oauth and will be replaced by https://github.com/Ubicall/ubicall-web-service/tree/feature-oauth
+ * @memberof middleware
  */
 function isAuthenticated(req, res, next) {
   if (!req.user) {
@@ -26,6 +34,7 @@ function isAuthenticated(req, res, next) {
 /**
  * middleware to check if your request has @param call_id
  * @return {@link MissedParams} if @param call_id is undefined
+ * @memberof middleware
  */
 function isCallExist(req, res, next) {
   var call_id = req.params.call_id;
@@ -54,6 +63,7 @@ function isCallExist(req, res, next) {
  * @return {@link MissedParams} if @param sip is missing
  * @return {@link MissedParams} if @param uid is missing and your client is mobile.
  * @return {@link BadRequest} if @param json is not valid
+ * @memberof middleware
  */
 function callExtract(req, res, next) {
 

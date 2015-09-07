@@ -1,3 +1,10 @@
+/**
+* ivr main functionality
+* @version 0.0.1
+* @module api/v1/ivr
+* @exports .
+* @namespace ivr
+*/
 var when = require('when');
 var request = require('request');
 var settings = require('../../settings');
@@ -10,6 +17,13 @@ var Forbidden = require('./utils/errors').Forbidden;
 var ServerError =require('./utils/errors').ServerError;
 var NotFound =require('./utils/errors').NotFound;
 
+/**
+* deploy plist on web by calling an api
+* @return {@link NotFound} - if api return 404 error
+* @return HTTP status 200 - if plist deployed successfully on web
+* @private
+* @memberof ivr
+*/
 function __deployToWeb(widgetHost, plistHost, license_key, version) {
   return when.promise(function(resolve, reject) {
     var options = {
@@ -39,6 +53,7 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
 * @return HTTP status 500 - {@link ServerError} unable to get version,try again later
 * @example
 * {message: "ivr with version "+ version.version +"retrieved successfully",version : version.version ,url : version.url}
+* @memberof ivr
 */
 function fetchIvr(req, res , next) {
   var license_key = req.params.license_key;
@@ -63,10 +78,9 @@ function fetchIvr(req, res , next) {
 * @param {String} ivr.version - the version of plist file.
 * @return HTTP status 200 - message: mobile & web clients updated successfully
 * @return HTTP status 500 {@link ServerError}
-* @example
-* {message: "mobile & web clients updated successfully"}
-* @example
-* {message:"Unable to update Mobile,hence rollback web"}
+* @example {message: "mobile & web clients updated successfully"}
+* @example {message:"Unable to update Mobile,hence rollback web"}
+* @memberof ivr
 */
 function createIvr(req, res, next) {
   var ivr = {};

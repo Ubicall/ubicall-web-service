@@ -1,5 +1,9 @@
 /**
 * ubicall parent object Error
+* @version 0.0.1
+* @module api/v1/util/errors
+* @exports .
+* @namespace Error
 */
 function UbicallError() {
 
@@ -10,6 +14,7 @@ UbicallError.prototype = Error.prototype;
 * return HTTP 501 error with message "Not Implemented"
 * @param resource - current resource url path
 * @return HTTP 501
+* @memberof Error
 */
 function NotImplementedError(resource) {
   this.name = "NotImplementedError";
@@ -24,7 +29,8 @@ NotImplementedError.prototype = UbicallError.prototype;
 * return HTTP 400 error with message "Problems In Parsing" or "Problems parsing" + @param field
 * @param resource - current resource url path
 * @param field - field which has error
-* @return HTTP 501
+* @return HTTP 400
+* @memberof Error
 */
 function BadRequest(resource , field) {
   this.name = "BadRequest";
@@ -48,6 +54,7 @@ BadRequest.prototype = UbicallError.prototype;
 * @param resource - current resource url path
 * @param params - all missed params
 * @return HTTP 422
+* @memberof Error
 */
 function MissedParams(resource, params) {
   this.name = "MissedParams";
@@ -70,6 +77,7 @@ MissedParams.prototype = UbicallError.prototype;
 * @param origin - original error object
 * @param resource - current resource url path
 * @return HTTP 403
+* @memberof Error
 */
 function Forbidden(origin , resource){
   this.name = "Forbidden";
@@ -85,6 +93,7 @@ Forbidden.prototype = UbicallError.prototype;
 * @param origin - original error object
 * @param resource - current resource url path
 * @return HTTP 404
+* @memberof Error
 */
 function NotFound(origin, resource){
   this.name = "Not Found";
@@ -101,6 +110,7 @@ NotFound.prototype = UbicallError.prototype;
 * @param resource - current resource url path
 * @param message - custom error message
 * @return HTTP 404
+* @memberof Error
 */
 function ServerError(origin ,resource , message){
   this.name = "Server Error";
