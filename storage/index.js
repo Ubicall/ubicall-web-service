@@ -200,6 +200,16 @@ var storageModuleInterface = {
     });
   },
 
+getAgent:function(email){
+  console.log('here');
+  return when.promise(function(resolve,reject){
+    ubicallStorageModule.getAgent(email).then(function(user){
+      return resolve(user);
+    }).otherwise(function(error){
+      return reject(error);
+    })
+  })
+},
   getIVR : function(license_key){
     return when.promise(function(resolve,reject){
       ubicallStorageModule.getIVR(license_key).then(function(ivr) {

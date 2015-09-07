@@ -14,7 +14,18 @@ var MissedParams = require('../errors').MissedParams;
 var Forbidden = require('../errors').Forbidden;
 var ServerError = require('../errors').ServerError;
 var NotFound = require('../errors').NotFound;
+var mongoose = require('mongoose');
+var ejs = require('ejs');
+var session = require('express-session');
+var passport = require('passport');
+var userController = require('./controllers/user');
+var authController = require('./controllers/auth');
+var oauth2Controller = require('./controllers/oauth2');
+var clientController = require('./controllers/client');
+var tokenController = require('./controllers/token');
 
+// Connect to the beerlocker MongoDB
+mongoose.connect('mongodb://127.0.0.1:27017/beerlocker');
 
 var settings, storage;
 var apiApp;
@@ -31,6 +42,8 @@ function init(_settings, _storage) {
     apiApp.use(bodyParser.json());
     // apiApp.use(cors(ubicallCors.options));
     // apiApp.use(ubicallCors.cors);
+
+    apiApp.post('/auth/token',tokenController.generateToken);
 
     apiApp.post('/sip/call', call.extract, call.createSipCall);
 

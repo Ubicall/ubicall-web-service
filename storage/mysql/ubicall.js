@@ -100,7 +100,7 @@ function scheduleDemoCall(call) {
   });
 }
 
-function getClient(key) {
+function getClient(key){
   return when.promise(function(resolve, reject) {
     $client_version_view.findOne({
       where: {
@@ -112,7 +112,7 @@ function getClient(key) {
       }
       return resolve(client);
     }).catch(function(error) {
-      return reject(error);
+            return reject(error);
     });
   });
 }
@@ -348,6 +348,21 @@ function getIVR(license_key){
   });
 }
 
+function getAgent(email) {
+  return when.promise(function(resolve,reject){
+    return agent.findOne({
+      where: {
+        email: email
+      }
+    }).then(function(agent) {
+      return resolve(agent);
+    }).catch(function(error) {
+      return reject(error);
+    });
+  })
+}
+
+
 module.exports = {
   init: init,
   scheduleCall: scheduleCall,
@@ -363,5 +378,6 @@ module.exports = {
   getIVR:getIVR,
   getClients: getClients,
   createSip: createSip,
-  incrementClientCount: incrementClientCount
+  incrementClientCount: incrementClientCount,
+  getAgent:getAgent
 }
