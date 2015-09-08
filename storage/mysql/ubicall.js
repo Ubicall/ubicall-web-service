@@ -350,14 +350,14 @@ function getIVR(license_key){
 
 function getAgent(email) {
   return when.promise(function(resolve,reject){
-    return agent.findOne({
+    $agent.findOne({
       where: {
         email: email
       }
     }).then(function(agent) {
       return resolve(agent);
     }).catch(function(error) {
-      return reject(error);
+        return reject(error);
     });
   })
 }

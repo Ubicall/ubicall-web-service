@@ -201,7 +201,6 @@ var storageModuleInterface = {
   },
 
 getAgent:function(email){
-  console.log('here');
   return when.promise(function(resolve,reject){
     ubicallStorageModule.getAgent(email).then(function(user){
       return resolve(user);

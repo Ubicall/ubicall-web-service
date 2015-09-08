@@ -8,6 +8,7 @@ var now = new moment();
 var bcrypt = require('bcrypt-nodejs');
 var secret = 'xxx';
 var ServerError = require('../../errors').ServerError;
+var MissedParams = require('../../errors').MissedParams;
 
 // Create endpoint /api/token for POST
 exports.postToken = function(req, res) {
@@ -37,10 +38,9 @@ exports.getTokens = function(req, res) {
 
 function authenticate(email, password) {
   return storage.getAgent(email).then(function (agent) {
-
-    var agentPassword = bcrypt.hashSync(agent.password, 8);
+  //  var agentPassword = bcrypt.hashSync(agent.password, 8);
     // se settings.js storage configuration part for more detail
-    if (settings.storage.storageModule == "fake") {
+  /*  if (settings.storage.storageModule == "fake") {
         password = email.split("@")[0];
     }
     bcrypt.compare(password, agentPassword, function (err, res) {
@@ -51,7 +51,16 @@ function authenticate(email, password) {
         }else {
           return reject("users:password not match for agent " + email +":" + password);
         }
-    });
+    });*/
+    if(password == agent.password){
+      console.log('passwords match');
+        return agent;
+    }
+    else{
+
+        return "users:password not match for agent " + email +":" + password;
+    }
+
         }).otherwise(function(error){
           return reject(error);
         });
@@ -59,22 +68,31 @@ function authenticate(email, password) {
 }
 //endpoint for generating token
 exports.generateToken = function(req,res,next){
-    var user_pass = req.body.password; //username of password
-    var client_id =req.body.clientId;
-    var email = req.body.email;
-    var license_key =req.body.key;
+
+    var data ={};
+    var missingParams = [];
+    data.user_pass = req.body.password; //username of password
+    data.client_id =req.body.clientId;
+    data.email = req.body.user_email || missingParams.push("email");;
+    data.license_key =req.body.key || missingParams.push("license_key");
     var access_token,token;
-    if(email)
+    console.log(data);
+    if (missingParams.length > 0) {
+      return next(new MissedParams(req.path, missingParams));
+    }
+
+    if(data.email)
     {
-        authenticate(email, user_pass).then(function (user) {
-          if (user) {
+      console.log('there is an email');
+        authenticate(data.email,data.user_pass).then(function (agent) {
+          if (agent) {
             var access_token = jwt2.sign(
-              {id:user._id,name:user.name,email: req.body.email,last_login : now.format("HH:mm:ss")},secret,{expiresInMinutes:60*24*7});//token expires in 1 week
+              {id:agent._id,name:agent.name,email: email,last_login : now.format("HH:mm:ss")},secret,{expiresInMinutes:60*24*7});//token expires in 1 week
               }
               //return access_token;
               var token = new Token({
               value : access_token,
-              userId :user._id,
+              userId :agent.id,
               clientId :client_id
               });
                   //save the AT
@@ -88,13 +106,13 @@ exports.generateToken = function(req,res,next){
                     res.json({message: 'auth:Incorrect username or password'});
                 });
     }
+
     else{
-      if(license_key)
+
+    if(data.license_key)
       {
-        console.log('there is a license key');
-        storage.getClient(license_key).then(function(client){
+        storage.getClient(data.license_key).then(function(client){
           access_token = jwt2.sign({id:client.id,last_login:now.format("HH:mm:ss")},secret,{expiresInMinutes:60*24*7});
-          console.log('this is client id',client.id);
           token = new Token({
           value : access_token,
           userId :'undefined',
