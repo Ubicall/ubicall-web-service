@@ -308,7 +308,7 @@ function failed(req,res,next){
 /**
 * cancel call with id @param call_id
 * @param {Object} req.params - request params object
-* @param {Integer} - req.params.call_id - call_id to cancel
+* @param {Integer} req.params.call_id - call_id to cancel
 * @throws {@link MissedParams} if @param call_id is undefined
 * @throws {@link ServerError} if storage.cancelCall failed
 * @return HTTP 200 if your call canceled successfully
@@ -335,7 +335,7 @@ function cancel(req, res, next) {
 /**
 * submit feedback for call with id @param call_id
 * @param {Object} req.params - request params object
-* @param {Integer} - req.params.call_id - call_id to submit feedback
+* @param {Integer} req.params.call_id - call_id to submit feedback
 * @param {Object} req.body - request body object
 * @param {String} req.body.feedback - body param to specify feedback message and override @param feedback_text
 * @param {String} req.body.feedback_text - body param to specify feedback message

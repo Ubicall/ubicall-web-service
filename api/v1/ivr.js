@@ -47,8 +47,10 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
 }
 
 /**
-* @param {String} license_key - your api license_key which is unique for each client
-* @throws {@link MissedParams} - if @param license_key is missing
+* get latest ivr for @param license_key
+* @param req.params - req params object
+* @param {String} req.params.license_key - your api license key
+* @throws {@link MissedParams} - if @param license_key is missed
 * @throws {@link NotFound} - if storage.getVersion failed
 * @return HTTP status 200 - when your license_key ivr fetched successfully
 * @example
@@ -74,10 +76,11 @@ function fetchIvr(req, res , next) {
 }
 
 /**
-* @param {Object} ivr - Object containing IVR attributes
-* @param {String} ivr.license_key - license_key unique for each user,your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases @return {@link MissedParams} If no licence_key
-* @param {String} ivr.version - the version of plist file.
-* @param {Url} plistHost - param can override default plistHost value
+* @param {Object} req.params - request param Object
+* @param {String} req.params.license_key - your license key
+* @param {String} req.params.version - the version of plist file.
+* @param {Object} req.headers - request headers object
+* @param {Url} req.headers.plistHost - param can override default plistHost value
 * @throws {@link MissedParams} - if @param ivr.license_key is missing
 * @throws {@link MissedParams} - if @param ivr.version is missing
 * @throws {@link ServerError} - if unable able to Update Web -  message *Unable to update Web,hence cannot update Mobile*
@@ -85,6 +88,7 @@ function fetchIvr(req, res , next) {
 * @throws {@link ServerError} - if web updated but unable to update mobile client , so we rollback web to previous version - message *Unable to update Mobile,hence rollback web*
 * @throws {@link ServerError} - if web updated but unable to update mobile client **and failed to rollback web version** - message *Unable to update Mobile or rollback web*
 * @return HTTP status 200 - if ivr deplyed successfully in both web and mobile clients
+* @todo check on plistHost concatenated with slash
 * @example
 * // returns {message: "mobile & web clients updated successfully"}
 * POST /ivr/:license_key/:version

@@ -14,12 +14,30 @@ var MissedParams = require('./errors').MissedParams;
 var Forbidden = require('./errors').Forbidden;
 var ServerError = require('./errors').ServerError;
 var NotFound = require('./errors').NotFound;
+var log = require('../../../log');
 
 /**
  * demo middle ware to simulate oauth and will be replaced by https://github.com/Ubicall/ubicall-web-service/tree/feature-oauth
  * @memberof middleware
  */
 function isAuthenticated(req, res, next) {
+  if(process.env.test){
+    req.user = {
+      id: 65,
+      name: "Antoine FS",
+      email: "aatef@rocketmail.com",
+      number: "2222",
+      image: "https://cdn.ubicall.com/agent/avatar/bcf3c1faaf30b15168db4da6575001ad.jpg",
+      lic: "e6053eb8d35e02ae40beeeacef203c1a",
+      api_key: "e6053eb8d35e02ae40beeeacef203c1a",
+      sip: {
+            num: "90000000000000021@104.239.164.247",
+            cred: "xmolVGdwTRGsbDOJ"
+            }
+    };
+    log.info("test user is used " + req.user);
+    next();
+  }
   if (!req.user) {
     return next(new Forbidden({
       message: "user not found"

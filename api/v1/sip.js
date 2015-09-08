@@ -19,15 +19,15 @@ var ServerError =require('./utils/errors').ServerError;
 var DIAL_STRING = settings.infra.clientServer.web.dialString;
 /**
 * create sip account for mobile client
-* @param {Object} device - Object containing all attributes of a device
-* @param {String} device.license_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
-* @param {String} device.sdk_name -the name of the sdk. Each client have a unique name
-* @param {String} device.sdk_version -version of the client’s sdk.
-* @param {String} device.name - name of your device @default **UNKNOWN**
-* @param {String} device.model - the model of the device. (Ex: IPhone 5, iPhone 6, Samsung S3)
-* @param {String} device.uid - each device has a unique user id @default **0000**
-* @param {String} device.version - device’s version . (Ex:IOS 7 , IOS 8, Kitkat, Lollipop)
-* @param {String} device.token -  your mobile device_token, not required if you use web client
+* @param {Object} req.body - request body Object
+* @param {String} req.body.license_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
+* @param {String} req.body.sdk_name -the name of the sdk. Each client have a unique name
+* @param {String} req.body.sdk_version -version of the client’s sdk.
+* @param {String} req.body.name - name of your device @default **UNKNOWN**
+* @param {String} req.body.model - the model of the device. (Ex: IPhone 5, iPhone 6, Samsung S3)
+* @param {String} req.body.uid - each device has a unique user id @default **0000**
+* @param {String} req.body.version - device’s version . (Ex:IOS 7 , IOS 8, Kitkat, Lollipop)
+* @param {String} req.body.token -  your mobile device_token, not required if you use web client
 * @throws {@link MissedParams} if @param device.license_key or device.sdk_name or device.sdk_version or device.device_model or device.device_version or device.device_token is missed
 * @throws {@link Forbidden} storage.getClient failed
 * @throws {@link ServerError} if storage.createSipFriend failed
@@ -103,15 +103,15 @@ function createSipAccount(req, res, next) {
 
 /**
 * create sip account for web client
-* @param {Object} device - Array containing all attributes of a device
-* @param {String} device.license_key - unique api licence_key
-* @param {String} device.sdk_name -the name of the sdk.
-* @param {String} device.sdk_version -version of the client’s sdk.
-* @param {String} device.uid - each device has a unique user id @default **0000**
-* @param {String} device.token -  your mobile device_token @default **0000**
-* @param {String} device.name - name of your device @default **WEB**
-* @param {String} device.model - the model of the device @default **WEB**
-* @param {String} device.version - device’s version @default **WEB**
+* @param {Object} req.body - request body object
+* @param {String} req.body.license_key - unique api licence_key
+* @param {String} req.body.sdk_name -the name of the sdk.
+* @param {String} req.body.sdk_version -version of the client’s sdk.
+* @param {String} req.body.uid - each device has a unique user id @default **0000**
+* @param {String} req.body.token -  your mobile device_token @default **0000**
+* @param {String} req.body.name - name of your device @default **WEB**
+* @param {String} req.body.model - the model of the device @default **WEB**
+* @param {String} req.body.version - device’s version @default **WEB**
 * @throws {@link MissedParams} if license_key was missed
 * @throws {@link MissedParams} if sdk_name was missed
 * @throws {@link MissedParams} if sdk_version was missed
