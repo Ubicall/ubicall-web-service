@@ -152,7 +152,8 @@ function createWebCall(req, res, next) {
 
 /**
 * get call with id @param call_id
-* @param call_id - call_id to mark as done
+* @param {Object} req.params - request params object
+* @param {Integer} req.params.call_id - call_id to mark as done
 * @throws {@link NotFound} if no call found with @param call_id
 * @return HTTP status 200 if call found and returned successfully
 * @example
@@ -161,7 +162,7 @@ function createWebCall(req, res, next) {
 * @memberof API
 */
 function getDetail(req,res,next){
-  var call_id = req.call_id;
+  var call_id = req.params.call_id;
   storage.getCallDetail(req.user , call_id).then(function(call){
     return res.status(200).json({
       call: call
@@ -174,11 +175,15 @@ function getDetail(req,res,next){
 
 /**
 * process call from queue with id @param queue_id it will reset call if error occur in infrastructure servers
-* @param queue_id - queue_id where we fetch the call
-* @param queue_slug - slug of queue name
-* @throws {@link MissedParams} if @param queue_id not found
-* @throws {@link MissedParams} if @param queue_slug not found
-* @throws {@link MissedParams} if header @param x-rtmp-session not found
+* @see [api/v1/utils/midware#isAuthenticated](middleware.html#.isAuthenticated)
+* @param {Object} req.params - request params object
+* @param req.params.queue_id - queue_id where we fetch the call
+* @param req.params.queue_slug - slug of queue name
+* @param {Object} req.user - current authenticated user
+* @param req.user.x-rtmp-session - your rtmp session to call you back
+* @throws {@link MissedParams} if @param req.params.queue_id not found
+* @throws {@link MissedParams} if @param req.params.queue_slug not found
+* @throws {@link MissedParams} if header @param req.user.x-rtmp-session not found
 * @return HTTP status 200 if your call fetched successfully from queue
 * @example
 * // returns {message: 'call updated successfully',call: {id:'xx',agent:'xxx'}}
@@ -216,8 +221,11 @@ function call(req,res,next){
 
 /**
 * mark call with id @param call_id as done
-* @param call_id - call_id to mark as done
-* @param duration - how long this call take place
+* @see [api/v1/utils/midware#isAuthenticated](middleware.html#.isAuthenticated)
+* @param {Object} req.params - request params object
+* @param {Integer} req.params.call_id - call_id to mark as done
+* @param {Object} req.body - request body object
+* @param {Integer} req.body.duration - how long this call take place @default **0**
 * @throws {@link NotFound} if no call found with @param call_id
 * @throws {@link Forbidden} if call with @param call_id has is_agent other than req.user.id
 * @throws {@link ServerError} if storage.markCallFail failed
@@ -253,8 +261,11 @@ function done(req,res,next){
 
 /**
 * mark call with id @param call_id as failed , which it will be retried if failed times is less than fail's limit
-* @param call_id - call_id to mark as failed
-* @param error - why this call failed
+* @see [api/v1/utils/midware#isAuthenticated](middleware.html#.isAuthenticated)
+* @param {Object} req.params - request params object
+* @param {Integer} - req.params.call_id - call_id to mark as failed
+* @param {Object} req.body - request body object
+* @param {Integer} req.body.error - why this call failed @default **unable to contact client**
 * @throws {@link NotFound} if no call found with @param call_id
 * @throws {@link Forbidden} if call with @param call_id has id_agent other than req.user.id
 * @throws {@link ServerError} if storage.markCallFail failed
@@ -296,7 +307,8 @@ function failed(req,res,next){
 
 /**
 * cancel call with id @param call_id
-* @param {integer} call_id - call_id to cancel
+* @param {Object} req.params - request params object
+* @param {Integer} - req.params.call_id - call_id to cancel
 * @throws {@link MissedParams} if @param call_id is undefined
 * @throws {@link ServerError} if storage.cancelCall failed
 * @return HTTP 200 if your call canceled successfully
@@ -322,11 +334,13 @@ function cancel(req, res, next) {
 }
 /**
 * submit feedback for call with id @param call_id
-* @param {Integer} call_id - call_id to submit feedback on
-* @param {String} feedback - body param to specify feedback message and override @param feedback_text
-* @param {String} feedback_text - body param to specify feedback message
-* @throws {@link MissedParams} if @param call_id is undefined
-* @throws {@link MissedParams} if @param feedback and @param feedback_text
+* @param {Object} req.params - request params object
+* @param {Integer} - req.params.call_id - call_id to submit feedback
+* @param {Object} req.body - request body object
+* @param {String} req.body.feedback - body param to specify feedback message and override @param feedback_text
+* @param {String} req.body.feedback_text - body param to specify feedback message
+* @throws {@link MissedParams} if @param req.params.call_id is undefined
+* @throws {@link MissedParams} if @param req.body.feedback and @param req.body.feedback_text
 * @throws {@link ServerError} if storage.feedback failed
 * @return HTTP status 200 - if feedback submmitted successfully
 * @example

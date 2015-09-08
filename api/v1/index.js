@@ -62,10 +62,6 @@ function init(_settings, _storage) {
 
     apiApp.put('/call/:call_id/feedback', call.submitFeedback);
 
-    apiApp.get('/calls/:agent_id', midware.isAuthenticated, agent.calls);
-
-    apiApp.get('/queues/:agent_id', midware.isAuthenticated, agent.queues);
-
     apiApp.post('/sip/account', sip.createSipAccount);
 
     apiApp.post('/web/account', sip.createWebAccount);
@@ -84,6 +80,9 @@ function init(_settings, _storage) {
 
     apiApp.put('/agent/image',midware.isAuthenticated , upload.single('image') ,  agent.updateImage);
 
+    apiApp.get('/agent/calls', midware.isAuthenticated, agent.calls);
+
+    apiApp.get('/agent/queues', midware.isAuthenticated, agent.queues);
     /**
     * @param {String} key - license_key should be unique for each user.
     * @return {@link MissedParams} @param key doesn't exist

@@ -20,13 +20,16 @@ var NotFound = require('./utils/errors').NotFound;
 
 
 /**
- * get calls for agent with id @param agent_id
- * @param {Integer} page - page to get @default 1
- * @param {Integer} per_page - number of result per page @default 20
- * @return {@link Forbidden} if user not provide
- * @return {@link ServerError} if storage.getCalls failed
+ * get calls for authenticated agent
+ * @see [api/v1/utils/midware#isAuthenticated](middleware.html#.isAuthenticated)
+ * @param {Integer} page - url param page to get @default **1**
+ * @param {Integer} per_page - url param number of result per page @default **20**
+ * @throws {@link ServerError} if storage.getCalls failed
  * @return HTTP status - 200 with agent calls as json
- * @memberof agent
+ * @example
+ * // returns {[{{id : 'xx' , phone : 'xxxxx'} , call ...call}] }
+ * GET /agent/calls
+ * @memberof API
  */
 function getCalls(req, res, next) {
   var options = {};
@@ -41,11 +44,14 @@ function getCalls(req, res, next) {
 }
 
 /**
- * get queues for agent with id @param agent_id
- * @return {@link Forbidden} if user not provide
+ * get queues for authenticated agent
+ * @see [api/v1/utils/midware#isAuthenticated](middleware.html#.isAuthenticated)
  * @return {@link ServerError} if storage.getQueues failed
  * @return HTTP status - 200 with agent queues as json
- * @memberof agent
+ * @example
+ * // returns {[{{id : 'xx' , name : 'xxxxx'} , queue ...queue}] }
+ * GET /agent/queues
+ * @memberof API
  */
 function getQueues(req, res, next) {
   storage.getQueues(req.user).then(function(queues) {
@@ -58,11 +64,19 @@ function getQueues(req, res, next) {
 
 /**
  * update agent profile , password till now
- * @return {@link MissedParams} if @param currentPass not provide
+ * @see [api/v1/utils/midware#isAuthenticated](middleware.html#.isAuthenticated)
+ * @param {Object} body - request body
+ * @param {String} body.currentPass - agent current password
+ * @param {String} body.newPass - agent new password
+ * @return {@link MissedParams} if @param body.currentPass is missed
+ * @return {@link MissedParams} if @param body.newPass is missed
  * @return {@link ServerError} if storage.updateAgent failed
  * @return HTTP status - 200 when agent profile updated successfully
- * @example {message : "Your Info updated"}
- * @memberof agent
+ * @example
+ * // returns {message : "Your info updated"}
+ * POST /agent
+ * PUT /agent
+ * @memberof API
  */
 function update(req,res,next){
   var update = {};
@@ -74,7 +88,7 @@ function update(req,res,next){
     return next(new MissedParams(req.path, "currentPass"));
   }
   storage.updateAgent(req.user ,update).then(function(done){
-      return res.status(200).json({message : "Your Info updated"});
+      return res.status(200).json({message : "Your info updated"});
     }).otherwise(function(error){
       log.error('error : ' + error);
       return next(new ServerError(error, req.path));
@@ -83,11 +97,15 @@ function update(req,res,next){
 
 /**
  * update agent image only
- * @return {@link MissedParams} if @param image not provide
+ * @param {Object} req.file - request file object contain your uploaded image
+ * @return {@link MissedParams} if @param req.file not provide
  * @return {@link ServerError} if storage.updateAgentImage failed
  * @return HTTP status - 200 when agent profile updated successfully
- * @example {message : "Your Info updated"}
- * @memberof agent
+ * @example
+ * //returns {message : "Your Info updated"}
+ * POST /agent/image
+ * PUT /agent/image
+ * @memberof API
  */
 function updateImage(req,res,next){
   if(!req.file){

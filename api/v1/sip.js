@@ -19,20 +19,24 @@ var ServerError =require('./utils/errors').ServerError;
 var DIAL_STRING = settings.infra.clientServer.web.dialString;
 /**
 * create sip account for mobile client
-* @param {Array} device - Array containing all attributes of a device
+* @param {Object} device - Object containing all attributes of a device
 * @param {String} device.license_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
 * @param {String} device.sdk_name -the name of the sdk. Each client have a unique name
 * @param {String} device.sdk_version -version of the client’s sdk.
-* @param {String} device.name - name of your device
+* @param {String} device.name - name of your device @default **UNKNOWN**
 * @param {String} device.model - the model of the device. (Ex: IPhone 5, iPhone 6, Samsung S3)
-* @param {String} device.uid - each device has a unique user id
+* @param {String} device.uid - each device has a unique user id @default **0000**
 * @param {String} device.version - device’s version . (Ex:IOS 7 , IOS 8, Kitkat, Lollipop)
 * @param {String} device.token -  your mobile device_token, not required if you use web client
-* @return HTTP status 200
-* @return HTTP status 500 {@link ServerError} Unexpected Condition Was Encountered
-* @return HTTP status 403  {@link Forbidden} Bad credentials
-* @return {@link MissedParams} if @param device.token missed and your client is mobile.
-* @example {username:'XXXX',password:'XXXXX',domain:'XXXX.XX.XX.X'}
+* @throws {@link MissedParams} if @param device.license_key or device.sdk_name or device.sdk_version or device.device_model or device.device_version or device.device_token is missed
+* @throws {@link Forbidden} storage.getClient failed
+* @throws {@link ServerError} if storage.createSipFriend failed
+* @throws {@link ServerError} if storage.incrementClientCount failed
+* @throws {@link ServerError} if storage.createSip failed
+* @return HTTP status 200 - if sip call submitted successfully
+* @example
+* // returns {username:'XXXX',password:'XXXXX',domain:'XXXX.XX.XX.X'}
+* POST /sip/account
 * @memberof sip
 */
 function createSipAccount(req, res, next) {
@@ -42,11 +46,11 @@ function createSipAccount(req, res, next) {
   device.license_key = req.body.license_key || missingParams.push("license_key");
   device.sdk_name = req.body.sdk_name || missingParams.push("sdk_name");
   device.sdk_version = req.body.sdk_version || missingParams.push("sdk_version");
-  device.uid = req.body.device_uid || '0000';
   device.token = req.body.device_token || missingParams.push("device_token");
-  device.name = req.body.device_name || 'UNKNOWN';
   device.model = req.body.device_model || missingParams.push("device_model");
   device.version = req.body.device_version || missingParams.push("device_version");
+  device.name = req.body.device_name || 'UNKNOWN';
+  device.uid = req.body.device_uid || '0000';
 
   if (missingParams.length > 0) {
     return next(new MissedParams(req.path, missingParams));
@@ -108,7 +112,6 @@ function createSipAccount(req, res, next) {
 * @param {String} device.name - name of your device @default **WEB**
 * @param {String} device.model - the model of the device @default **WEB**
 * @param {String} device.version - device’s version @default **WEB**
-* @ignore **SIP rule for web clients** ``` 8890000 + CLIENT_ID + 7digits(end with client.count) ```
 * @throws {@link MissedParams} if license_key was missed
 * @throws {@link MissedParams} if sdk_name was missed
 * @throws {@link MissedParams} if sdk_version was missed
