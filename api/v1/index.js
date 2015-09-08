@@ -40,6 +40,7 @@ function init(_settings, _storage) {
       extended: true
     }));
     apiApp.use(bodyParser.json());
+      app.use(passport.initialize());
     // apiApp.use(cors(ubicallCors.options));
     // apiApp.use(ubicallCors.cors);
 
@@ -47,11 +48,11 @@ function init(_settings, _storage) {
 
     apiApp.post('/sip/call', authController.isBearerAuthenticated,call.extract, call.createSipCall);
 
-    apiApp.post('/web/call', call.extract, call.createWebCall);
+    apiApp.post('/web/call', authController.isBearerAuthenticated,call.extract, call.createWebCall);
 
     apiApp.delete('/call/:call_id', call.cancel);
 
-    apiApp.post('/call/feedback/:call_id', call.submitFeedback);
+    apiApp.post('/call/feedback/:call_id', authController.isBearerAuthenticated,call.submitFeedback);
 
     apiApp.post('/sip/account', sip.createSipAccount);
 

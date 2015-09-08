@@ -9,6 +9,7 @@ var User = require('../models/user');
 var Client = require('../models/client');
 var Token = require('../models/token');
 var secret = 'xxx';
+var jwt    = require('jsonwebtoken');
 
 passport.use(new Strategy(
   function(username, password, callback) {
@@ -81,20 +82,28 @@ passport.use(new BearerStrategy(
   function(accessToken, callback) {
     Token.findOne({value: accessToken }, function (err, token) {
       if (err) { return callback(err); }
-      // No token found
-      if (!token) { return callback(null, false); }
-      console.log('token is',token);
-      jwt.verify(token, app.get('xxx'), function(err, decoded) {
+      if (!token) { return callback(null, false); }  // No token found
+      jwt.verify(token.value, secret, function(err, decoded) {
             if (err) {
-              return res.json({ success: false, message: 'Failed to authenticate token.' });
+              console.log(err.name);
+              if(err.name = 'JsonWebTokenError'){
+                return callback(err,null);
+              }
+              if(err.name = 'TokenExpiredError'){
+                //TODO call /auth/token api
+              //  app.use('/auth/token');
+              }
+              return callback({ success: false, message: 'Failed to authenticate token.' });
             } else {
               // if everything is good, save to request for use in other routes
-              req.decoded = decoded;
+              console.log(decoded);
+              status='valid';
+              return callback(null,decoded);
               next();
             }
           });
 
-      User.findOne({ _id: token.userId }, function (err, user) {
+    /*  User.findOne({ _id: token.userId }, function (err, user) {
         if (err) { return callback(err); }
         console.log('returned user is',user);
         // No user found
@@ -102,7 +111,7 @@ passport.use(new BearerStrategy(
 
         // Simple example with no scope
         callback(null, user, { scope: '*' });
-      });
+      });*/
     });
   }
 ));
