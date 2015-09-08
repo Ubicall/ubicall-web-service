@@ -48,21 +48,21 @@ function isCallExist(req, res, next) {
 
 /**
  * extract call attributes from request body
- * @param {Array} call -An array that contains call atributes
- * @param {integer} pstn - flag to distinguish between mobile app [android - iphone] , web and regular phone call as {iphone : 0 , android : 1 , web : 2 , phone : 3}
- * @param {integer} sip - your phone number , virtual which generated from /sip/account or /web/account APIs or your real phone number if you will recieve un voip call
- * @param {uid} device_token - your mobile device_token, not required if you use web client
- * @param {uid} licence_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
- * @param {json} call_data - json object contain your call meta info
- * @param {uid} longitude - your location longitude and it grabbed automatically
- * @param {uid} latitude - your location latitude and it grabbed automatically
- * @param {string} address - your location address and it grabbed automatically , but not provided if you use web client
- * @param {Date} time - time you like to call you , if not existed you will be called using FIFO algorithm (this may changed in next releases)
- * @param {integer} queue - what queue id you like to submit your call
- * @return {@link MissedParams} if @param pstn is missing
- * @return {@link MissedParams} if @param sip is missing
- * @return {@link MissedParams} if @param uid is missing and your client is mobile.
- * @return {@link BadRequest} if @param json is not valid
+ * @param {Object} call -An array that contains call atributes
+ * @param {integer} call.pstn - flag to distinguish between mobile app [android - iphone] , web and regular phone call as {iphone : 0 , android : 1 , web : 2 , phone : 3}
+ * @param {integer} call.sip - your phone number , virtual which generated from /sip/account or /web/account APIs or your real phone number if you will recieve un voip call
+ * @param {uid} call.device_token - your mobile device_token, not required if you use web client
+ * @param {uid} call.licence_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
+ * @param {json} call.call_data - json object contain your call meta info
+ * @param {uid} call.longitude - your location longitude and it grabbed automatically
+ * @param {uid} call.latitude - your location latitude and it grabbed automatically
+ * @param {string} call.address - your location address and it grabbed automatically , but not provided if you use web client
+ * @param {Date} call.time - time you like to call you , if not existed you will be called using FIFO algorithm (this may changed in next releases)
+ * @param {integer} call.queue - what queue id you like to submit your call
+ * @throws {@link MissedParams} if @param call.pstn is missing
+ * @throws {@link MissedParams} if @param call.sip is missing
+ * @throws {@link MissedParams} if @param call.device_token is missing and your client is mobile.
+ * @throws {@link BadRequest} if @param call.json is not valid
  * @memberof middleware
  */
 function callExtract(req, res, next) {

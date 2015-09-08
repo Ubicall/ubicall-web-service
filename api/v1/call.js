@@ -54,11 +54,14 @@ function __scheduleDemo(call) {
 /**
 * schedule demo call if client is undefined or client is exist but with demo flag equal zero
 * schedule regular call if client exist and has demo flag equal one
+* @see [api/v1/utils/midware#callExtract](middleware.html#.callExtract)
 * @return  HTTP status 500 {@link ServerError} if req.ubi.call.device_token not exist , __scheduleDemo failed or storage.scheduleCall failed
 * @return HTTP 200 if your call submitted successfully
-* @example {message: 'demo call scheduled successfully', call: XXXX }
-* @example {message: 'call scheduled successfully', call: XXXX }
-* @memberof call
+* @example
+* // returns {message: 'call scheduled successfully', call: XXXX }
+* // returns {message: 'demo call scheduled successfully', call: XXXX }
+* POST /sip/call
+* @memberof API
 */
 function createSipCall(req, res, next) {
 
@@ -110,11 +113,14 @@ function createSipCall(req, res, next) {
 
 /**
 * schedule demo call if licence_key is undefined otherwise schedule regular call
+* @see [api/v1/utils/midware#callExtract](middleware.html#.callExtract)
 * @return HTTP status 500 {@link ServerError} if__scheduleDemo failed or storage.scheduleCall failed
 * @return HTTP status 200 if your call submitted successfully
-* @example {message: 'call scheduled successfully', call: XXXX }
-* @example {message: 'demo call scheduled successfully', call: XXXX }
-* @memberof call
+* @example
+* // returns {message: 'call scheduled successfully', call: XXXX }
+* // returns {message: 'demo call scheduled successfully', call: XXXX }
+* POST /web/call
+* @memberof API
 */
 function createWebCall(req, res, next) {
 
@@ -147,10 +153,12 @@ function createWebCall(req, res, next) {
 /**
 * get call with id @param call_id
 * @param call_id - call_id to mark as done
-* @return {@link NotFound} if no call found with @param call_id
+* @throws {@link NotFound} if no call found with @param call_id
 * @return HTTP status 200 if call found and returned successfully
-* @example {call: {id:'xx',agent:'xxx'}}
-* @memberof call
+* @example
+* //returns {call: {id:'xx',agent:'xxx'}}
+* GET /call/:call_id
+* @memberof API
 */
 function getDetail(req,res,next){
   var call_id = req.call_id;
@@ -168,12 +176,14 @@ function getDetail(req,res,next){
 * process call from queue with id @param queue_id it will reset call if error occur in infrastructure servers
 * @param queue_id - queue_id where we fetch the call
 * @param queue_slug - slug of queue name
-* @return {@link MissedParams} if @param queue_id not found
-* @return {@link MissedParams} if @param queue_slug not found
-* @return {@link MissedParams} if header @param x-rtmp-session not found
+* @throws {@link MissedParams} if @param queue_id not found
+* @throws {@link MissedParams} if @param queue_slug not found
+* @throws {@link MissedParams} if header @param x-rtmp-session not found
 * @return HTTP status 200 if your call fetched successfully from queue
-* @example {message: 'call updated successfully',call: {id:'xx',agent:'xxx'}}
-* @memberof call
+* @example
+* // returns {message: 'call updated successfully',call: {id:'xx',agent:'xxx'}}
+* GET /call/queue/:queue_id/:queue_slug
+* @memberof API
 */
 function call(req,res,next){
     var queue_id = req.params.queue_id;
@@ -208,12 +218,14 @@ function call(req,res,next){
 * mark call with id @param call_id as done
 * @param call_id - call_id to mark as done
 * @param duration - how long this call take place
-* @return {@link NotFound} if no call found with @param call_id
-* @return {@link Forbidden} if call with @param call_id has is_agent other than req.user.id
-* @return {@link ServerError} if storage.markCallFail failed
+* @throws {@link NotFound} if no call found with @param call_id
+* @throws {@link Forbidden} if call with @param call_id has is_agent other than req.user.id
+* @throws {@link ServerError} if storage.markCallFail failed
 * @return HTTP status 200 if your call state updated successfully
-* @example {message: 'call updated successfully',call: {id:'xx',agent:'xxx'}}
-* @memberof call
+* @example
+* // returns {message: 'call updated successfully',call: {id:'xx',agent:'xxx'}}
+* PUT /call/:call_id/done
+* @memberof API
 */
 function done(req,res,next){
   var details = {};
@@ -243,12 +255,14 @@ function done(req,res,next){
 * mark call with id @param call_id as failed , which it will be retried if failed times is less than fail's limit
 * @param call_id - call_id to mark as failed
 * @param error - why this call failed
-* @return {@link NotFound} if no call found with @param call_id
-* @return {@link Forbidden} if call with @param call_id has is_agent other than req.user.id
-* @return {@link ServerError} if storage.markCallFail failed
+* @throws {@link NotFound} if no call found with @param call_id
+* @throws {@link Forbidden} if call with @param call_id has id_agent other than req.user.id
+* @throws {@link ServerError} if storage.markCallFail failed
 * @return HTTP status 200 if your call state updated successfully
-* @example {message: 'call updated successfully',call: {id:'xx',agent:'xxx'}}
-* @memberof call
+* @example
+* //returns {message: 'call updated successfully',call: {id:'xx',agent:'xxx'}}
+* PUT /call/:call_id/failed
+* @memberof API
 */
 function failed(req,res,next){
   var details = {};
@@ -283,11 +297,13 @@ function failed(req,res,next){
 /**
 * cancel call with id @param call_id
 * @param {integer} call_id - call_id to cancel
-* @return HTTP status 422 - {@link MissedParams} if @param call_id is undefined
-* @return HTTP status 500 {@link ServerError} if storage.cancelCall failed
+* @throws {@link MissedParams} if @param call_id is undefined
+* @throws {@link ServerError} if storage.cancelCall failed
 * @return HTTP 200 if your call canceled successfully
-* @example {message: 'call canceled successfully'}
-* @memberof call
+* @example
+* //returns {message: 'call canceled successfully'}
+* DELETE /call/:call_id
+* @memberof API
 */
 function cancel(req, res, next) {
   var call_id = req.params.call_id;
@@ -307,10 +323,17 @@ function cancel(req, res, next) {
 /**
 * submit feedback for call with id @param call_id
 * @param {Integer} call_id - call_id to submit feedback on
-* @return MissedParams if @param call_id is undefined or (@param feedback and @param feedback_text)
-* @return HTTP status 500 {@link ServerError} if storage.feedback failed
-* @return HTTP status - 200 message: "feedback sent successfully"
-* @memberof call
+* @param {String} feedback - body param to specify feedback message and override @param feedback_text
+* @param {String} feedback_text - body param to specify feedback message
+* @throws {@link MissedParams} if @param call_id is undefined
+* @throws {@link MissedParams} if @param feedback and @param feedback_text
+* @throws {@link ServerError} if storage.feedback failed
+* @return HTTP status 200 - if feedback submmitted successfully
+* @example
+* // returns {message: "feedback sent successfully"}
+* POST /call/:call_id/feedback
+* PUT /call/:call_id/feedback
+* @memberof API
 */
 function submitFeedback(req, res, next) {
   var feedback = {};

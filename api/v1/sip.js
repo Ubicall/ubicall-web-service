@@ -99,21 +99,27 @@ function createSipAccount(req, res, next) {
 
 /**
 * create sip account for web client
-* @param {Array} device - Array containing all attributes of a device
-* @param {String} device.license_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
-* @param {String} device.sdk_name -the name of the sdk. Each client have a unique name
+* @param {Object} device - Array containing all attributes of a device
+* @param {String} device.license_key - unique api licence_key
+* @param {String} device.sdk_name -the name of the sdk.
 * @param {String} device.sdk_version -version of the client’s sdk.
-* @param {String} device.name - name of your device
-* @param {String} device.model - the model of the device. (Ex: IPhone 5, iPhone 6, Samsung S3)
-* @param {String} device.uid - each device has a unique user id
-* @param {String} device.version - device’s version . (Ex:IOS 7 , IOS 8, Kitkat, Lollipop)
-* @param {String} device.token -  your mobile device_token, not required if you use web client
-* @return {@link MissedParams} if is missed and your client is mobile.
-* @return HTTP status 200
-* @return HTTP status 500 {@link ServerError} Unexpected Condition Was Encountered
-* @return HTTP status 403  {@link Forbidden} Bad credentials
-* @example {username:'XXXX',password:'XXXXX',domain:'XXXX.XX.XX.X'}
-* @memberof sip
+* @param {String} device.uid - each device has a unique user id @default **0000**
+* @param {String} device.token -  your mobile device_token @default **0000**
+* @param {String} device.name - name of your device @default **WEB**
+* @param {String} device.model - the model of the device @default **WEB**
+* @param {String} device.version - device’s version @default **WEB**
+* @ignore **SIP rule for web clients** ``` 8890000 + CLIENT_ID + 7digits(end with client.count) ```
+* @throws {@link MissedParams} if license_key was missed
+* @throws {@link MissedParams} if sdk_name was missed
+* @throws {@link MissedParams} if sdk_version was missed
+* @return {@link Forbidden} if no client found with this license_key
+* @return {@link ServerError} if storage.incrementClientCount failed
+* @return {@link ServerError} if storage.createSipDirectory failed
+* @return HTTP status 200 - if your call scheduled successfully
+* @example
+* // returns {username:'XXXX',password:'XXXXX',domain:'XXXX.XX.XX.X'}
+* POST /web/account
+* @memberof API
 */
 
 function createWebAccount(req, res, next) {
@@ -145,9 +151,10 @@ function createWebAccount(req, res, next) {
 
     storage.incrementClientCount(client.id).then(function(incremented) {
       storage.createSipDirectory(sip , password , DIAL_STRING).then(function(directory){
-        result ={'username': sip,'password': password,'domain': domain};
         return res.status(200).json({
-          data:result
+          'username': sip,
+          'password': password,
+          'domain': domain
         });
       }).otherwise(function(error){
         log.error("Error : " + error);

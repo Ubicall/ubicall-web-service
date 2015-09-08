@@ -1,3 +1,10 @@
+/**
+* API EndPoints
+* @version 0.0.1
+* @module api/v1/index
+* @exports .
+* @namespace API
+*/
 var express = require('express');
 var when = require('when');
 var bodyParser = require('body-parser');
