@@ -45,7 +45,7 @@ function init(_settings, _storage) {
 
     apiApp.post('/auth/token',tokenController.generateToken);
 
-    apiApp.post('/sip/call', call.extract, call.createSipCall);
+    apiApp.post('/sip/call', authController.isBearerAuthenticated,call.extract, call.createSipCall);
 
     apiApp.post('/web/call', call.extract, call.createWebCall);
 

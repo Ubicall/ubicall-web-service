@@ -8,6 +8,7 @@ var BearerStrategy = require('passport-http-bearer').Strategy;
 var User = require('../models/user');
 var Client = require('../models/client');
 var Token = require('../models/token');
+var secret = 'xxx';
 
 passport.use(new Strategy(
   function(username, password, callback) {
@@ -82,7 +83,17 @@ passport.use(new BearerStrategy(
       if (err) { return callback(err); }
       // No token found
       if (!token) { return callback(null, false); }
-      console.log('token is',token)
+      console.log('token is',token);
+      jwt.verify(token, app.get('xxx'), function(err, decoded) {
+            if (err) {
+              return res.json({ success: false, message: 'Failed to authenticate token.' });
+            } else {
+              // if everything is good, save to request for use in other routes
+              req.decoded = decoded;
+              next();
+            }
+          });
+
       User.findOne({ _id: token.userId }, function (err, user) {
         if (err) { return callback(err); }
         console.log('returned user is',user);
