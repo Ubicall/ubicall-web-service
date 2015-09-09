@@ -73,7 +73,7 @@ function isCallExist(req, res, next) {
  * @param {integer} req.body.pstn - flag to distinguish between mobile app [android - iphone] , web and regular phone call as {iphone : 0 , android : 1 , web : 2 , phone : 3}
  * @param {integer} req.body.sip - your phone number , virtual which generated from /sip/account or /web/account APIs or your real phone number if you will recieve un voip call
  * @param {uid} req.body.device_token - your mobile device_token, not required if you use web client
- * @param {uid} req.body.licence_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
+ * @param {uid} req.body.licence_key - your api licence_key
  * @param {json} req.body.call_data - json object contain your call meta info
  * @param {uid} req.body.longitude - your location longitude and it grabbed automatically
  * @param {uid} req.body.latitude - your location latitude and it grabbed automatically
@@ -100,8 +100,7 @@ function callExtract(req, res, next) {
     call.device_token = req.body.device_token;
   }
   call.sip = req.body.phone || req.body.sip || req.body.voiceuser_id || missingParams.push("phone");
-  //TODO licence_key should be critical but why this changed ? search for #1 in current file
-  call.license_key = req.body.license || req.body.licence || req.body.license_key;
+  call.license_key = req.body.license || req.body.licence || req.body.license_key || missingParams.push("license_key");;
   //TODO check if call.call_data is valid json if exist
   call.call_data = req.body.json || req.body.call_data || req.body.form_data;
   call.longitude = req.body.longitude || req.body.long;
