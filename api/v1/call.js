@@ -263,7 +263,7 @@ function done(req,res,next){
 * mark call with id @param call_id as failed , which it will be retried if failed times is less than fail's limit
 * @see [api/v1/utils/midware#isAuthenticated](middleware.html#.isAuthenticated)
 * @param {Object} req.params - request params object
-* @param {Integer} - req.params.call_id - call_id to mark as failed
+* @param {Integer} req.params.call_id - call_id to mark as failed
 * @param {Object} req.body - request body object
 * @param {Integer} req.body.error - why this call failed @default **unable to contact client**
 * @throws {@link NotFound} if no call found with @param call_id

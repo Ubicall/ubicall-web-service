@@ -80,9 +80,10 @@ storage.init(settings).then(function() {
   });
 
   server.listen(settings.port || 4000, settings.host || '0.0.0.0', function() {
-    // stop wasting your time searching for PID just type in shell : pkill cc
-    process.title = 'ubi-api';
+    // stop wasting your time searching for PID just type in shell : pkill api
+    process.title = 'api';
     log.info('Server running now on  ' + process.env.node_env + " Mode ");
+    log.info('DB connections use ' + (process.env.db_env || 'internal') + " Mode ");
     log.info('Server now running at ' + getListenPath());
   });
 });
@@ -115,6 +116,9 @@ process.on('unhandledRejection', function(err) {
   } else {
     log.error(err);
   }
+  // in production forever daemon will restart the app , so don't worry
+  // should we use cluster and fork node app here ??!!
+  process.exit(1);
 });
 
 process.on('SIGINT', function() {

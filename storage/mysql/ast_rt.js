@@ -1,5 +1,6 @@
 var when = require('when');
 var Sequelize = require('sequelize');
+var log = require('../../log');
 
 var settings, _sequelize;
 var $sipfriends;
@@ -11,9 +12,17 @@ function sequlizeImport(model) {
 function init(_settings) {
   return when.promise(function(resolve, reject) {
     settings = _settings;
+    var _host = settings.storage.ast_rt_mysql.external_ip;
+    var _port = settings.storage.ast_rt_mysql.external_port;
+    if(!process.env.db_env){
+      _host = settings.storage.ast_rt_mysql.internal_ip;
+      _port = settings.storage.ast_rt_mysql.internal_port;
+    }
+    var _host =
     _sequelize = new Sequelize(settings.storage.ast_rt_mysql.database,
       settings.storage.ast_rt_mysql.username, settings.storage.ast_rt_mysql.password, {
-        host: settings.storage.ast_rt_mysql.host,
+        host: _host || 'localhost',
+        port: _port || '3306',
         dialect: 'mysql',
         define: {
           freezeTableName: true,
@@ -25,6 +34,10 @@ function init(_settings) {
           idle: 10000
         }
       });
+    _sequelize.authenticate().catch(function(error){
+      log.error("Unable to connect to DB => " + settings.storage.ast_rt_mysql.database + ":" + _host + ":" + _port);
+      throw error;
+    });
     $sipfriends = sequlizeImport('sipfriends');
     return resolve({});
   });

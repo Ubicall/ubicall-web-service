@@ -1,6 +1,7 @@
 var when = require('when');
 var Sequelize = require('sequelize');
 var moment = require('moment');
+var log = require('../../log');
 
 var settings, _sequelize;
 var $directory , $directoryParams;
@@ -12,9 +13,16 @@ function sequlizeImport(model) {
 function init(_settings) {
   return when.promise(function(resolve, reject) {
     settings = _settings;
+    var _host = settings.storage.web_fs_db_mysql.external_ip;
+    var _port = settings.storage.web_fs_db_mysql.external_port;
+    if(!process.env.db_env){
+      _host = settings.storage.web_fs_db_mysql.internal_ip;
+      _port = settings.storage.web_fs_db_mysql.internal_port;
+    }
     _sequelize = new Sequelize(settings.storage.web_fs_db_mysql.database,
       settings.storage.web_fs_db_mysql.username, settings.storage.web_fs_db_mysql.password, {
-        host: settings.storage.web_fs_db_mysql.host,
+        host: _host || 'localhost',
+        port: _port || '3306',
         dialect: 'mysql',
         define: {
           freezeTableName: true,
@@ -25,6 +33,10 @@ function init(_settings) {
           min: 0,
           idle: 10000
         }
+      });
+      _sequelize.authenticate().catch(function(error){
+        log.error("Unable to connect to DB => " + settings.storage.web_fs_db_mysql.database + ":" + _host + ":" + _port);
+        throw error;
       });
     $directory = sequlizeImport('directory');
     $directoryParams = sequlizeImport('directory_params');

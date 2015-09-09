@@ -8,7 +8,8 @@ exposed ubicall web service for public and internal use
 npm install
 grunt jsdoc:docs copy:docs
 # node_env [test | development | production]
-node_env = xx node index.js
+# in production we use forever : https://github.com/foreverjs/forever
+node_env = xx node api.js
 ```
 **create model from db using :**
 ``` bash
