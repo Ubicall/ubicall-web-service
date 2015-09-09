@@ -155,23 +155,16 @@ function getVersion(key) {
 
 function cancelCall(callId) {
   return when.promise(function(resolve, reject) {
-    $calls.findById(callId).then(function(call) {
-      // Now i have call and i should update it now withh cancel flag
-      return call.updateAttributes({
-        status: settings.call.status.cancel
-      }).then(function(updated) {
-        if(!updated){
-          return reject ('cannot cancel call');
-        }
-        return resolve(updated);
-      }).catch(function(error) {
-
-        return reject(error);
-      });
-    }).catch(function(error) {
-      return reject(error)
-    });
-  });
+     $calls.update({
+       status: settings.call.status.cancel
+     },{
+       where: { id : callId }
+     }).then(function(){
+       return resolve();
+     }).catch(function(){
+       return reject(error);
+     });
+   });
 }
 
 function getAdmin(key){

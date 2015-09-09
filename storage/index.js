@@ -91,8 +91,8 @@ var storageModuleInterface = {
 
   cancelCall: function(callId) {
     return when.promise(function(resolve, reject) {
-      ubicallStorageModule.cancelCall(callId).then(function(call) {
-        return resolve(call);
+      ubicallStorageModule.cancelCall(callId).then(function() {
+        return resolve();
       }).otherwise(function(error) {
         return reject(error);
       });

@@ -322,7 +322,7 @@ function cancel(req, res, next) {
   if (!call_id) {
     return next(new MissedParams(req.path, "call_id"));
   }
-  storage.cancelCall(call_id).then(function(call) {
+  storage.cancelCall(call_id).then(function() {
     return res.status(200).json({
       message: "call canceled successfully"
     });
