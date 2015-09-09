@@ -54,7 +54,7 @@ function MissedParams(resource, params) {
   this.status = 422;
   this.response = {};
   this.response.resource = resource;
-  this.response.message = "Validation Failed";
+  this.response.message = "Missing Params";
   this.response.errors = [];
   for (var i = 0; i < params.length; i++) {
     this.response.errors.push({
@@ -77,6 +77,7 @@ function Forbidden(origin , resource){
   this.response = {};
   this.response.resource = resource;
   this.response.message = "Bad credentials";
+  this.response.description = 'license_key or email/password should be submitted';
 }
 Forbidden.prototype = UbicallError.prototype;
 

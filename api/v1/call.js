@@ -44,12 +44,12 @@ function __scheduleDemo(call) {
 * @param {Array} call -An array that contains call atributes
 * @param {integer} pstn - flag to distinguish between mobile app [android - iphone] , web and regular phone call as {iphone : 0 , android : 1 , web : 2 , phone : 3}
 * @param {integer} sip - your phone number , virtual which generated from /sip/account or /web/account APIs or your real phone number if you will recieve un voip call
-* @param {uid} device_token - your mobile device_token, not required if you use web client
-* @param {uid} licence_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
+* @param {String} device_token - your mobile device_token, not required if you use web client
+* @param {String} licence_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
 * @param {json} call_data - json object contain your call meta info
-* @param {uid} longitude - your location longitude and it grabbed automatically
-* @param {uid} latitude - your location latitude and it grabbed automatically
-* @param {string} address - your location address and it grabbed automatically , but not provided if you use web client
+* @param {String} longitude - your location longitude and it grabbed automatically
+* @param {String} latitude - your location latitude and it grabbed automatically
+* @param {String} address - your location address and it grabbed automatically , but not provided if you use web client
 * @param {Date} time - time you like to call you , if not existed you will be called using FIFO algorithm (this may changed in next releases)
 * @param {integer} queue - what queue id you like to submit your call
 * @return {@link MissedParams} if @param pstn is missing
@@ -58,18 +58,16 @@ function __scheduleDemo(call) {
 * @return {@link BadRequest} if @param json is not valid
 */
 function extract(req, res, next) {
-
   var call = {};
-  var missingParams = [];
-
-  call.pstn = req.body.pstn || missingParams.push("pstn");
+  var MissedParams = [];
+  call.pstn = req.body.pstn || MissedParams.push("pstn");
   // if this is mobile call then device_token is critical parameter otherwise it not so important
   if(call.pstn == 0 || call.pstn == 1){
-      call.device_token = req.body.device_token || missingParams.push("device_token");
+      call.device_token = req.body.device_token || MissedParams.push("device_token");
   }else {
     call.device_token = req.body.device_token;
   }
-  call.sip = req.body.phone || req.body.sip || req.body.voiceuser_id || missingParams.push("phone");
+  call.sip = req.body.phone || req.body.sip || req.body.voiceuser_id || MissedParams.push("phone");
   //TODO licence_key should be critical but why this changed ? search for #1 in current file
   call.license_key = req.body.license || req.body.licence || req.body.license_key;
   //TODO check if call.call_data is valid json if exist
@@ -78,10 +76,10 @@ function extract(req, res, next) {
   call.latitude = req.body.latitude || req.body.lat;
   call.address = req.body.address;
   call.time = req.body.time || req.body.call_time;
-  call.queue = req.body.queue || req.body.queue_id || req.body.qid || missingParams.push("queue_id");
+  call.queue = req.body.queue || req.body.queue_id || req.body.qid || MissedParams.push("queue_id");
 
-  if (missingParams.length > 0) {
-    return next(new MissedParams(req.path, missingParams));
+  if (MissedParams.length > 0) {
+    return next(new MissedParams(req.path, MissedParams));
   }
 
   if (call.time && !validator.isAfter(call.time)) {
@@ -215,13 +213,13 @@ function cancel(req, res, next) {
 */
 function submitFeedback(req, res, next) {
   var feedback = {};
-  var missingParams = [];
+  var MissedParams = [];
 
-  feedback.call_id = req.params.call_id || missingParams.push("call_id");
-  feedback.feedback = feedback.feedback_text = req.body.feedback || req.body.feedback_text || missingParams.push("feedback");
+  feedback.call_id = req.params.call_id || MissedParams.push("call_id");
+  feedback.feedback = feedback.feedback_text = req.body.feedback || req.body.feedback_text || MissedParams.push("feedback");
 
-  if (missingParams.length > 0) {
-    return next(new MissedParams(req.path, missingParams));
+  if (MissedParams.length > 0) {
+    return next(new MissedParams(req.path, MissedParams));
   }
 
   storage.feedback(feedback).then(function(feedback) {

@@ -98,6 +98,7 @@ passport.use(new BearerStrategy(
               // if everything is good, save to request for use in other routes
               console.log(decoded);
               status='valid';
+              console.log('valid');
               return callback(null,decoded);
               next();
             }

@@ -35,7 +35,6 @@ function init(_settings, _storage) {
     settings = _settings;
     storage = _storage;
     apiApp = express();
-
     apiApp.use(bodyParser.urlencoded({
       extended: true
     }));
@@ -44,25 +43,57 @@ function init(_settings, _storage) {
     // apiApp.use(cors(ubicallCors.options));
     // apiApp.use(ubicallCors.cors);
 
-    apiApp.post('/auth/token',tokenController.generateToken);
+    /**
+     * @api {post} /auth/token Responsible for authentication by using Email or license_key
+     * @apiParam {String} [user_email]  Email for agent's account
+     * @apiParam {String} [user_password] Password for agent's account
+     * @apiParam {String} [license_key]  Mandatory for Client
+     * @apiParam {String} clientId  Mandatory for Client
+     * @apiError  MissedParams Any of the required parameters is missing
+     * @apiErrorExample {json} Error-Response:
+     *     HTTP/1.1 422 Missing Params
+     *     {
+          "resource": "/auth/token",
+          "message": "Validation Failed",
+          "errors": [
+            {
+              "field": "license_key",
+              "code": "missing_field"
+            }
+          ]
+    *  }
 
+     */
+    apiApp.post('/auth/token',tokenController.authorize);//check on agent or licence_key as well as client secret & id then send token
+
+    /**
+    * @api {post} /sip/call Responsible fior scheduling a call
+    * @apiParam {String} access_token Mandatory-Access token for api authorization
+    * @apiParam {integer} pstn Mandatory Flag to distinguish between mobile app [android - iphone] , web and regular phone call as {iphone : 0 , android : 1 , web : 2 , phone : 3}
+    * @apiParam {integer} sip  your phone number , virtual which generated from /sip/account or /web/account APIs or your real phone number if you will recieve un voip call
+    * @apiParam {String} device_token - your mobile device_token, not required if you use web client
+    * @apiParam {String} licence_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
+    * @apiParam {json} call_data - json object contain your call meta info
+    * @apiParam {String} longitude - your location longitude and it grabbed automatically
+
+    */
     apiApp.post('/sip/call', authController.isBearerAuthenticated,call.extract, call.createSipCall);
 
     apiApp.post('/web/call', authController.isBearerAuthenticated,call.extract, call.createWebCall);
 
-    apiApp.delete('/call/:call_id', call.cancel);
+    apiApp.delete('/call/:call_id',authController.isBearerAuthenticated,call.cancel);
 
     apiApp.post('/call/feedback/:call_id', authController.isBearerAuthenticated,call.submitFeedback);
 
-    apiApp.post('/sip/account', sip.createSipAccount);
+    apiApp.post('/sip/account',sip.createSipAccount);
 
-    apiApp.post('/web/account', sip.createWebAccount);
+    apiApp.post('/web/account',sip.createWebAccount);
 
-    apiApp.get('/ivr/:license_key', ivr.fetchIvr);
+    apiApp.get('/ivr/:license_key',authController.isBearerAuthenticated,ivr.fetchIvr);
 
-    apiApp.post('/ivr/:license_key/:version', ivr.createIvr);
+    apiApp.post('/ivr/:license_key/:version',authController.isBearerAuthenticated,ivr.createIvr);
 
-    apiApp.put('/ivr/:license_key/:version', ivr.createIvr);
+    apiApp.put('/ivr/:license_key/:version',authController.isBearerAuthenticated,ivr.createIvr);
 
     /**
     * @param {String} key - license_key should be unique for each user.
@@ -77,6 +108,7 @@ function init(_settings, _storage) {
       if (!key) {
         return next(new MissedParams(req.path, "key"));
       }
+      else{
       storage.findQueue(key).then(function(queue) {
         return res.status(200).json({
           message: 'queue retrieved successfully',
@@ -86,7 +118,9 @@ function init(_settings, _storage) {
       }).otherwise(function(error) {
         return next(new NotFound(error , req.originalUrl));
       });
+        }
     });
+
 
     /**
     * @return HTTP status - 200

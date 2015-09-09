@@ -41,10 +41,8 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
 * {message: "ivr with version "+ version.version +"retrieved successfully",version : version.version ,url : version.url}
 */
 function fetchIvr(req, res , next) {
+  var token = req.token;
   var license_key = req.params.license_key;
-  if (!license_key) {
-    return next(new MissedParams(req.path, "license_key"));
-  }
   storage.getVersion(license_key).then(function(version) {
     return res.status(200).json({
       message: "ivr with version "+ version.version +"retrieved successfully",
@@ -53,13 +51,13 @@ function fetchIvr(req, res , next) {
     });
   }).otherwise(function(error) {
     log.error('error : ' + error);
-    return next(new NotFound(error , req.path));
+    return next(new ServerError(error , req.path));
   });
 }
 
 /**
 * @param {Array} ivr - Array containing IVR parameters
-* @param {String} ivr.license_key - license_key unique for each user,your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases @return {@link MissedParams} If no licence_key
+* @param {String} ivr.license_key - license_key unique for each user,your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
 * @param {String} ivr.version - the version of plist file.
 * @return HTTP status 200 - message: mobile & web clients updated successfully
 * @return HTTP status 500 {@link ServerError}
@@ -72,14 +70,6 @@ function createIvr(req, res, next) {
   var ivr = {};
   ivr.license_key = req.params.license_key;
   ivr.version = req.params.version;
-
-  if (!ivr.license_key) {
-    return next(new MissedParams(req.path, "license_key"));
-  }
-
-  if (!ivr.version) {
-    return next(new MissedParams(req.path, "version"));
-  }
 
   //TODO check on plistHost concatenated with slash
   var plistHost = req.header("plistHost") || settings.plistHost;
