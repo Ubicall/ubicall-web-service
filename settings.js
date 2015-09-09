@@ -27,24 +27,9 @@ module.exports = {
         //      i.e.    username : xyz@sand.com
         //              password : xyz
         ubicallStorageModule: 'mysql',
-        ubicall_mysql: {
-            database: config.storage.mysql.ubicall.database,
-            username: config.storage.mysql.ubicall.username,
-            password: config.storage.mysql.ubicall.password,
-            host: config.storage.mysql.ubicall.host
-        },
-        ast_rt_mysql: {
-            database: config.storage.mysql.ast_rt.database,
-            username: config.storage.mysql.ast_rt.username,
-            password: config.storage.mysql.ast_rt.password,
-            host: config.storage.mysql.ast_rt.host
-        },
-        web_fs_db_mysql: {
-            database: config.storage.mysql.WEB_FS_DB.database,
-            username: config.storage.mysql.WEB_FS_DB.username,
-            password: config.storage.mysql.WEB_FS_DB.password,
-            host: config.storage.mysql.WEB_FS_DB.host
-        },
+        ubicall_mysql: config.storage.mysql.ubicall_db,
+        ast_rt_mysql: config.storage.mysql.ast_rt,
+        web_fs_db_mysql: config.storage.mysql.WEB_FS_DB,
         fake: {
             locale: 'de',
             options: { // these options take precedence in fakeStorage.js
@@ -76,32 +61,11 @@ module.exports = {
         //should has element with same name contain configuration used with same file name under
         // caching directory(./caching) and implement methods in ./caching/index.js
         cacheModule: 'redis',
-        redis: {
-            host: config.cache.redis.host,
-            port: config.cache.redis.port,
-            //time to live ttl for calls in seconds - 600 seconds = 10 minute
-            callsttl: 600,
-            //time to live ttl for queues in seconds
-            queuesttl: 600
-        }
+        redis: config.cache.redis
     },
     infra:{
-      agentServer: {
-          ip: config.infra.agentServer.ip,
-          port:  config.infra.agentServer.port,
-          password:  config.infra.agentServer.password
-      },
-      clientServer: {
-        mobile :{
-          public : config.infra.clientServer.mobile.public,
-          internal: config.infra.clientServer.mobile.internal
-        },
-        web :{
-          public : config.infra.clientServer.web.public,
-          internal: config.infra.clientServer.web.internal,
-          dialString: config.infra.clientServer.web.dialString
-        }
-      }
+      agentServer: config.voice_infra.agent_voice_server,
+      clientServer: config.voice_infra.client_voice_server,
     },
     plistHost : config.defaultPlistHost,
     widgetHost : config.endPoints.widgetDeploy,
@@ -120,7 +84,11 @@ module.exports = {
       failure_code : 3,
       reset_code : 4,
       duration_format : "MMDDHHmm",
-      date_format : "YYYY-MM-DD HH:mm:ss"
+      date_format : "YYYY-MM-DD HH:mm:ss",
+      //cache time to live ttl for calls in seconds - 600 seconds = 10 minute
+      callsttl: 600,
+      //cache time to live ttl for queues in seconds
+      queuesttl: 600
     },
     cdn:{
       sharedStatic : '/var/www/static',

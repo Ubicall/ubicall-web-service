@@ -30,7 +30,7 @@ function __scheduleDemo(call) {
   return when.promise(function(resolve, reject) {
     return storage.scheduleDemoCall(call).then(function(demoCall) {
       var options = {
-        url: 'http://' + settings.infra.clientServer.mobile.public + '/generate/new_call/callfile/generate_file.php',
+        url: 'http://' + settings.infra.clientServer.mobile_voice_server.external_ip + '/generate/new_call/callfile/generate_file.php',
         method: 'GET',
         qs: {
           extension: call.sip,

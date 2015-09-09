@@ -29,8 +29,8 @@ module.exports = {
     init: function (_settings) {
         return when.promise(function (resolve, reject) {
             settings = _settings;
-            eslClient = new esl.Connection(settings.infra.agentServer.ip || '127.0.0.1',
-                settings.infra.agentServer.port || 8012,
+            eslClient = new esl.Connection(settings.infra.agentServer.internal_ip || '127.0.0.1',
+                settings.infra.agentServer.internal_port || 8012,
                 settings.infra.agentServer.password || 'ClueCon');
             return resolve({});
         });
@@ -55,12 +55,14 @@ module.exports = {
             var fsCommand ;
             if(call.caller_type == "2"){ // flag mean this is usuall web call
               // TODO domain and port should be added to call record
-              call.phone = call.phone + "@" + '10.208.201.195:5080';
+              call.phone = call.phone + "@" +
+                settings.infra.clientServer.web_voice_server.internal_ip +
+                ":"  + settings.infra.clientServer.web_voice_server.internal_ip;
               fsCommand = "originate rtmp/" + agent.rtmp + " &bridge(sofia/external/" + call.phone + ")";
             }else if(call.caller_type == "3"){ // flag mean this is pstn phone call
               return reject("freeswitch:problem pstn phone calls not allowed yet");
             }else {
-              call.phone = call.phone + "@" + settings.infra.clientServer.ip;
+              call.phone = call.phone + "@" + settings.infra.clientServer.mobile_voice_server.internal_ip ;
               fsCommand = "originate rtmp/" + agent.rtmp + " &bridge(sofia/external/" + call.phone + ")";
             }
 

@@ -23,8 +23,8 @@ function init(_settings) {
       settings.cache.redis = _settings.cache.redis || DEFAULT_REDIS_SETTINGS;
       settings.cache.redis.host = _settings.cache.redis.host || DEFAULT_REDIS_SETTINGS.host;
       settings.cache.redis.port = _settings.cache.redis.port || DEFAULT_REDIS_SETTINGS.port;
-      settings.cache.redis.callsttl = _settings.cache.redis.callsttl || DEFAULT_REDIS_SETTINGS.callsttl;
-      settings.cache.redis.queuesttl = _settings.cache.redis.queuesttl || DEFAULT_REDIS_SETTINGS.queuestt;
+      settings.cache.redis.callsttl = _settings.call.callsttl || DEFAULT_REDIS_SETTINGS.callsttl;
+      settings.cache.redis.queuesttl = _settings.call.queuesttl || DEFAULT_REDIS_SETTINGS.queuestt;
       settings.cache.redis.hmsetFieldName = _settings.cache.redis.hmsetFieldName || DEFAULT_REDIS_SETTINGS.hmsetFieldName;
 
       client = redis.createClient(settings.cache.redis.port , settings.cache.redis.host);

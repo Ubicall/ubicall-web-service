@@ -16,7 +16,7 @@ var MissedParams = require('./utils/errors').MissedParams;
 var Forbidden = require('./utils/errors').Forbidden;
 var ServerError =require('./utils/errors').ServerError;
 
-var DIAL_STRING = settings.infra.clientServer.web.dialString;
+var DIAL_STRING = settings.infra.clientServer.web_voice_server.dialString;
 /**
 * create sip account for mobile client
 * @param {Object} req.body - request body Object
@@ -69,7 +69,7 @@ function createSipAccount(req, res, next) {
        **********************************************************************/
       var sip = client.id + sprintf("%'09s", 0) + (client.count + 1);
 
-      var domain = settings.infra.clientServer.mobile.public;
+      var domain = settings.infra.clientServer.mobile_voice_server.external_ip;
       var password = randomstring.generate(16);
 
       storage.incrementClientCount(client.id).then(function(incremented) {
@@ -147,7 +147,7 @@ function createWebAccount(req, res, next) {
     ********************************************************************************/
     var sip = "8890000" + client.id + sprintf("%'07s",(client.count + 1));
 
-    var domain = settings.infra.clientServer.web.public;
+    var domain = settings.infra.clientServer.web_voice_server.external_ip;
     var password = randomstring.generate(16);
 
     storage.incrementClientCount(client.id).then(function(incremented) {
