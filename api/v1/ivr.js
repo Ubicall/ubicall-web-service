@@ -41,11 +41,12 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
 * {message: "ivr with version "+ version.version +"retrieved successfully",version : version.version ,url : version.url}
 */
 function fetchIvr(req, res , next) {
-  var token = req.token;
-  var license_key = req.params.license_key;
-  storage.getVersion(license_key).then(function(version) {
+  var key = req.user.license_key;
+  console.log('license_key is',key);
+  if(key){
+  storage.getVersion(key).then(function(version) {
     return res.status(200).json({
-      message: "ivr with version "+ version.version +"retrieved successfully",
+      message: "ivr with version "+ version.version + "retrieved successfully",
       version : version.version ,
       url : version.url
     });
@@ -53,6 +54,11 @@ function fetchIvr(req, res , next) {
     log.error('error : ' + error);
     return next(new ServerError(error , req.path));
   });
+}
+else{
+    return next(new Forbidden(error , req.path));
+}
+
 }
 
 /**

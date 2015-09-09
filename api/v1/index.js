@@ -89,7 +89,7 @@ function init(_settings, _storage) {
 
     apiApp.post('/web/account',sip.createWebAccount);
 
-    apiApp.get('/ivr/:license_key',authController.isBearerAuthenticated,ivr.fetchIvr);
+    apiApp.get('/ivr',authController.isBearerAuthenticated,ivr.fetchIvr);
 
     apiApp.post('/ivr/:license_key/:version',authController.isBearerAuthenticated,ivr.createIvr);
 

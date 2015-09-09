@@ -96,9 +96,8 @@ passport.use(new BearerStrategy(
               return callback({ success: false, message: 'Failed to authenticate token.' });
             } else {
               // if everything is good, save to request for use in other routes
-              console.log(decoded);
               status='valid';
-              console.log('valid');
+              console.log(status);
               return callback(null,decoded);
               next();
             }

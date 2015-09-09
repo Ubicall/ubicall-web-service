@@ -120,7 +120,6 @@ exports.authorize = function(req, res, next) {
   } else {
     if (data.license_key) {
       storage.getClient(data.license_key).then(function(client) { //mysql check
-
         Client.findOne({
           id: data.client_id
         }, function(err, mongo_client) {
@@ -136,6 +135,7 @@ exports.authorize = function(req, res, next) {
           if (mongo_client) {
             access_token = jwt2.sign({
               id: client.id,
+              license_key:data.license_key,
               last_login: now.format("HH:mm:ss")
             }, secret, {
               expiresInMinutes: 60 * 24 * 7
