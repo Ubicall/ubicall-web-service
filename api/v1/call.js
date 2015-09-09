@@ -1,19 +1,30 @@
+/**
+* call main functionality
+* @version 0.0.1
+* @module api/v1/call
+* @exports .
+* @namespace call
+*/
 var when = require('when');
 var request = require('request');
 var validator = require('validator');
 var settings = require('../../settings');
 var storage = require('../../storage');
 var log = require('../../log');
-var NotImplementedError = require('../errors').NotImplementedError;
-var BadRequest = require('../errors').BadRequest;
-var MissedParams = require('../errors').MissedParams;
-var Forbidden = require('../errors').Forbidden;
-var ServerError = require('../errors').ServerError;
+var infra = require('../../infra');
+var NotImplementedError = require('./utils/errors').NotImplementedError;
+var BadRequest = require('./utils/errors').BadRequest;
+var MissedParams = require('./utils/errors').MissedParams;
+var Forbidden = require('./utils/errors').Forbidden;
+var ServerError = require('./utils/errors').ServerError;
+var NotFound = require('./utils/errors').NotFound;
 
 /**
 * helper function used to sumbit demo call by calling storage.scheduleDemoCall
 * and call external api to generate static call file and call you back
 * @param {Array} call -call Array that contain call attributes
+* @memberof call
+* @private
 */
 function __scheduleDemo(call) {
   return when.promise(function(resolve, reject) {
@@ -39,66 +50,18 @@ function __scheduleDemo(call) {
   });
 }
 
-/**
-* extract call attributes from request body
-* @param {Array} call -An array that contains call atributes
-* @param {integer} pstn - flag to distinguish between mobile app [android - iphone] , web and regular phone call as {iphone : 0 , android : 1 , web : 2 , phone : 3}
-* @param {integer} sip - your phone number , virtual which generated from /sip/account or /web/account APIs or your real phone number if you will recieve un voip call
-* @param {uid} device_token - your mobile device_token, not required if you use web client
-* @param {uid} licence_key - your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
-* @param {json} call_data - json object contain your call meta info
-* @param {uid} longitude - your location longitude and it grabbed automatically
-* @param {uid} latitude - your location latitude and it grabbed automatically
-* @param {string} address - your location address and it grabbed automatically , but not provided if you use web client
-* @param {Date} time - time you like to call you , if not existed you will be called using FIFO algorithm (this may changed in next releases)
-* @param {integer} queue - what queue id you like to submit your call
-* @return {@link MissedParams} if @param pstn is missing
-* @return {@link MissedParams} if @param sip is missing
-* @return {@link MissedParams} if @param uid is missing and your client is mobile.
-* @return {@link BadRequest} if @param json is not valid
-*/
-function extract(req, res, next) {
-
-  var call = {};
-  var missingParams = [];
-
-  call.pstn = req.body.pstn || missingParams.push("pstn");
-  // if this is mobile call then device_token is critical parameter otherwise it not so important
-  if(call.pstn == 0 || call.pstn == 1){
-      call.device_token = req.body.device_token || missingParams.push("device_token");
-  }else {
-    call.device_token = req.body.device_token;
-  }
-  call.sip = req.body.phone || req.body.sip || req.body.voiceuser_id || missingParams.push("phone");
-  //TODO licence_key should be critical but why this changed ? search for #1 in current file
-  call.license_key = req.body.license || req.body.licence || req.body.license_key;
-  //TODO check if call.call_data is valid json if exist
-  call.call_data = req.body.json || req.body.call_data || req.body.form_data;
-  call.longitude = req.body.longitude || req.body.long;
-  call.latitude = req.body.latitude || req.body.lat;
-  call.address = req.body.address;
-  call.time = req.body.time || req.body.call_time;
-  call.queue = req.body.queue || req.body.queue_id || req.body.qid || missingParams.push("queue_id");
-
-  if (missingParams.length > 0) {
-    return next(new MissedParams(req.path, missingParams));
-  }
-
-  if (call.time && !validator.isAfter(call.time)) {
-    return next(new BadRequest(req.path, "call_time"));
-  }
-  req.ubi = {};
-  req.ubi.call = call;
-  next();
-}
 
 /**
 * schedule demo call if client is undefined or client is exist but with demo flag equal zero
 * schedule regular call if client exist and has demo flag equal one
+* @see [api/v1/utils/midware#callExtract](middleware.html#.callExtract)
 * @return  HTTP status 500 {@link ServerError} if req.ubi.call.device_token not exist , __scheduleDemo failed or storage.scheduleCall failed
 * @return HTTP 200 if your call submitted successfully
-* @example {message: 'demo call scheduled successfully', call: XXXX }
-* @example {message: 'call scheduled successfully', call: XXXX }
+* @example
+* // returns {message: 'call scheduled successfully', call: XXXX }
+* // returns {message: 'demo call scheduled successfully', call: XXXX }
+* POST /sip/call
+* @memberof API
 */
 function createSipCall(req, res, next) {
 
@@ -150,10 +113,14 @@ function createSipCall(req, res, next) {
 
 /**
 * schedule demo call if licence_key is undefined otherwise schedule regular call
+* @see [api/v1/utils/midware#callExtract](middleware.html#.callExtract)
 * @return HTTP status 500 {@link ServerError} if__scheduleDemo failed or storage.scheduleCall failed
 * @return HTTP status 200 if your call submitted successfully
-* @example {message: 'call scheduled successfully', call: XXXX }
-* @example {message: 'demo call scheduled successfully', call: XXXX }
+* @example
+* // returns {message: 'call scheduled successfully', call: XXXX }
+* // returns {message: 'demo call scheduled successfully', call: XXXX }
+* POST /web/call
+* @memberof API
 */
 function createWebCall(req, res, next) {
 
@@ -184,19 +151,178 @@ function createWebCall(req, res, next) {
 }
 
 /**
+* get call with id @param call_id
+* @param {Object} req.params - request params object
+* @param {Integer} req.params.call_id - call_id to mark as done
+* @throws {@link NotFound} if no call found with @param call_id
+* @return HTTP status 200 if call found and returned successfully
+* @example
+* //returns {call: {id:'xx',agent:'xxx'}}
+* GET /call/:call_id
+* @memberof API
+*/
+function getDetail(req,res,next){
+  var call_id = req.params.call_id;
+  storage.getCallDetail(req.user , call_id).then(function(call){
+    return res.status(200).json({
+      call: call
+    });
+  }).otherwise(function(error){
+    log.error('error : ' + error);
+    return next(new NotFound(error , req.path));
+  })
+}
+
+/**
+* process call from queue with id @param queue_id it will reset call if error occur in infrastructure servers
+* @see [api/v1/utils/midware#isAuthenticated](middleware.html#.isAuthenticated)
+* @param {Object} req.params - request params object
+* @param req.params.queue_id - queue_id where we fetch the call
+* @param req.params.queue_slug - slug of queue name
+* @param {Object} req.user - current authenticated user
+* @param req.user.x-rtmp-session - your rtmp session to call you back
+* @throws {@link MissedParams} if @param req.params.queue_id not found
+* @throws {@link MissedParams} if @param req.params.queue_slug not found
+* @throws {@link MissedParams} if header @param req.user.x-rtmp-session not found
+* @return HTTP status 200 if your call fetched successfully from queue
+* @example
+* // returns {message: 'call updated successfully',call: {id:'xx',agent:'xxx'}}
+* GET /call/queue/:queue_id/:queue_slug
+* @memberof API
+*/
+function call(req,res,next){
+    var queue_id = req.params.queue_id;
+    var queue_slug = req.params.queue_slug;
+    if (!queue_id) {
+      return next(new MissedParams(req.path, "queue_id"));
+    }
+    if (!queue_slug) {
+      return next(new MissedParams(req.path, "queue_slug"));
+    }
+    if(!req.user.rtmp){
+      return next(new MissedParams(req.path, "x-rtmp-session"));
+    }
+    storage.getCall(req.user,queue_id,queue_slug).then(function(call){
+      res.status(200).json(call);
+      infra.call(call,req.user).otherwise(function(error){
+        log.error('error : ' + error);
+        call.status = settings.call.status.retry;
+        call.failure_cause = settings.call.reset_code;
+        call.failure_cause_txt = error.toString();
+        storage.markCallFail(call).otherwise(function(error){
+          log.error('error : ' + error);
+        });
+      });
+    }).otherwise(function(error){
+      log.error('error : ' + error);
+      return next(new NotFound(error , req.path));
+    });
+}
+
+/**
+* mark call with id @param call_id as done
+* @see [api/v1/utils/midware#isAuthenticated](middleware.html#.isAuthenticated)
+* @param {Object} req.params - request params object
+* @param {Integer} req.params.call_id - call_id to mark as done
+* @param {Object} req.body - request body object
+* @param {Integer} req.body.duration - how long this call take place @default **0**
+* @throws {@link NotFound} if no call found with @param call_id
+* @throws {@link Forbidden} if call with @param call_id has is_agent other than req.user.id
+* @throws {@link ServerError} if storage.markCallFail failed
+* @return HTTP status 200 if your call state updated successfully
+* @example
+* // returns {message: 'call updated successfully',call: {id:'xx',agent:'xxx'}}
+* PUT /call/:call_id/done
+* @memberof API
+*/
+function done(req,res,next){
+  var details = {};
+  details.duration = req.body.duration || 0;
+  var call_id = req.call_id;
+  storage.getCall(req.user , call_id).then(function(call){
+    if(call.id_agent != req.user.id || call.status != settings.call.status.progress){
+        return next(new Forbidden({message : "you do not has call with id " + call_id },req.path));
+    }
+    call.duration = details.duration;
+    storage.markCallDone(call).then(function(call){
+      return res.status(200).json({
+        message: 'call updated successfully',
+        call: call
+      });
+    }).otherwise(function(error){
+      log.error('error : ' + error);
+      return next(new ServerError(error , req.path));
+    })
+  }).otherwise(function(error){
+    log.error('error : ' + error);
+    return next(new NotFound(error , req.path));
+  });
+}
+
+/**
+* mark call with id @param call_id as failed , which it will be retried if failed times is less than fail's limit
+* @see [api/v1/utils/midware#isAuthenticated](middleware.html#.isAuthenticated)
+* @param {Object} req.params - request params object
+* @param {Integer} - req.params.call_id - call_id to mark as failed
+* @param {Object} req.body - request body object
+* @param {Integer} req.body.error - why this call failed @default **unable to contact client**
+* @throws {@link NotFound} if no call found with @param call_id
+* @throws {@link Forbidden} if call with @param call_id has id_agent other than req.user.id
+* @throws {@link ServerError} if storage.markCallFail failed
+* @return HTTP status 200 if your call state updated successfully
+* @example
+* //returns {message: 'call updated successfully',call: {id:'xx',agent:'xxx'}}
+* PUT /call/:call_id/failed
+* @memberof API
+*/
+function failed(req,res,next){
+  var details = {};
+  details.error = req.body.error || 'unable to contact client';
+  var call_id = req.call_id;
+  storage.getCall(req.user,call_id).then(function(call){
+    if(call.id_agent != req.user.id || call.status != settings.call.status.progress){
+        return next(new Forbidden({message : "you do not has call with id " + call_id },req.path));
+    }
+    call.failure_cause = settings.call.failure_code;
+    call.failure_cause_txt = details.error;
+    if(call.retries > settings.call.retry_till){
+      call.status = settings.call.status.failure;
+    }else {
+      call.status = settings.call.status.retry;
+    }
+    storage.markCallFail(call).then(function(call){
+      return res.status(200).json({
+        message: 'call updated successfully',
+        call: call
+      });
+    }).otherwise(function(error){
+      log.error('error : ' + error);
+      return next(new ServerError(error , req.path));
+    });
+  }).otherwise(function(error){
+    log.error('error : ' + error);
+    return next(new NotFound(error , req.path));
+  });
+}
+
+/**
 * cancel call with id @param call_id
-* @param {integer} call_id - call_id to cancel
-* @return HTTP status 422 - {@link MissedParams} if @param call_id is undefined
-* @return HTTP status 500 {@link ServerError} if storage.cancelCall failed
+* @param {Object} req.params - request params object
+* @param {Integer} req.params.call_id - call_id to cancel
+* @throws {@link MissedParams} if @param call_id is undefined
+* @throws {@link ServerError} if storage.cancelCall failed
 * @return HTTP 200 if your call canceled successfully
-*@example {message: 'call canceled successfully'}
+* @example
+* //returns {message: 'call canceled successfully'}
+* DELETE /call/:call_id
+* @memberof API
 */
 function cancel(req, res, next) {
   var call_id = req.params.call_id;
   if (!call_id) {
     return next(new MissedParams(req.path, "call_id"));
   }
-  storage.cancelCall(call_id).then(function(call) {
+  storage.cancelCall(call_id).then(function() {
     return res.status(200).json({
       message: "call canceled successfully"
     });
@@ -208,10 +334,20 @@ function cancel(req, res, next) {
 }
 /**
 * submit feedback for call with id @param call_id
-* @param {Integer} call_id - call_id to submit feedback on
-* @return MissedParams if @param call_id is undefined or (@param feedback and @param feedback_text)
-* @return HTTP status 500 {@link ServerError} if storage.feedback failed
-* @return HTTP status - 200 message: "feedback sent successfully"
+* @param {Object} req.params - request params object
+* @param {Integer} req.params.call_id - call_id to submit feedback
+* @param {Object} req.body - request body object
+* @param {String} req.body.feedback - body param to specify feedback message and override @param feedback_text
+* @param {String} req.body.feedback_text - body param to specify feedback message
+* @throws {@link MissedParams} if @param req.params.call_id is undefined
+* @throws {@link MissedParams} if @param req.body.feedback and @param req.body.feedback_text
+* @throws {@link ServerError} if storage.feedback failed
+* @return HTTP status 200 - if feedback submmitted successfully
+* @example
+* // returns {message: "feedback sent successfully"}
+* POST /call/:call_id/feedback
+* PUT /call/:call_id/feedback
+* @memberof API
 */
 function submitFeedback(req, res, next) {
   var feedback = {};
@@ -236,9 +372,12 @@ function submitFeedback(req, res, next) {
 }
 
 module.exports = {
-  extract: extract,
   createSipCall: createSipCall,
   createWebCall: createWebCall,
+  getDetail:getDetail,
+  call:call,
   cancel: cancel,
+  done:done,
+  failed:failed,
   submitFeedback: submitFeedback
 }

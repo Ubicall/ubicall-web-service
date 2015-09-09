@@ -1,15 +1,29 @@
+/**
+* ivr main functionality
+* @version 0.0.1
+* @module api/v1/ivr
+* @exports .
+* @namespace ivr
+*/
 var when = require('when');
 var request = require('request');
 var settings = require('../../settings');
 var storage = require('../../storage');
 var log = require('../../log');
-var NotImplementedError = require('../errors').NotImplementedError;
-var BadRequest = require('../errors').BadRequest;
-var MissedParams = require('../errors').MissedParams;
-var Forbidden = require('../errors').Forbidden;
-var ServerError =require('../errors').ServerError;
-var NotFound =require('../errors').NotFound;
+var NotImplementedError = require('./utils/errors').NotImplementedError;
+var BadRequest = require('./utils/errors').BadRequest;
+var MissedParams = require('./utils/errors').MissedParams;
+var Forbidden = require('./utils/errors').Forbidden;
+var ServerError =require('./utils/errors').ServerError;
+var NotFound =require('./utils/errors').NotFound;
 
+/**
+* deploy plist on web by calling an api
+* @return {@link NotFound} - if api return 404 error
+* @return HTTP status 200 - if plist deployed successfully on web
+* @private
+* @memberof ivr
+*/
 function __deployToWeb(widgetHost, plistHost, license_key, version) {
   return when.promise(function(resolve, reject) {
     var options = {
@@ -33,12 +47,16 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
 }
 
 /**
-* @param {String} key - license_key unique for each client,your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases
-* @return HTTP status 400 {@link BadRequest} - unable to get versionToken
-* @return HTTP status 200
-* @return HTTP status 500 - {@link ServerError} unable to get version,try again later
+* get latest ivr for @param license_key
+* @param req.params - req params object
+* @param {String} req.params.license_key - your api license key
+* @throws {@link MissedParams} - if @param license_key is missed
+* @throws {@link NotFound} - if storage.getVersion failed
+* @return HTTP status 200 - when your license_key ivr fetched successfully
 * @example
-* {message: "ivr with version "+ version.version +"retrieved successfully",version : version.version ,url : version.url}
+* // returns { message: "ivr with version "+ version.version +"retrieved successfully",version : version.version ,url : version.url }
+* GET /ivr/:license_key
+* @memberof API
 */
 function fetchIvr(req, res , next) {
   var license_key = req.params.license_key;
@@ -58,15 +76,24 @@ function fetchIvr(req, res , next) {
 }
 
 /**
-* @param {Array} ivr - Array containing IVR parameters
-* @param {String} ivr.license_key - license_key unique for each user,your api licence_key if not exist it will submit demo call , this fall back happen to be consisted with old ios app version and may be removed in next releases @return {@link MissedParams} If no licence_key
-* @param {String} ivr.version - the version of plist file.
-* @return HTTP status 200 - message: mobile & web clients updated successfully
-* @return HTTP status 500 {@link ServerError}
+* @param {Object} req.params - request param Object
+* @param {String} req.params.license_key - your license key
+* @param {String} req.params.version - the version of plist file.
+* @param {Object} req.headers - request headers object
+* @param {Url} req.headers.plistHost - param can override default plistHost value
+* @throws {@link MissedParams} - if @param ivr.license_key is missing
+* @throws {@link MissedParams} - if @param ivr.version is missing
+* @throws {@link ServerError} - if unable able to Update Web -  message *Unable to update Web,hence cannot update Mobile*
+* @throws {@link ServerError} - if not able to fetch ivr with @param licence_key from storage - message *Unable to update Mobile or rollback web*
+* @throws {@link ServerError} - if web updated but unable to update mobile client , so we rollback web to previous version - message *Unable to update Mobile,hence rollback web*
+* @throws {@link ServerError} - if web updated but unable to update mobile client **and failed to rollback web version** - message *Unable to update Mobile or rollback web*
+* @return HTTP status 200 - if ivr deplyed successfully in both web and mobile clients
+* @todo check on plistHost concatenated with slash
 * @example
-* {message: "mobile & web clients updated successfully"}
-* @example
-* {message:"Unable to update Mobile,hence rollback web"}
+* // returns {message: "mobile & web clients updated successfully"}
+* POST /ivr/:license_key/:version
+* PUT /ivr/:license_key/:version
+* @memberof API
 */
 function createIvr(req, res, next) {
   var ivr = {};
@@ -105,7 +132,7 @@ function createIvr(req, res, next) {
     });
   }).otherwise(function(error) {
     log.error('error : ' + error);
-    return next(new ServerError(error, req.path , "Unable to update Mobile,hence cannot update Web"));
+    return next(new ServerError(error, req.path , "Unable to update Web,hence cannot update Mobile"));
   });
 }
 

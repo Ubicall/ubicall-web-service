@@ -86,6 +86,11 @@ module.exports = {
         }
     },
     infra:{
+      agentServer: {
+          ip: config.infra.agentServer.ip,
+          port:  config.infra.agentServer.port,
+          password:  config.infra.agentServer.password
+      },
       clientServer: {
         mobile :{
           public : config.infra.clientServer.mobile.public,
@@ -102,5 +107,27 @@ module.exports = {
     widgetHost : config.endPoints.widgetDeploy,
 
     //where to deploy API documentation
-    apiDeployFolder:"/var/www/html/docs/"
+    apiDeployFolder:"/var/www/html/docs/",
+    call:{
+      status:{
+        progress: 'PROGRESS',
+        done: 'SUCCESSFUL',
+        failure: 'FAILURE',
+        retry: 'RETRY',
+        cancel: 'CANCELED'
+      },
+      retry_till : 5,
+      failure_code : 3,
+      reset_code : 4,
+      duration_format : "MMDDHHmm",
+      date_format : "YYYY-MM-DD HH:mm:ss"
+    },
+    cdn:{
+      sharedStatic : '/var/www/static',
+      agent:{
+        avatarHost : 'https://cdn.ubicall.com/agent/avatar/',
+        avatarDestinationFolder : '/var/www/agent/avatar/',
+        staticDestinationFolder : '/var/www/agent/'
+      }
+    }
 }

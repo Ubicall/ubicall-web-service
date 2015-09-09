@@ -1,5 +1,5 @@
 var UbicallError = require('./errors').UbicallError;
-var log = require('../log');
+var log = require('../../../log');
 
 module.exports = {
   handle: function(err, req, res, next) {

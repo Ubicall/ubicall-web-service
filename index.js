@@ -2,7 +2,8 @@ var http = require('http');
 var https = require('https');
 var express = require('express');
 var fs = require("fs");
-var storage = require('./storage')
+var storage = require('./storage');
+var infra = require('./infra');
 var settings = require('./settings');
 var apiv1 = require('./api/v1');
 var log = require('./log');
@@ -50,6 +51,8 @@ storage.init(settings).then(function() {
         });
       }
     });
+  }).then(function(){
+    return infra.init(settings);
   }).otherwise(function(err) {
     log.error("Failed To start Api App" + err.stack);
     log.error("Failed to start server:");
