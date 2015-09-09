@@ -4,6 +4,7 @@ var moment = require('moment');
 var randomstring = require("randomstring");
 var sprintf = require("sprintf-js").sprintf;
 var ast_rt = require('./ast_rt');
+var slug = require('slug');
 
 var settings, _sequelize;
 var calls, agent, queueAgent, clients;
@@ -87,8 +88,8 @@ function scheduleDemoCall(call) {
       long: call.longitude,
       lat: call.latitude,
       id_campaign: "1",
-      time : call.time || moment().format('YYYY-MM-DD HH:mm:ss'),
-      created_time: moment().format('YYYY-MM-DD HH:mm:ss')
+      time : call.time || moment().format(settings.call.date_format),
+      created_time: moment().format(settings.call.date_format)
     }).then(function(call) {
       if(!call){
         return reject('cannot schedule Demo call');
@@ -157,7 +158,7 @@ function cancelCall(callId) {
     $calls.findById(callId).then(function(call) {
       // Now i have call and i should update it now withh cancel flag
       return call.updateAttributes({
-        status: 'CANCELED'
+        status: settings.call.status.cancel
       }).then(function(updated) {
         if(!updated){
           return reject ('cannot cancel call');
@@ -218,7 +219,7 @@ function feedback(feedback) {
       call_id: feedback.call_id,
       feedback: feedback.feedback,
       feedback_text: feedback.feedback_text,
-      time: moment().format('YYYY-MM-DD HH:mm:ss')
+      time: moment().format(settings.call.date_format)
     }).then(function(feedback) {
       if(!feedback){
         return reject('cannot send feedback');
@@ -301,7 +302,7 @@ function createSip(device, password , domain, sip) {
       sip: sip,
       password: password,
       domain: domain,
-      creation_date:moment().format('YYYY-MM-DD HH:mm:ss')
+      creation_date:moment().format(settings.call.date_format)
     }).then(function(sipDevice) {
       if(!sipDevice){
       return reject ('cannot create sip Device');
@@ -354,7 +355,7 @@ function getCalls(agent , options) {
       where: {
         id_agent: agent.id,
         api_key: agent.api_key,
-        status: CALL_STATUS.done
+        status: settings.call.status.done
       },
       order: 'schedule_time DESC',
       offset: (options.page - 1) * options.per_page,
@@ -399,7 +400,7 @@ function getQueueCallsCount(_queue) {
         { queue_id: _queue.queue_id },
         Sequelize.or(
           { status: {$eq: null} },
-          { status: CALL_STATUS.retry }
+          { status: settings.call.status.retry }
         )
       )
     }).then(function(qCallsCount) {

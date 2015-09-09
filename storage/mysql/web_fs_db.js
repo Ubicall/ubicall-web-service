@@ -38,7 +38,7 @@ function createSipDirectory(sip) {
       username : sip ,
       domain_id : 5 ,
       cache : 0,
-      creation_date : moment().format('YYYY-MM-DD HH:mm:ss')
+      creation_date : moment().format(settings.call.date_format)
     }).then(function(directory) {
       if(!directory){
         return reject('cannot create directory');

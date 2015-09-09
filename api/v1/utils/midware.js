@@ -21,9 +21,9 @@ var log = require('../../../log');
  * @memberof middleware
  */
 function isAuthenticated(req, res, next) {
-  if(process.env.test){
+  if(process.env.node_env == "test"){
     req.user = {
-      id: 65,
+      id: 56,
       name: "Antoine FS",
       email: "aatef@rocketmail.com",
       number: "2222",
@@ -35,18 +35,19 @@ function isAuthenticated(req, res, next) {
             cred: "xmolVGdwTRGsbDOJ"
             }
     };
-    log.info("test user is used " + req.user);
+    log.info("test user is used " + JSON.stringify(req.user));
+    next();
+  }else {
+    if (!req.user) {
+      return next(new Forbidden({
+        message: "user not found"
+      }, req.path));
+    }
+    if(req.headers['x-rtmp-session']){
+        req.user.rtmp = req.headers['x-rtmp-session'];
+    }
     next();
   }
-  if (!req.user) {
-    return next(new Forbidden({
-      message: "user not found"
-    }, req.path));
-  }
-  if(req.headers['x-rtmp-session']){
-      req.user.rtmp = req.headers['x-rtmp-session'];
-  }
-  next();
 }
 
 /**

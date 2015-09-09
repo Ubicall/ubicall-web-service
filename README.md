@@ -7,7 +7,8 @@ exposed ubicall web service for public and internal use
 ``` bash
 npm install
 grunt jsdoc:docs copy:docs
-node index.js
+# node_env [test | development | production]
+node_env = xx node index.js
 ```
 **create model from db using :**
 ``` bash

@@ -113,7 +113,8 @@ module.exports = {
         progress: 'PROGRESS',
         done: 'SUCCESSFUL',
         failure: 'FAILURE',
-        retry: 'RETRY'
+        retry: 'RETRY',
+        cancel: 'CANCELED'
       },
       retry_till : 5,
       failure_code : 3,

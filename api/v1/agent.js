@@ -22,13 +22,14 @@ var NotFound = require('./utils/errors').NotFound;
 /**
  * get calls for authenticated agent
  * @see [api/v1/utils/midware#isAuthenticated](middleware.html#.isAuthenticated)
- * @param {Integer} page - url param page to get @default **1**
- * @param {Integer} per_page - url param number of result per page @default **20**
+ * @param {Object} req.query - request query object
+ * @param {Integer} req.query.page - url param page to get @default **1**
+ * @param {Integer} req.query.per_page - url param number of result per page @default **20**
  * @throws {@link ServerError} if storage.getCalls failed
  * @return HTTP status - 200 with agent calls as json
  * @example
  * // returns {[{{id : 'xx' , phone : 'xxxxx'} , call ...call}] }
- * GET /agent/calls
+ * GET /agent/calls?page=1&per_page=5
  * @memberof API
  */
 function getCalls(req, res, next) {
