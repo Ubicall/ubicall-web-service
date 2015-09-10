@@ -100,7 +100,7 @@ storage.init(settings).then(function() {
       log.warn('No authentication required , you are using default user ' + JSON.stringify(settings.demo_user,null,4));
     }
     log.info('Server now running at ' + getListenPath());
-    log.warn('To stop app gracefully just type in shell pkill api');
+    log.help('To stop app gracefully just type in shell pkill api');
   });
 });
 
@@ -138,6 +138,6 @@ process.on('unhandledRejection', function(err) {
 });
 
 process.on('SIGINT', function() {
-  log.error('[Api] IS DOWN NOW');
+  log.prompt('[Api] IS DOWN NOW');
   process.exit();
 });

@@ -7,7 +7,7 @@ var configUrl ;
 process.env.node_env = process.env.node_env || 'development';
 
 if(!process.env.config_version){
-  log.error("You should specify configuration version to use, see README for detail")
+  log.help("You should specify configuration version to use, see README for detail")
   throw new Error("Missed config_version environment variable");
 }
 
@@ -24,15 +24,15 @@ try {
     configResponse = request('GET', configUrl);
 } catch (e) {
   (process.env.node_env == 'development' || process.env.node_env == 'test') ?
-    log.error("make sure you update hosts file, see README for detail")
-    : log.error("make sure you connect to right configuration server and  config_version is correct");
+    log.help("make sure you update hosts file, see README for detail")
+    : log.help("make sure you connect to right configuration server and  config_version is correct");
   throw e;
 }
 
 if (configResponse.statusCode >= 300) {
     (process.env.node_env == 'development' || process.env.node_env == 'test') ?
-      log.error("make sure you update hosts file, see README for detail")
-      : log.error("make sure your configuration version is correct");
+      log.help("make sure you update hosts file, see README for detail")
+      : log.help("make sure your configuration version is correct");
     var err = new Error('Server responded with status code ' + configResponse.statusCode + ':\n' + configResponse.body);
     err.statusCode = configResponse.statusCode;
     err.headers = configResponse.headers;
@@ -42,7 +42,8 @@ if (configResponse.statusCode >= 300) {
 try {
     config = JSON.parse(configResponse.body.toString());
 } catch (e) {
-    throw new Error("Unable to parse configuration");
+    log.help("Unable to parse configuration");
+    throw e;
 }
 
 

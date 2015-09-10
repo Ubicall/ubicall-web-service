@@ -3,10 +3,12 @@ exposed ubicall web service for public and internal use
 
 
 **generate & deploy API documentation :**
+
   *make sure you add developer.dev.ubicall.com to your* **/etc/hosts** *file :*
-  ```
-  10.0.0.170  developer.dev.ubicall.com
-  ```
+  
+    ```
+    10.0.0.170  developer.dev.ubicall.com
+    ```
 
 ``` bash
 npm install

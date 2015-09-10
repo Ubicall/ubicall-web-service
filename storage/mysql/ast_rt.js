@@ -32,7 +32,8 @@ function init(_settings) {
           max: 5,
           min: 0,
           idle: 10000
-        }
+        },
+        logging : log.data
       });
     _sequelize.authenticate().then(function(){
       log.info("connected successfully to DB => " + settings.storage.ast_rt_mysql.database + ":" + _host + ":" + _port);
