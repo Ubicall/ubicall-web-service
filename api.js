@@ -2,14 +2,13 @@ var http = require('http');
 var https = require('https');
 var express = require('express');
 var fs = require("fs");
+var settings = require('./settings');
 var storage = require('./storage');
 var infra = require('./infra');
-var settings = require('./settings');
 var apiv1 = require('./api/v1');
 var log = require('./log');
 
 var server;
-process.env.node_env = process.env.node_env || 'development';
 
 storage.init(settings).then(function() {
   app = express();
@@ -80,10 +79,28 @@ storage.init(settings).then(function() {
   });
 
   server.listen(settings.port || 4000, settings.host || '0.0.0.0', function() {
-    // stop wasting your time searching for PID just type in shell : pkill cc
-    process.title = 'ubi-api';
-    log.info('Server running now on  ' + process.env.node_env + " Mode ");
+    process.title = 'api';
+    log.info('Server use configuration version ' + process.env.config_version);
+    log.info('Server running now on ' + process.env.node_env + " Mode - Avialable options are : test ,development ,production ");
+    log.info('DB connections use ' + process.env.db_env + " Mode - Avialable options are : internal ,external ");
+    if(process.env.demo_user == "true"){
+      settings.demo_user = {
+        id: 56,
+        name: "Antoine FS",
+        email: "aatef@rocketmail.com",
+        number: "2222",
+        image: "https://cdn.ubicall.com/agent/avatar/bcf3c1faaf30b15168db4da6575001ad.jpg",
+        lic: "e6053eb8d35e02ae40beeeacef203c1a",
+        api_key: "e6053eb8d35e02ae40beeeacef203c1a",
+        sip: {
+              num: "90000000000000021@104.239.164.247",
+              cred: "xmolVGdwTRGsbDOJ"
+              }
+      };
+      log.warn('No authentication required , you are using default user ' + JSON.stringify(settings.demo_user,null,4));
+    }
     log.info('Server now running at ' + getListenPath());
+    log.help('To stop app gracefully just type in shell pkill api');
   });
 });
 
@@ -115,9 +132,12 @@ process.on('unhandledRejection', function(err) {
   } else {
     log.error(err);
   }
+  // in production forever daemon will restart the app , so don't worry
+  // should we use cluster and fork node app here ??!!
+  process.exit(1);
 });
 
 process.on('SIGINT', function() {
-  log.error('[Api] IS DOWN NOW');
+  log.prompt('[Api] IS DOWN NOW');
   process.exit();
 });

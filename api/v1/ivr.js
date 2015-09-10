@@ -71,11 +71,12 @@ function fetchIvr(req, res , next) {
     });
   }).otherwise(function(error) {
     log.error('error : ' + error);
-    return next(new NotFound(error , req.path));
+    return next(new Forbidden(error , req.path));
   });
 }
 
 /**
+* deploy ivr in both Mobile and Web clients
 * @param {Object} req.params - request param Object
 * @param {String} req.params.license_key - your license key
 * @param {String} req.params.version - the version of plist file.
@@ -84,7 +85,7 @@ function fetchIvr(req, res , next) {
 * @throws {@link MissedParams} - if @param ivr.license_key is missing
 * @throws {@link MissedParams} - if @param ivr.version is missing
 * @throws {@link ServerError} - if unable able to Update Web -  message *Unable to update Web,hence cannot update Mobile*
-* @throws {@link ServerError} - if not able to fetch ivr with @param licence_key from storage - message *Unable to update Mobile or rollback web*
+* @throws {@link Forbidden} - if not able to fetch ivr with @param licence_key from storage
 * @throws {@link ServerError} - if web updated but unable to update mobile client , so we rollback web to previous version - message *Unable to update Mobile,hence rollback web*
 * @throws {@link ServerError} - if web updated but unable to update mobile client **and failed to rollback web version** - message *Unable to update Mobile or rollback web*
 * @return HTTP status 200 - if ivr deplyed successfully in both web and mobile clients
@@ -95,7 +96,7 @@ function fetchIvr(req, res , next) {
 * PUT /ivr/:license_key/:version
 * @memberof API
 */
-function createIvr(req, res, next) {
+function deployIVR(req, res, next) {
   var ivr = {};
   ivr.license_key = req.params.license_key;
   ivr.version = req.params.version;
@@ -127,7 +128,7 @@ function createIvr(req, res, next) {
         });
       }).otherwise(function(error) {
         log.error('error : ' + error);
-        return next(new ServerError(error ,req.path , "Unable to update Mobile or rollback web"));
+        return next(new Forbidden(error , req.originalUrl));
       });
     });
   }).otherwise(function(error) {
@@ -139,5 +140,5 @@ function createIvr(req, res, next) {
 
 module.exports = {
   fetchIvr: fetchIvr,
-  createIvr: createIvr
+  deployIVR: deployIVR
 }

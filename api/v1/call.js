@@ -30,7 +30,7 @@ function __scheduleDemo(call) {
   return when.promise(function(resolve, reject) {
     return storage.scheduleDemoCall(call).then(function(demoCall) {
       var options = {
-        url: 'http://' + settings.infra.clientServer.mobile.public + '/generate/new_call/callfile/generate_file.php',
+        url: 'http://' + settings.infra.clientServer.mobile_voice_server.external_ip + '/generate/new_call/callfile/generate_file.php',
         method: 'GET',
         qs: {
           extension: call.sip,
@@ -52,10 +52,12 @@ function __scheduleDemo(call) {
 
 
 /**
-* schedule demo call if client is undefined or client is exist but with demo flag equal zero
-* schedule regular call if client exist and has demo flag equal one
+* schedule call for mobile client which has avalid device_token
+* _if this client has demo flag equal zero it will submit demo call otherwise it will submit regular call_
 * @see [api/v1/utils/midware#callExtract](middleware.html#.callExtract)
-* @return  HTTP status 500 {@link ServerError} if req.ubi.call.device_token not exist , __scheduleDemo failed or storage.scheduleCall failed
+* @param {Object} req.ubi.call - call extracted by [api/v1/utils/midware#callExtract](middleware.html#.callExtract)
+* @throws {@link ServerError} if req.ubi.call.device_token not exist
+* @throws {@link ServerError} if __scheduleDemo failed
 * @return HTTP 200 if your call submitted successfully
 * @example
 * // returns {message: 'call scheduled successfully', call: XXXX }
@@ -80,7 +82,7 @@ function createSipCall(req, res, next) {
           log.error('error : ' + error);
           return next(new ServerError(error , req.path));
         });
-      } else { //schedule regualr call if client exist and has demo flag wity value other than zero
+      } else { //schedule regualr call if client exist and has demo flag with value other than zero
         storage.scheduleCall(call).then(function(call) {
           return res.status(200).json({
             message: 'call scheduled successfully',
@@ -91,19 +93,9 @@ function createSipCall(req, res, next) {
           return next(new ServerError(error , req.path));
         });
       }
-    }).otherwise(function(error) { // schedule demo call if license_key is undefined or no client found with this license_key
-      __scheduleDemo(call).then(function(dCall) {
-        return res.status(200).json({
-          message: 'demo call scheduled successfully',
-          call: dCall.id
-        });
-      }).otherwise(function(error) {
-        log.error('error : ' + error);
-        return next(new ServerError(error , req.path));
-      });
     }).otherwise(function(error) {
       log.error('error : ' + error);
-      return next(new ServerError(error , req.path));
+      return next(new Forbidden(error , req.path));
     });
   }).otherwise(function(error){
     log.error('error : ' + error);
@@ -112,10 +104,11 @@ function createSipCall(req, res, next) {
 }
 
 /**
-* schedule demo call if licence_key is undefined otherwise schedule regular call
-* @see [api/v1/utils/midware#callExtract](middleware.html#.callExtract)
-* @return HTTP status 500 {@link ServerError} if__scheduleDemo failed or storage.scheduleCall failed
-* @return HTTP status 200 if your call submitted successfully
+* schedule regular call for phone client
+* @see [ai/v1/utils/midware#callExtract](middleware.html#.callExtract)
+* @param {Object} req.ubi.call - call extracted by [api/v1/utils/midware#callExtract](middleware.html#.callExtract)
+* @throws {@link ServerError} if storage.scheduleCall failed
+* @return TTP status 200 if your call submitted successfully
 * @example
 * // returns {message: 'call scheduled successfully', call: XXXX }
 * // returns {message: 'demo call scheduled successfully', call: XXXX }
@@ -126,28 +119,15 @@ function createWebCall(req, res, next) {
 
   var call = req.ubi.call;
 
-  //TODO #1 should be removed but else statment , why ? based on broken code on IOS
-  if (!call.license_key) {
-    __scheduleDemo(call).then(function(dCall) {
-      return res.status(200).json({
-        message: 'demo call scheduled successfully',
-        call: dCall.id
-      });
-    }).otherwise(function(error) {
-      log.error('error : ' + error);
-      return next(new ServerError(error , req.path));
+  storage.scheduleCall(call).then(function(call) {
+    return res.status(200).json({
+      message: 'call scheduled successfully',
+      call: call.id
     });
-  } else {
-    storage.scheduleCall(call).then(function(call) {
-      return res.status(200).json({
-        message: 'call scheduled successfully',
-        call: call.id
-      });
-    }).otherwise(function(error) {
-      log.error('error : ' + error);
-      return next(new ServerError(error , req.path));
-    });
-  }
+  }).otherwise(function(error) {
+    log.error('error : ' + error);
+    return next(new ServerError(error , req.path));
+  });
 }
 
 /**
@@ -263,7 +243,7 @@ function done(req,res,next){
 * mark call with id @param call_id as failed , which it will be retried if failed times is less than fail's limit
 * @see [api/v1/utils/midware#isAuthenticated](middleware.html#.isAuthenticated)
 * @param {Object} req.params - request params object
-* @param {Integer} - req.params.call_id - call_id to mark as failed
+* @param {Integer} req.params.call_id - call_id to mark as failed
 * @param {Object} req.body - request body object
 * @param {Integer} req.body.error - why this call failed @default **unable to contact client**
 * @throws {@link NotFound} if no call found with @param call_id
