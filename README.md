@@ -5,7 +5,7 @@ exposed ubicall web service for public and internal use
 **generate & deploy API documentation :**
 
   *make sure you add developer.dev.ubicall.com to your* **/etc/hosts** *file :*
-  
+
     ```
     10.0.0.170  developer.dev.ubicall.com
     ```
@@ -13,6 +13,8 @@ exposed ubicall web service for public and internal use
 ``` bash
 npm install
 sudo grunt jsdoc:docs copy:docs
+# to run test units
+npm test
 # node_env [test | development | production]
 # demo_user - [true] use default user and will pass authentication middle ware
 # db_env - [internal | external] control db connections attributes , default *internal* which use internal_ip and internal_port to connect to DB

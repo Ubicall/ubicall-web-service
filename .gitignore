@@ -141,3 +141,6 @@ dist/
 # jsdoc generation folders
 out/
 docs/
+
+# jasmine-node reports folder
+reports/
