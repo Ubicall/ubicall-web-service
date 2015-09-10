@@ -82,7 +82,7 @@ storage.init(settings).then(function() {
     process.title = 'api';
     log.info('Server use configuration version ' + process.env.config_version);
     log.info('Server running now on ' + process.env.node_env + " Mode - Avialable options are : test ,development ,production ");
-    log.info('DB connections use ' + (process.env.db_env || 'internal') + " Mode - Avialable options are : internal ,external ");
+    log.info('DB connections use ' + process.env.db_env + " Mode - Avialable options are : internal ,external ");
     if(process.env.demo_user == "true"){
       settings.demo_user = {
         id: 56,

@@ -5,6 +5,7 @@ var config = {};
 var configUrl ;
 
 process.env.node_env = process.env.node_env || 'development';
+process.env.db_env = process.env.db_env || 'internal';
 
 if(!process.env.config_version){
   log.help("You should specify configuration version to use, see README for detail")
