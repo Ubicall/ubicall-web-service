@@ -15,7 +15,7 @@ function init(_settings) {
     settings = _settings;
     var _host = settings.storage.web_fs_db_mysql.external_ip;
     var _port = settings.storage.web_fs_db_mysql.external_port;
-    if(!process.env.db_env){
+    if(!process.env.db_env || process.env.db_env == "internal" ){
       _host = settings.storage.web_fs_db_mysql.internal_ip;
       _port = settings.storage.web_fs_db_mysql.internal_port;
     }
@@ -34,7 +34,9 @@ function init(_settings) {
           idle: 10000
         }
       });
-      _sequelize.authenticate().catch(function(error){
+      _sequelize.authenticate().then(function(){
+        log.info("connected successfully to DB => " + settings.storage.web_fs_db_mysql.database + ":" + _host + ":" + _port);
+      }).catch(function(error){
         log.error("Unable to connect to DB => " + settings.storage.web_fs_db_mysql.database + ":" + _host + ":" + _port);
         throw error;
       });
@@ -63,11 +65,10 @@ function createSipDirectory(sip) {
 }
 
 /**
-* @param directory and instance of $directory
+* @param directory an instance of $directory
 * @param password is sip password
-* @param dialString is static string '\${rtmp_contact(default/\${dialed_user}@162.242.253.195)}'
 **/
-function createSipDirectoryParams(directory , password , dialString){
+function createSipDirectoryParams(directory , password){
   return when.promise(function(resolve,reject){
     $directoryParams.create({
       directory_id : directory.id,
@@ -76,8 +77,9 @@ function createSipDirectoryParams(directory , password , dialString){
     }).then(function(dparam){
       $directoryParams.create({
         directory_id : directory.id,
+        // dialString is static string '\${rtmp_contact(default/\${dialed_user}@Client's_Web_Voice_Server_IP )}'
         param_name : "dial-string",
-        param_value : dialString
+        param_value : "${rtmp_contact(default/\${dialed_user}@" +  settings.infra.clientServer.web_voice_server.external_ip + ")}"
       }).then(function(dparam2){
         if(!dparam2){
           return reject('cannot create directoryParams');

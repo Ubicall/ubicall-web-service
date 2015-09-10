@@ -224,12 +224,12 @@ var storageModuleInterface = {
     });
   } ,
 
-  createSipDirectory : function(sip , password , dialString){
+  createSipDirectory : function(sip , password){
     return when.promise(function(resolve,reject){
       var _directory;
       webFSStorageModule.createSipDirectory(sip).then(function(directory){
         _directory = directory;
-        webFSStorageModule.createSipDirectoryParams(directory , password , dialString).then(function(dp1,dp2){
+        webFSStorageModule.createSipDirectoryParams(directory , password).then(function(dp1,dp2){
           return resolve(_directory);
         }).otherwise(function(error){
             return reject(error);

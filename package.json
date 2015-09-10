@@ -31,6 +31,7 @@
     "slug": "^0.9.1",
     "sprintf": "~0.1.5",
     "sprintf-js": "^1.0.3",
+    "sync-request": "^2.0.1",
     "validator": "^4.0.2",
     "when": "^3.7.3",
     "winston": "^1.0.1"
@@ -44,6 +45,7 @@
     "grunt-jsdoc": "~0.6.8",
     "ink-docstrap": "~0.5.2",
     "jsdoc": "~3.3.2",
-    "minami": "^1.1.1"
+    "minami": "^1.1.1",
+    "sequelize-auto": "0.0.7"
   }
 }

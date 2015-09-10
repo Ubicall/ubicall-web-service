@@ -21,21 +21,11 @@ var log = require('../../../log');
  * @memberof middleware
  */
 function isAuthenticated(req, res, next) {
-  if(process.env.node_env == "test"){
-    req.user = {
-      id: 56,
-      name: "Antoine FS",
-      email: "aatef@rocketmail.com",
-      number: "2222",
-      image: "https://cdn.ubicall.com/agent/avatar/bcf3c1faaf30b15168db4da6575001ad.jpg",
-      lic: "e6053eb8d35e02ae40beeeacef203c1a",
-      api_key: "e6053eb8d35e02ae40beeeacef203c1a",
-      sip: {
-            num: "90000000000000021@104.239.164.247",
-            cred: "xmolVGdwTRGsbDOJ"
-            }
-    };
-    log.info("test user is used " + JSON.stringify(req.user));
+  if(process.env.demo_user == "true"){
+    req.user = settings.demo_user;
+    if(req.headers['x-rtmp-session']){
+        req.user.rtmp = req.headers['x-rtmp-session'];
+    }
     next();
   }else {
     if (!req.user) {

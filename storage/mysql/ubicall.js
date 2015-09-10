@@ -22,7 +22,7 @@ function init(_settings) {
     settings = _settings;
     var _host = settings.storage.ubicall_mysql.external_ip;
     var _port = settings.storage.ubicall_mysql.external_port;
-    if(!process.env.db_env){
+    if(!process.env.db_env || process.env.db_env == "internal" ){
       _host = settings.storage.ubicall_mysql.internal_ip;
       _port = settings.storage.ubicall_mysql.internal_port;
     }
@@ -41,7 +41,9 @@ function init(_settings) {
           idle: 10000
         }
       });
-    _sequelize.authenticate().catch(function(error){
+    _sequelize.authenticate().then(function(){
+      log.info("connected successfully to DB => " + settings.storage.ubicall_mysql.database + ":" + _host + ":" + _port);
+    }).catch(function(error){
       log.error("Unable to connect to DB => " + settings.storage.ubicall_mysql.database + ":" + _host + ":" + _port);
       throw error;
     });
