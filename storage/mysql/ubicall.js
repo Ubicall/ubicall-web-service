@@ -76,7 +76,7 @@ function scheduleCall(call, device) {
       address: call.address,
       longitude: call.longitude,
       latitude: call.latitude,
-      caller_type: call.pstn,
+      caller_type: call.caller_type,
       call_data: call.call_data,
       schedule_time: call.time
     }).then(function(call) {
