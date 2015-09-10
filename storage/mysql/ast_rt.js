@@ -18,7 +18,6 @@ function init(_settings) {
       _host = settings.storage.ast_rt_mysql.internal_ip;
       _port = settings.storage.ast_rt_mysql.internal_port;
     }
-    var _host =
     _sequelize = new Sequelize(settings.storage.ast_rt_mysql.database,
       settings.storage.ast_rt_mysql.username, settings.storage.ast_rt_mysql.password, {
         host: _host || 'localhost',
