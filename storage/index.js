@@ -118,16 +118,6 @@ var storageModuleInterface = {
       });
     });
   },
-
-  getAdmin:function(key){
-    return when.promise(function(resolve,reject){
-      ubicallStorageModule.getAdmin(key).then(function(admin){
-        return resolve(admin);
-      }).otherwise(function(error){
-        return reject(error);
-      });
-    });
-  },
   getQueue:function(id){
     return when.promise(function(resolve,reject){
       ubicallStorageModule.getQueue(id).then(function(queue){
@@ -182,8 +172,34 @@ var storageModuleInterface = {
     });
   },
 
+getAdmin:function(key){
+  return when.promise(function(resolve,reject){
+      ubicallStorageModule.getAdmin(key).then(function(admin){
+      return resolve(admin);
+    });
+  }).otherwise(function(error){
+    return reject(error);
+  });
+},
 
-
+getHours:function(id){
+  return when.promise(function(resolve,reject){
+    ubicallStorageModule.getHours(id).then(function(result){
+      return resolve(result);
+    });
+  }).otherwise(function(error){
+    return reject(error);
+  });
+},
+isAvailable:function(id,today){
+  return when.promise(function(resolve,reject){
+    ubicallStorageModule.isAvailable(id,today).then(function(result){
+      return resolve(result);
+    });
+  }).otherwise(function(error){
+    return reject(error);
+  });
+},
   incrementClientCount: function(clientId) {
     return when.promise(function(resolve, reject) {
       ubicallStorageModule.incrementClientCount(clientId).then(function(client) {

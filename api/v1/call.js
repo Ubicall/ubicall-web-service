@@ -5,6 +5,7 @@
 * @exports .
 * @namespace call
 */
+var moment = require('moment');
 var when = require('when');
 var request = require('request');
 var validator = require('validator');
@@ -50,7 +51,99 @@ function __scheduleDemo(call) {
   });
 }
 
+function map_day(day){
+  var strDay='';
+  if(day == 0)
+   strDay = 'day_0';
+  else if(day == 1)
+     strDay= 'day_1';
+     else if(day  == 2)
+     strDay = 'day_2';
+     else if(day== 3)
+     strDay = 'day_3';
+     else if(day== 4)
+     strDay = 'day_4';
+     else if(day== 5)
+     strDay= 'day_5';
+     else if(day== 6)
+     strDay = 'day_6';
+ return strDay;
+}
 
+function _workingHours(req,res,next){
+var queue,waiting,flag,offset,day_start,day_end;
+utc_time = new Date().getTime();
+console.log('time in UTC',utc_time);
+var day = new Date().getDay();
+var license_key = req.params.key ;
+var time_zone = req.params.zone ;
+var start_time;
+storage.getAdmin(license_key).then(function(admin){
+  var _id = admin.id;
+   var today = map_day(day);
+  storage.getHours(_id).then(function(result){
+  //   queue= result.queue_id;
+    var flag = result[today];console.log(flag);
+    var offset = result.time_zone_offset;console.log(offset);
+    var day_start = result[today+'_start'];console.log(day_start);
+    var day_end = result[today+'_end'];
+    if(flag == 1){
+      //day_start= day_start + offset;
+      day_start=day_start.split(":");
+      day_end=day_end.split(":");console.log(day_end);
+      hours_start=day_start[0];
+      hours_end=day_end[0];
+      minutes_start=day_start[1];
+      minutes_end=day_end[1];
+      minutes_start= Number(minutes_start);
+      if(hours_start == 23 || hours_end == 23){
+        hours_start = '00';
+        hours_end='00';
+      }
+      if(minutes_start == 60|| minutes_end == 60){
+        minutes_end = '00';
+        minutes_start='00';
+      }
+
+      utc_start=Number(hours_start)+offset;
+      utc_end=Number(hours_end)+offset;
+
+      console.log('after adding offset start',utc_start); //start time of utc
+      console.log('after adding offset end',utc_end); //start time of utc
+      //change to milliseconds
+      var start = new Date();
+     start.setHours(utc_start);
+     start.setMinutes(minutes_start);
+     console.log(start.getTime());
+     var end = new Date();
+    end.setHours(utc_end);
+    end.setMinutes(minutes_end);
+console.log(end.getTime());
+            if( utc_time > start){
+        //check on end
+        if(end > utc_time){
+          console.log('here');
+          milliseconds=end-utc_time;
+          res.status(200).json({
+            message:'minutes retrieved successfully',
+            ms:milliseconds
+          });
+        }
+            }
+    }
+    else{
+      res.status(200).json({
+        message:'not available',
+      })
+    }
+
+  }).otherwise(function(err){
+    return next(new Forbidden(err,req.path));
+  });
+}).otherwise(function(err){
+      return next(new ServerError(err , req.path));
+});
+}
 /**
 * schedule demo call if client is undefined or client is exist but with demo flag equal zero
 * schedule regular call if client exist and has demo flag equal one
@@ -379,5 +472,6 @@ module.exports = {
   cancel: cancel,
   done:done,
   failed:failed,
-  submitFeedback: submitFeedback
+  submitFeedback: submitFeedback,
+  _workingHours:_workingHours
 }
