@@ -1,6 +1,23 @@
 var frisby = require('frisby');
+
+//base url to allow changing from dev to production testing easily 
+var baseURL = 'https://api.dev.ubicall.com'
+
+
+/*
+Testing the /sip/account 
+Post sip account with all proper parameters Success 
+post Missed Params web Account negative case 422
+post client not found sip Account  negative 403
+get get Sip Account negative 404
+*/
+
+//this line is added to ignore problems in self signed SSL should be removed once we have a valid ssl on the dev.ubicall.com
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; 
+
+
 frisby.create('post Sip Account')
-  .post('https://api.ubicall.com/v1/sip/account',{
+  .post(baseURL+'/v1/sip/account',{
         sdk_name: "ubcall1",
         sdk_version: 1.0,
         deviceuid: "32FCB73C-A977-43FB-B5A1-3E4F330F60D9",
@@ -17,14 +34,15 @@ frisby.create('post Sip Account')
     password: String,
     domain:String
    
-  })
+  }).inspectJSON()  //added inspectJSON to check the return on the console and see it 
 .toss();
 
 ////////////////////////////////////////
 frisby.create('Missed Params web Account')
-  .post('https://api.ubicall.com/v1/sip/account',{
-      
+  .post(baseURL+'/v1/sip/account',{
        
+        sdk_name: "ubcall1",
+       // sdk_version: 1.0,
         deviceuid: "32FCB73C-A977-43FB-B5A1-3E4F330F60D9",
         device_token: "be9d0cb77f881796dfecaebfb3f89c8a12143c17fdd23f06ecd7863cb05eadf2",
         device_name: "Khaled%E2%80%99s%20iPhone",
@@ -42,7 +60,7 @@ frisby.create('Missed Params web Account')
 .toss();
 /////////////////////////////////////////////////////
 frisby.create('client not found Sip Account')
-  .post('https://api.ubicall.com/v1/sip/account',{
+  .post(baseURL+'/v1/sip/account',{
         sdk_name: "ubcall1",
         sdk_version: 1.0,
         deviceuid: "32FCB73C-A977-43FB-B5A1-3E4F330F60D9",
@@ -55,14 +73,14 @@ frisby.create('client not found Sip Account')
   .expectStatus(403)
 
   .expectJSON( {
-  message:'message:Bad credentials',
+  message:'Bad credentials',
 
   })
 .toss();
 
 ////////////////////////////////////////////////////////////
-frisby.create('git Sip Account')
-  .get('https://api.ubicall.com/v1/sip/account',{
+frisby.create('get Sip Account')
+  .get(baseURL+'/v1/sip/account',{
         sdk_name: "ubcall1",
         sdk_version: 1.0,
         deviceuid: "32FCB73C-A977-43FB-B5A1-3E4F330F60D9",

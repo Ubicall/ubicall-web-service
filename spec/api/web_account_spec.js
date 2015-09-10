@@ -62,7 +62,7 @@ frisby.create('client not found web Account')
 .toss();
 
 /////////////////////////////////////
-frisby.create('git web Account')
+frisby.create('get web Account')
   .get('https://api.ubicall.com/v1/web/account',{
         sdk_name: "ubcall1",
         sdk_version: 1.0,
