@@ -13,6 +13,9 @@ var agentInterface = {
   getCalls: function(agent,options) {
     return when.resolve(ubicallStorageModule.getCalls(agent,options));
   },
+  getQueueCallsCount:function(queue_id){
+    return when.resolve(ubicallStorageModule.getQueueCallsCount(queue_id));
+  },
   getQueues: function(agent) {
     return when.resolve(ubicallStorageModule.getQueues(agent));
   },

@@ -54,87 +54,96 @@ function __scheduleDemo(call) {
 function map_day(day){
   var strDay='';
   if(day == 0)
-   strDay = 'day_0';
+   strDay = 'day_6';
   else if(day == 1)
-     strDay= 'day_1';
+     strDay= 'day_0';
      else if(day  == 2)
-     strDay = 'day_2';
+     strDay = 'day_1';
      else if(day== 3)
-     strDay = 'day_3';
+     strDay = 'day_2';
      else if(day== 4)
-     strDay = 'day_4';
+     strDay = 'day_3';
      else if(day== 5)
-     strDay= 'day_5';
+     strDay= 'day_4';
      else if(day== 6)
-     strDay = 'day_6';
+     strDay = 'day_5';
  return strDay;
 }
 
 function _workingHours(req,res,next){
-var queue,waiting,flag,offset,day_start,day_end;
-utc_time = new Date().getTime();
-console.log('time in UTC',utc_time);
-var day = new Date().getDay();
+  var test = Date.UTC();console.log('Using date.UTC',test);
+  var t = moment().utc();console.log(t);
+  var d = new Date();console.log(d);
+  console.log('using moment.js',t)
+  var queue,waiting,flag,offset,day_start,day_end,start_time;
 var license_key = req.params.key ;
 var time_zone = req.params.zone ;
-var start_time;
+var queue_id=req.params.queue;console.log('queue id is',queue_id);
+var d = new Date();
+utc_time = new Date().getTime(); console.log(d);//utc time in milliseconds
+var day = new Date().getDay();//returns day in number
+console.log('Day in number',day);
+
 storage.getAdmin(license_key).then(function(admin){
   var _id = admin.id;
    var today = map_day(day);
   storage.getHours(_id).then(function(result){
-  //   queue= result.queue_id;
-    var flag = result[today];console.log(flag);
-    var offset = result.time_zone_offset;console.log(offset);
-    var day_start = result[today+'_start'];console.log(day_start);
-    var day_end = result[today+'_end'];
+    var flag = result[today];console.log('is day available',flag);
+    var offset = result.time_zone_offset;
+    var day_start = result[today+'_start'];console.log('day starts at',day_start);
+    var day_end = result[today+'_end'];console.log('day ends at',day_end);
     if(flag == 1){
       //day_start= day_start + offset;
-      day_start=day_start.split(":");
+      day_start=day_start.split(":");console.log('day start',day_start);
       day_end=day_end.split(":");console.log(day_end);
       hours_start=day_start[0];
       hours_end=day_end[0];
       minutes_start=day_start[1];
       minutes_end=day_end[1];
       minutes_start= Number(minutes_start);
-      if(hours_start == 23 || hours_end == 23){
-        hours_start = '00';
-        hours_end='00';
-      }
-      if(minutes_start == 60|| minutes_end == 60){
-        minutes_end = '00';
-        minutes_start='00';
-      }
-
-      utc_start=Number(hours_start)+offset;
-      utc_end=Number(hours_end)+offset;
-
-      console.log('after adding offset start',utc_start); //start time of utc
-      console.log('after adding offset end',utc_end); //start time of utc
+      utc_start=Number(hours_start)-offset;console.log('starts at',utc_start);
+      utc_end=Number(hours_end)-offset;
       //change to milliseconds
       var start = new Date();
      start.setHours(utc_start);
      start.setMinutes(minutes_start);
-     console.log(start.getTime());
+  //   console.log(start.getTime()); //returns new date in milliseconds
      var end = new Date();
     end.setHours(utc_end);
     end.setMinutes(minutes_end);
-console.log(end.getTime());
+  //  console.log(end.getTime());
             if( utc_time > start){
-        //check on end
-        if(end > utc_time){
-          console.log('here');
-          milliseconds=end-utc_time;
-          res.status(200).json({
-            message:'minutes retrieved successfully',
-            ms:milliseconds
-          });
+              //check on end
+              if(end > utc_time){
+                milliseconds=end-utc_time;
+                min= milliseconds/(1000*60);
+                storage.getQueueCallsCount(queue_id).then(function(count){
+
+                res.status(200).json({
+                  message:'successful',
+                  remaining:min,
+                  waiting:count*5 //assuming average call is 5 minutes
+                });
+                  });
+              }
         }
-            }
+        else{
+          start=Number(hours_start);
+          start = start+time_zone;
+          end=Number(hours_end)+time_zone;
+          start = start+':'+day_start[1];
+          end = end+':'+day_end[1];
+          res.status(200).json({
+            message:'not open yet',
+            starts:start,
+            ends:end
+          })
+        }
     }
     else{
       res.status(200).json({
-        message:'not available',
-      })
+        message:'day off',
+      });
     }
 
   }).otherwise(function(err){

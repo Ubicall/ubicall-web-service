@@ -401,7 +401,7 @@ function getQueues(_agent) {
     }).then(function(_queues) {
       // now get calls waiting in this queue
       return when.all(_queues.map(function(queue) {
-        return getQueueCallsCount(queue).then(function(count) {
+        return getQueueCallsCount(queue.queue_id).then(function(count) {
           queue.setDataValue('calls' , count);
           queue.setDataValue('queue_slug' , slug(queue.queue_name));
           queues.push(queue);
@@ -415,11 +415,11 @@ function getQueues(_agent) {
   });
 }
 
-function getQueueCallsCount(_queue) {
+function getQueueCallsCount(queue_id) {
   return when.promise(function(resolve, reject) {
     return $calls.count({
       where : Sequelize.and(
-        { queue_id: _queue.queue_id },
+        { queue_id: queue_id },
         Sequelize.or(
           { status: {$eq: null} },
           { status: settings.call.status.retry }
@@ -600,5 +600,6 @@ module.exports = {
   getCallDetail:getCallDetail,
   getCall : getCall,
   markCallDone: markCallDone,
-  markCallFail: markCallFail
+  markCallFail: markCallFail,
+  getQueueCallsCount:getQueueCallsCount
 }

@@ -5,7 +5,6 @@ var agentInterface = require('./agent');
 var callInterface = require('./call');
 var ubicallStorageModule, astStorageModule, cacheModule, cache;
 
-
 function _initStorage(_settings) {
   var toReturnPromises = [];
   if (_settings.storage && _settings.storage.ubicallStorageModule) {
@@ -262,7 +261,8 @@ isAvailable:function(id,today){
   getCallDetail: callInterface.getCallDetail,
   getCall : callInterface.getCall,
   markCallDone: callInterface.markCallDone,
-  markCallFail : callInterface.markCallFail
+  markCallFail : callInterface.markCallFail,
+  getQueueCallsCount:agentInterface.getQueueCallsCount
 };
 
 
