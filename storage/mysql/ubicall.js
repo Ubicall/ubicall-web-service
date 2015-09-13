@@ -175,9 +175,6 @@ function getAdmin(key){
         licence_key: key,
       }
     }).then(function(admin) {
-      if (!admin) {
-        return reject("no result found");
-      }
       return resolve(admin);
     }).catch(function(error) {
       return reject(error);

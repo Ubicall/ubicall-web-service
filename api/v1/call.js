@@ -70,20 +70,28 @@ function map_day(day){
  return strDay;
 }
 
+/**
+* Gets the working hours of admin and whether the day is available or not
+* @param license_key {String} to get admin id
+* @param zone Time zone {Number} send to server to match the UTC server time
+* @param queue_id {Number} used to get count of queues of calls with status 'RETRY' or 'CANCELED'
+* @return HTTP status 200 - if minutes sent successfully
+* @return HTTP status 200 - if not open yet
+* @return HTTP status 200 - if day off
+* @throws {@link ServerError} if storage.getAdmin or storage.getHours failed
+* @throws {@link NotFound} if storage.getHours failed to return working hours using admin.id
+* @example
+* // returns {message: "successful","remaining":47.03625,"waiting":315}
+* GET /time/:license_key/:zone/:queue
+* @memberof API
+*/
 function _workingHours(req,res,next){
-  var test = Date.UTC();console.log('Using date.UTC',test);
-  var t = moment().utc();console.log(t);
-  var d = new Date();console.log(d);
-  console.log('using moment.js',t)
-  var queue,waiting,flag,offset,day_start,day_end,start_time;
-var license_key = req.params.key ;
+var queue,waiting,flag,offset,day_start,day_end,start_time;
+var license_key = req.params.license_key ;
 var time_zone = req.params.zone ;
 var queue_id=req.params.queue;console.log('queue id is',queue_id);
-var d = new Date();
-utc_time = new Date().getTime(); console.log(d);//utc time in milliseconds
+utc_time = new Date().getTime();//utc time in milliseconds
 var day = new Date().getDay();//returns day in number
-console.log('Day in number',day);
-
 storage.getAdmin(license_key).then(function(admin){
   var _id = admin.id;
    var today = map_day(day);
@@ -93,7 +101,6 @@ storage.getAdmin(license_key).then(function(admin){
     var day_start = result[today+'_start'];console.log('day starts at',day_start);
     var day_end = result[today+'_end'];console.log('day ends at',day_end);
     if(flag == 1){
-      //day_start= day_start + offset;
       day_start=day_start.split(":");console.log('day start',day_start);
       day_end=day_end.split(":");console.log(day_end);
       hours_start=day_start[0];
@@ -104,21 +111,13 @@ storage.getAdmin(license_key).then(function(admin){
       utc_start=Number(hours_start)-offset;console.log('starts at',utc_start);
       utc_end=Number(hours_end)-offset;
       //change to milliseconds
-      var start = new Date();
-     start.setHours(utc_start);
-     start.setMinutes(minutes_start);
-  //   console.log(start.getTime()); //returns new date in milliseconds
-     var end = new Date();
-    end.setHours(utc_end);
-    end.setMinutes(minutes_end);
-  //  console.log(end.getTime());
+      var start = new Date(); start.setHours(utc_start);start.setMinutes(minutes_start);
+       var end = new Date();end.setHours(utc_end);  end.setMinutes(minutes_end);
             if( utc_time > start){
-              //check on end
-              if(end > utc_time){
+              if(end > utc_time){  //check on end
                 milliseconds=end-utc_time;
                 min= milliseconds/(1000*60);
                 storage.getQueueCallsCount(queue_id).then(function(count){
-
                 res.status(200).json({
                   message:'successful',
                   remaining:min,
@@ -128,26 +127,24 @@ storage.getAdmin(license_key).then(function(admin){
               }
         }
         else{
-          start=Number(hours_start);
-          start = start+time_zone;
-          end=Number(hours_end)+time_zone;
-          start = start+':'+day_start[1];
-          end = end+':'+day_end[1];
-          res.status(200).json({
-            message:'not open yet',
-            starts:start,
-            ends:end
-          })
+            start=Number(hours_start);start = start+time_zone;
+            end=Number(hours_end)+time_zone;
+            start = start+':'+day_start[1];
+            end = end+':'+day_end[1];
+            res.status(200).json({
+              message:'not open yet',
+              starts:start,
+              ends:end
+            });
         }
     }
     else{
-      res.status(200).json({
-        message:'day off',
-      });
+        res.status(200).json({
+          message:'day off',
+        });
     }
-
   }).otherwise(function(err){
-    return next(new Forbidden(err,req.path));
+    return next(new NotFound(err,req.path));
   });
 }).otherwise(function(err){
       return next(new ServerError(err , req.path));
