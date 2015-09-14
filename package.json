@@ -4,21 +4,22 @@
   "description": "ubicall webservice used publically and internally",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine-node spec/api/ --junitreport"
   },
   "repository": {
     "type": "git",
-    "url": "https://RawanHamdi@bitbucket.org/sandcti/ubicall-web-service.git"
+    "url": "https://github.com/Ubicall/ubicall-web-service.git"
   },
   "keywords": [
-    "ubicall"
+    "ubicall",
+    "call center"
   ],
-  "author": "",
   "license": "GPLV2",
   "dependencies": {
     "body-parser": "^1.13.3",
     "cors": "^2.7.1",
     "express": "^4.13.3",
+    "frisby": "^0.8.5",
     "grunt": "~0.4.5",
     "jsdoc": "~3.3.2",
     "modesl": "^1.1.5",
@@ -31,18 +32,22 @@
     "slug": "^0.9.1",
     "sprintf": "~0.1.5",
     "sprintf-js": "^1.0.3",
+    "sync-request": "^2.0.1",
     "validator": "^4.0.2",
     "when": "^3.7.3",
     "winston": "^1.0.1"
   },
   "devDependencies": {
     "docco": "~0.7.0",
+    "forever": "^0.15.1",
     "grunt": "~0.4.5",
     "grunt-contrib-copy": "~0.8.1",
     "grunt-contrib-jshint": "~0.11.2",
     "grunt-jsdoc": "~0.6.8",
     "ink-docstrap": "~0.5.2",
+    "jasmine-node": "^1.14.5",
     "jsdoc": "~3.3.2",
-    "minami": "^1.1.1"
+    "minami": "^1.1.1",
+    "sequelize-auto": "0.0.7"
   }
 }

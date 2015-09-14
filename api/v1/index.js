@@ -68,9 +68,9 @@ function init(_settings, _storage) {
 
     apiApp.get('/ivr/:license_key', ivr.fetchIvr);
 
-    apiApp.post('/ivr/:license_key/:version', ivr.createIvr);
+    apiApp.post('/ivr/:license_key/:version', ivr.deployIVR);
 
-    apiApp.put('/ivr/:license_key/:version', ivr.createIvr);
+    apiApp.put('/ivr/:license_key/:version', ivr.deployIVR);
 
     apiApp.post('/agent',midware.isAuthenticated,agent.update);
 
@@ -105,23 +105,7 @@ function init(_settings, _storage) {
           name: queue.url
         });
       }).otherwise(function(error) {
-        return next(new NotFound(error , req.originalUrl));
-      });
-    });
-
-    /**
-    * @return HTTP status - 200
-    * @return HTTP status - 500 {@link ServerError}
-    * @example data={license_key:'licence_key_value','name':'name_value','url':'url_value'}
-    */
-    apiApp.get('/clients', function(req, res, next) {
-      storage.getClients().then(function(clients) {
-        return res.status(200).json({
-          data: clients
-        });
-      }).otherwise(function(error) {
-        log.error('error : ' + error);
-        return next(new ServerError(error , req.path));
+        return next(new Forbidden(error , req.originalUrl));
       });
     });
 

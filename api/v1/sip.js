@@ -16,19 +16,23 @@ var MissedParams = require('./utils/errors').MissedParams;
 var Forbidden = require('./utils/errors').Forbidden;
 var ServerError =require('./utils/errors').ServerError;
 
-var DIAL_STRING = settings.infra.clientServer.web.dialString;
 /**
 * create sip account for mobile client
 * @param {Object} req.body - request body Object
 * @param {String} req.body.license_key - your api licence_key
 * @param {String} req.body.sdk_name -the name of the sdk. Each client have a unique name
 * @param {String} req.body.sdk_version -version of the client’s sdk.
-* @param {String} req.body.model - the model of the device. (Ex: IPhone 5, iPhone 6, Samsung S3)
-* @param {String} req.body.version - device’s version . (Ex:IOS 7 , IOS 8, Kitkat, Lollipop)
-* @param {String} req.body.token -  your mobile device_token, not required if you use web client
-* @param {String} req.body.uid - each device has a unique user id @default **0000**
-* @param {String} req.body.name - name of your device @default **UNKNOWN**
-* @throws {@link MissedParams} if @param device.license_key or device.sdk_name or device.sdk_version or device.device_model or device.device_version or device.device_token is missed
+* @param {String} req.body.device_model - the model of the device. (Ex: IPhone 5, iPhone 6, Samsung S3)
+* @param {String} req.body.device_version - device’s version . (Ex:IOS 7 , IOS 8, Kitkat, Lollipop)
+* @param {String} req.body.device_token -  your mobile device_token, not required if you use web client
+* @param {String} req.body.device_uid - each device has a unique user id @default **0000**
+* @param {String} req.body.device_name - name of your device @default **UNKNOWN**
+* @throws {@link MissedParams} if @param device.license_key is missing
+* @throws {@link MissedParams} if @param device.sdk_name is missing
+* @throws {@link MissedParams} if @param device.sdk_version is missing
+* @throws {@link MissedParams} if @param device.device_model is missing
+* @throws {@link MissedParams} if @param device.device_version is missing
+* @throws {@link MissedParams} if @param device.device_token is missing
 * @throws {@link Forbidden} storage.getClient failed
 * @throws {@link ServerError} if storage.createSipFriend failed
 * @throws {@link ServerError} if storage.incrementClientCount failed
@@ -37,7 +41,7 @@ var DIAL_STRING = settings.infra.clientServer.web.dialString;
 * @example
 * // returns {username:'XXXX',password:'XXXXX',domain:'XXXX.XX.XX.X'}
 * POST /sip/account
-* @memberof sip
+* @memberof API
 */
 function createSipAccount(req, res, next) {
   var device = {};
@@ -69,15 +73,15 @@ function createSipAccount(req, res, next) {
        **********************************************************************/
       var sip = client.id + sprintf("%'09s", 0) + (client.count + 1);
 
-      var domain = settings.infra.clientServer.mobile.public;
+      var domain = settings.infra.clientServer.mobile_voice_server.external_ip;
       var password = randomstring.generate(16);
 
       storage.incrementClientCount(client.id).then(function(incremented) {
         storage.createSip(device, password, domain, sip).then(function(sipDevice) {
           storage.createSipFriend(sip, password).then(function(friend) {
             return res.status(200).json({
-              username: friend.sip,
-              password: friend.secret,
+              username: friend.name,
+              password: password,
               domain: domain
             });
           }).otherwise(function(error) {
@@ -147,11 +151,11 @@ function createWebAccount(req, res, next) {
     ********************************************************************************/
     var sip = "8890000" + client.id + sprintf("%'07s",(client.count + 1));
 
-    var domain = settings.infra.clientServer.web.public;
+    var domain = settings.infra.clientServer.web_voice_server.external_ip;
     var password = randomstring.generate(16);
 
     storage.incrementClientCount(client.id).then(function(incremented) {
-      storage.createSipDirectory(sip , password , DIAL_STRING).then(function(directory){
+      storage.createSipDirectory(sip , password ).then(function(directory){
         return res.status(200).json({
           'username': sip,
           'password': password,

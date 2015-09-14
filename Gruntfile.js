@@ -1,4 +1,3 @@
-var settings = require('./settings');
 module.exports = function(grunt) {
 
   grunt.initConfig({
@@ -17,7 +16,7 @@ module.exports = function(grunt) {
         expand : true,
         cwd : './docs/',
         src : ['**/*.*'],
-        dest: settings.apiDeployFolder
+        dest: "/var/www/html/docs/"
       }
     }
   });

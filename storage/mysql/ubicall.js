@@ -3,8 +3,9 @@ var Sequelize = require('sequelize');
 var moment = require('moment');
 var randomstring = require("randomstring");
 var sprintf = require("sprintf-js").sprintf;
-var ast_rt = require('./ast_rt');
 var slug = require('slug');
+var ast_rt = require('./ast_rt');
+var log = require('../../log');
 
 var settings, _sequelize;
 var calls, agent, queueAgent, clients;
@@ -19,9 +20,16 @@ function sequlizeImport2(model) {
 function init(_settings) {
   return when.promise(function(resolve, reject) {
     settings = _settings;
+    var _host = settings.storage.ubicall_mysql.external_ip;
+    var _port = settings.storage.ubicall_mysql.external_port;
+    if(!process.env.db_env || process.env.db_env == "internal" ){
+      _host = settings.storage.ubicall_mysql.internal_ip;
+      _port = settings.storage.ubicall_mysql.internal_port;
+    }
     _sequelize = new Sequelize(settings.storage.ubicall_mysql.database,
       settings.storage.ubicall_mysql.username, settings.storage.ubicall_mysql.password, {
-        host: settings.storage.ubicall_mysql.host,
+        host: _host || 'localhost',
+        port: _port || '3306',
         dialect: 'mysql',
         define: {
           freezeTableName: true,
@@ -31,9 +39,15 @@ function init(_settings) {
           max: 5,
           min: 0,
           idle: 10000
-        }
+        },
+        logging : log.data
       });
-
+    _sequelize.authenticate().then(function(){
+      log.info("connected successfully to DB => " + settings.storage.ubicall_mysql.database + ":" + _host + ":" + _port);
+    }).catch(function(error){
+      log.error("Unable to connect to DB => " + settings.storage.ubicall_mysql.database + ":" + _host + ":" + _port);
+      throw error;
+    });
     $agent = sequlizeImport('agent');
     $queueAgent = sequlizeImport('queue_agent');
     $calls = sequlizeImport('calls');
@@ -63,7 +77,7 @@ function scheduleCall(call, device) {
       address: call.address,
       longitude: call.longitude,
       latitude: call.latitude,
-      caller_type: call.pstn,
+      caller_type: call.caller_type,
       call_data: call.call_data,
       schedule_time: call.time
     }).then(function(call) {
