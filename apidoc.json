@@ -1,0 +1,16 @@
+{
+  "name": "apidoc-example",
+  "version": "0.3.0",
+  "description": "apiDoc example project",
+  "title": "Custom apiDoc browser title",
+  "url" : "https://api.github.com/v1",
+
+  "order": [
+    "GetUser",
+    "PostUser"
+  ],
+  "template": {
+  	"withCompare": true,
+  	"withGenerator": true
+  }
+}

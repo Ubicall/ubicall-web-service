@@ -59,20 +59,24 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
 * @memberof API
 */
 function fetchIvr(req, res , next) {
-  var license_key = req.params.license_key;
-  if (!license_key) {
-    return next(new MissedParams(req.path, "license_key"));
-  }
-  storage.getVersion(license_key).then(function(version) {
+  var key = req.user.license_key;
+  console.log('license_key is',key);
+  if(key){
+  storage.getVersion(key).then(function(version) {
     return res.status(200).json({
-      message: "ivr with version "+ version.version +"retrieved successfully",
+      message: "ivr with version "+ version.version + "retrieved successfully",
       version : version.version ,
       url : version.url
     });
   }).otherwise(function(error) {
     log.error('error : ' + error);
-    return next(new Forbidden(error , req.path));
+    return next(new ServerError(error , req.path));
   });
+}
+else{
+    return next(new Forbidden(error , req.path));
+}
+
 }
 
 /**
@@ -90,24 +94,20 @@ function fetchIvr(req, res , next) {
 * @throws {@link ServerError} - if web updated but unable to update mobile client **and failed to rollback web version** - message *Unable to update Mobile or rollback web*
 * @return HTTP status 200 - if ivr deplyed successfully in both web and mobile clients
 * @todo check on plistHost concatenated with slash
+* @return HTTP status 200 - message: mobile & web clients updated successfully
+* @return HTTP status 500 {@link ServerError}
 * @example
-* // returns {message: "mobile & web clients updated successfully"}
+* {message: "mobile & web clients updated successfully"}
 * POST /ivr/:license_key/:version
 * PUT /ivr/:license_key/:version
 * @memberof API
 */
 function deployIVR(req, res, next) {
+  console.log('here');
   var ivr = {};
-  ivr.license_key = req.params.license_key;
+  ivr.license_key = req.user.license_key;
+  console.log('license_key is',ivr.license_key);
   ivr.version = req.params.version;
-
-  if (!ivr.license_key) {
-    return next(new MissedParams(req.path, "license_key"));
-  }
-
-  if (!ivr.version) {
-    return next(new MissedParams(req.path, "version"));
-  }
 
   //TODO check on plistHost concatenated with slash
   var plistHost = req.header("plistHost") || settings.plistHost;
