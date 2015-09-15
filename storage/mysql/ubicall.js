@@ -116,7 +116,7 @@ function scheduleDemoCall(call) {
   });
 }
 
-function getClient(key) {
+function getClient(key){
   return when.promise(function(resolve, reject) {
     $client_version_view.findOne({
       where: {
@@ -128,7 +128,7 @@ function getClient(key) {
       }
       return resolve(client);
     }).catch(function(error) {
-      return reject(error);
+            return reject(error);
     });
   });
 }
@@ -382,6 +382,7 @@ function getIVR(license_key){
   });
 }
 
+
 function getCalls(agent , options) {
   return when.promise(function(resolve,reject){
     return $calls.findAll({
@@ -586,6 +587,20 @@ function markCallFail(call){
   });
 }
 
+function getAgent(email) {
+  return when.promise(function(resolve,reject){
+    $agent.findOne({
+      where: {
+        email: email
+      }
+    }).then(function(agent) {
+      return resolve(agent);
+    }).catch(function(error) {
+        return reject(error);
+    });
+  })
+}
+
 module.exports = {
   init: init,
   scheduleCall: scheduleCall,
@@ -612,5 +627,6 @@ module.exports = {
   getCall : getCall,
   markCallDone: markCallDone,
   markCallFail: markCallFail,
-  getQueueCallsCount:getQueueCallsCount
+  getQueueCallsCount:getQueueCallsCount,
+  getAgent:getAgent
 }
