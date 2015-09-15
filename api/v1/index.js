@@ -57,9 +57,9 @@ function init(_settings, _storage) {
 
     apiApp.post('/auth/token',tokenController.authorize);//check on agent or licence_key as well as client secret & id then send token
 
-    apiApp.post('/sip/call', midware.callExtract, call.createSipCall);
+    apiApp.post('/sip/call',authController.isBearerAuthenticated, midware.callExtract, call.createSipCall);
 
-    apiApp.post('/web/call', midware.callExtract, call.createWebCall);
+    apiApp.post('/web/call', authController.isBearerAuthenticated,midware.callExtract, call.createWebCall);
     /**
      * @api {post} /auth/token Responsible for authentication by using Email or license_key
      * @apiParam {String} [user_email]  Email for agent's account

@@ -128,8 +128,15 @@ storage.getAdmin(license_key).then(function(admin){
                   });
               }
               else{
+                start=Number(hours_start);
+                start = start+time_zone;
+                end=Number(hours_end)+time_zone;
+                start = start+':'+day_start[1];
+                end = end+':'+day_end[1];
                 res.status(200).json({
-                  message:'closed'
+                  message:'closed',
+                  starts:start,
+                  ends:end
                 });
               }
 
@@ -140,7 +147,7 @@ storage.getAdmin(license_key).then(function(admin){
             start = start+':'+day_start[1];
             end = end+':'+day_end[1];
             res.status(200).json({
-              message:'not open yet',
+              message:'closed',
               starts:start,
               ends:end
             });
