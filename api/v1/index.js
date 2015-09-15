@@ -116,8 +116,9 @@ function init(_settings, _storage) {
     apiApp.get('/agent/calls', midware.isAuthenticated, agent.calls);
 
     apiApp.get('/agent/queues', authController.isBearerAuthenticated,agent.queues);
+    //apiApp.get('/workingHours/:zone/:queue',authController.isBearerAuthenticated,call._workingHours);
+    apiApp.get('/time/:license_key/:zone/:queue',call._workingHours);
 
-    apiApp.get('/workingHours/:zone/:queue',authController.isBearerAuthenticated,call._workingHours);
     /**
     * @param {String} key - license_key should be unique for each user.
     * @return {@link MissedParams} @param key doesn't exist
