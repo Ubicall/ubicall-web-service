@@ -475,42 +475,50 @@ function getCallDetail(agent , call_id){
 
 function getCall(agent , queue_id , queue_slug){
   return when.promise(function(resolve,reject){
-    return $calls.findOne({
-      where: Sequelize.and(
-        { api_key: agent.api_key },
-        { queue_id: queue_id },
-        Sequelize.or(
-          { status: {$eq: null} },
-          { status: settings.call.status.retry }
-        )
-      ),
-      //get call from this queue depend on schedule_time (FIFO)
-      order: 'datetime_originate ASC , schedule_time ASC'
-    }).then(function(call) {
-      if(!call){
-        return reject("no result found");
-      }
+    return $calls.update({
+        status: settings.call.status.retry
+      },{
+        where: { status: settings.call.status.progress , id_agent : agent.id }
+      }).then(function(){
+        return $calls.findOne({
+          where: Sequelize.and(
+            { api_key: agent.api_key },
+            { queue_id: queue_id },
+            Sequelize.or(
+              { status: {$eq: null} },
+              { status: settings.call.status.retry }
+            )
+          ),
+          //get call from this queue depend on schedule_time (FIFO)
+          order: 'datetime_originate ASC , schedule_time ASC'
+        }).then(function(call) {
+          if(!call){
+            return reject("no result found");
+          }
 
-      var start_at = moment().format(settings.call.date_format);
-      var uAttrs = {
-        id_agent: agent.id,
-        agent: agent.email,
-        status: settings.call.status.progress,
-        start_time: start_at,
-        date_init: start_at,
-        time_init: start_at,
-        retries: (call.retries && call.retries > 0) ? call.retries + 1 : 0,
-        duration_wait: moment.utc(moment().diff(moment(call.schedule_time))).format(settings.call.duration_format),
-        datetime_originate: start_at,
-      };
-      return call.updateAttributes(uAttrs).then(function(updated) {
-        return resolve(updated);
-      }).catch(function(error) {
+          var start_at = moment().format(settings.call.date_format);
+          var uAttrs = {
+            id_agent: agent.id,
+            agent: agent.email,
+            status: settings.call.status.progress,
+            start_time: start_at,
+            date_init: start_at,
+            time_init: start_at,
+            retries: (call.retries && call.retries > 0) ? call.retries + 1 : 0,
+            duration_wait: moment.utc(moment().diff(moment(call.schedule_time))).format(settings.call.duration_format),
+            datetime_originate: start_at,
+          };
+          return call.updateAttributes(uAttrs).then(function(updated) {
+            return resolve(updated);
+          }).catch(function(error) {
+            return reject(error);
+          });
+        }).catch(function(error) {
+          return reject(error);
+        });
+      }).catch(function(error){
         return reject(error);
       });
-    }).catch(function(error) {
-      return reject(error);
-    });
   });
 }
 
