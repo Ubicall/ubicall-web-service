@@ -5,7 +5,6 @@ var agentInterface = require('./agent');
 var callInterface = require('./call');
 var ubicallStorageModule, astStorageModule, cacheModule, cache;
 
-
 function _initStorage(_settings) {
   var toReturnPromises = [];
   if (_settings.storage && _settings.storage.ubicallStorageModule) {
@@ -118,16 +117,6 @@ var storageModuleInterface = {
       });
     });
   },
-
-  getAdmin:function(key){
-    return when.promise(function(resolve,reject){
-      ubicallStorageModule.getAdmin(key).then(function(admin){
-        return resolve(admin);
-      }).otherwise(function(error){
-        return reject(error);
-      });
-    });
-  },
   getQueue:function(id){
     return when.promise(function(resolve,reject){
       ubicallStorageModule.getQueue(id).then(function(queue){
@@ -182,8 +171,34 @@ var storageModuleInterface = {
     });
   },
 
+getAdmin:function(key){
+  return when.promise(function(resolve,reject){
+      ubicallStorageModule.getAdmin(key).then(function(admin){
+      return resolve(admin);
+    });
+  }).otherwise(function(error){
+    return reject(error);
+  });
+},
 
-
+getHours:function(id){
+  return when.promise(function(resolve,reject){
+    ubicallStorageModule.getHours(id).then(function(result){
+      return resolve(result);
+    });
+  }).otherwise(function(error){
+    return reject(error);
+  });
+},
+isAvailable:function(id,today){
+  return when.promise(function(resolve,reject){
+    ubicallStorageModule.isAvailable(id,today).then(function(result){
+      return resolve(result);
+    });
+  }).otherwise(function(error){
+    return reject(error);
+  });
+},
   incrementClientCount: function(clientId) {
     return when.promise(function(resolve, reject) {
       ubicallStorageModule.incrementClientCount(clientId).then(function(client) {
@@ -204,6 +219,15 @@ var storageModuleInterface = {
     });
   },
 
+getAgent:function(email){
+  return when.promise(function(resolve,reject){
+    ubicallStorageModule.getAgent(email).then(function(user){
+      return resolve(user);
+    }).otherwise(function(error){
+      return reject(error);
+    })
+  })
+},
   getIVR : function(license_key){
     return when.promise(function(resolve,reject){
       ubicallStorageModule.getIVR(license_key).then(function(ivr) {
@@ -246,7 +270,8 @@ var storageModuleInterface = {
   getCallDetail: callInterface.getCallDetail,
   getCall : callInterface.getCall,
   markCallDone: callInterface.markCallDone,
-  markCallFail : callInterface.markCallFail
+  markCallFail : callInterface.markCallFail,
+  getQueueCallsCount:agentInterface.getQueueCallsCount
 };
 
 

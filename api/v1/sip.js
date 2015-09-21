@@ -43,10 +43,9 @@ var ServerError =require('./utils/errors').ServerError;
 * POST /sip/account
 * @memberof API
 */
-function createSipAccount(req, res, next) {
+function createSipAccount(req,res,next){
   var device = {};
   var missingParams = [];
-
   device.license_key = req.body.license_key || missingParams.push("license_key");
   device.sdk_name = req.body.sdk_name || missingParams.push("sdk_name");
   device.sdk_version = req.body.sdk_version || missingParams.push("sdk_version");
@@ -56,10 +55,9 @@ function createSipAccount(req, res, next) {
   device.name = req.body.device_name || 'UNKNOWN';
   device.uid = req.body.device_uid || '0000';
 
-  if (missingParams.length > 0) {
-    return next(new MissedParams(req.path, missingParams));
+  if (MissedParams.length > 0) {
+    return next(new MissedParams(req.path, MissedParams));
   }
-
   storage.getClient(device.license_key).then(function(client) {
     storage.getDevice(device.token).then(function(_device) {
       return res.status(200).json({
@@ -129,19 +127,19 @@ function createSipAccount(req, res, next) {
 
 function createWebAccount(req, res, next) {
   var device = {};
-  var missingParams = [];
+  var MissedParams = [];
 
-  device.license_key = req.body.license_key || missingParams.push("license_key");;
-  device.sdk_name = req.body.sdk_name || missingParams.push("sdk_name");;
-  device.sdk_version = req.body.sdk_version || missingParams.push("sdk_version");
+  device.license_key = req.body.license_key || MissedParams.push("license_key");;
+  device.sdk_name = req.body.sdk_name || MissedParams.push("sdk_name");;
+  device.sdk_version = req.body.sdk_version || MissedParams.push("sdk_version");
   device.uid = req.body.device_uid || '0000';
   device.token = req.body.device_token || '0000';
   device.name = req.body.device_name || 'WEB';
   device.model = req.body.device_model || 'WEB';
   device.version = req.body.device_version || 'WEB';
 
-  if (missingParams.length > 0) {
-    return next(new MissedParams(req.path, missingParams));
+  if (MissedParams.length > 0) {
+    return next(new MissedParams(req.path, MissedParams));
   }
 
   storage.getClient(device.license_key).then(function(client) {

@@ -60,6 +60,7 @@ function init(_settings) {
     $client_version_view = sequlizeImport('client_version_view');
     $sip_friends = sequlizeImport2('sipfriends.js');
     $admin = sequlizeImport('admin.js');
+    $working_hours = sequlizeImport('working_hours.js');
     return resolve({});
   });
 }
@@ -115,7 +116,7 @@ function scheduleDemoCall(call) {
   });
 }
 
-function getClient(key) {
+function getClient(key){
   return when.promise(function(resolve, reject) {
     $client_version_view.findOne({
       where: {
@@ -127,7 +128,7 @@ function getClient(key) {
       }
       return resolve(client);
     }).catch(function(error) {
-      return reject(error);
+            return reject(error);
     });
   });
 }
@@ -182,22 +183,47 @@ function cancelCall(callId) {
 }
 
 function getAdmin(key){
-  return when.promise(function(resolve,reject){
+  return when.promise(function(resolve, reject) {
     $admin.findOne({
       where: {
         licence_key: key,
       }
-    }).then(function(admin){
-      if(!admin){
-        return reject("no result found");
-      }
+    }).then(function(admin) {
       return resolve(admin);
+    }).catch(function(error) {
+      return reject(error);
+    });
+  });
+}
+
+function getHours(_id){
+  return when.promise(function(resolve,reject){
+    $working_hours.findOne({
+    where: {
+        id: _id
+      }
+    }).then(function(result){
+      return resolve(result);
     }).catch(function(error){
       return reject(error);
     });
   });
 }
 
+function isAvailable(id,today){
+  return when.promise(function(resolve,reject){
+    $working_hours.findOne({
+    where: {
+         id:id
+      },
+       attributes:[today,today+'_start',today+'_end','time_zone_offset']
+    }).then(function(result){
+      return resolve(result);
+    }).catch(function(error){
+      return reject(error);
+    });
+  });
+}
 function getQueue(id){
   return when.promise(function(resolve,reject){
     $queue.findOne({
@@ -356,6 +382,7 @@ function getIVR(license_key){
   });
 }
 
+
 function getCalls(agent , options) {
   return when.promise(function(resolve,reject){
     return $calls.findAll({
@@ -386,7 +413,7 @@ function getQueues(_agent) {
     }).then(function(_queues) {
       // now get calls waiting in this queue
       return when.all(_queues.map(function(queue) {
-        return getQueueCallsCount(queue).then(function(count) {
+        return getQueueCallsCount(queue.queue_id).then(function(count) {
           queue.setDataValue('calls' , count);
           queue.setDataValue('queue_slug' , slug(queue.queue_name));
           queues.push(queue);
@@ -400,11 +427,11 @@ function getQueues(_agent) {
   });
 }
 
-function getQueueCallsCount(_queue) {
+function getQueueCallsCount(queue_id) {
   return when.promise(function(resolve, reject) {
     return $calls.count({
       where : Sequelize.and(
-        { queue_id: _queue.queue_id },
+        { queue_id: queue_id },
         Sequelize.or(
           { status: {$eq: null} },
           { status: settings.call.status.retry }
@@ -560,6 +587,20 @@ function markCallFail(call){
   });
 }
 
+function getAgent(email) {
+  return when.promise(function(resolve,reject){
+    $agent.findOne({
+      where: {
+        email: email
+      }
+    }).then(function(agent) {
+      return resolve(agent);
+    }).catch(function(error) {
+        return reject(error);
+    });
+  })
+}
+
 module.exports = {
   init: init,
   scheduleCall: scheduleCall,
@@ -569,8 +610,10 @@ module.exports = {
   getClient: getClient,
   scheduleDemoCall: scheduleDemoCall,
   getQueue: getQueue,
+  isAvailable:isAvailable,
   feedback: feedback,
   getAdmin:getAdmin,
+  getHours:getHours,
   updateIVR: updateIVR,
   getIVR:getIVR,
   getClients: getClients,
@@ -583,5 +626,7 @@ module.exports = {
   getCallDetail:getCallDetail,
   getCall : getCall,
   markCallDone: markCallDone,
-  markCallFail: markCallFail
+  markCallFail: markCallFail,
+  getQueueCallsCount:getQueueCallsCount,
+  getAgent:getAgent
 }

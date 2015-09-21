@@ -1,84 +1,108 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('queue', { 
+  return sequelize.define('working_hours', { 
     id: {
-      type: DataTypes.INTEGER(11),
+      type: DataTypes.INTEGER(255),
       allowNull: false,
     },
-    admin_id: {
-      type: DataTypes.INTEGER(32),
+    client_id: {
+      type: DataTypes.INTEGER(255),
       allowNull: false,
     },
-    number: {
+    queue_id: {
+      type: DataTypes.INTEGER(255),
+      allowNull: true,
+    },
+    time_zone: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    name: {
+    time_zone_offset: {
+      type: DataTypes.INTEGER(255),
+      allowNull: false,
+    },
+    day_0: {
+      type: DataTypes.INTEGER(5),
+      allowNull: false,
+    },
+    day_0_start: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    password: {
+    day_0_end: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    wrap_up_time: {
+    day_1: {
+      type: DataTypes.INTEGER(5),
+      allowNull: false,
+    },
+    day_1_start: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    agent_announcement: {
+    day_1_end: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    policy: {
+    day_2: {
+      type: DataTypes.INTEGER(5),
+      allowNull: false,
+    },
+    day_2_start: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    cidname: {
+    day_2_end: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    qweight: {
+    day_3: {
+      type: DataTypes.INTEGER(5),
+      allowNull: false,
+    },
+    day_3_start: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    music_on_hold: {
+    day_3_end: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    callrecording: {
+    day_4: {
+      type: DataTypes.INTEGER(5),
+      allowNull: false,
+    },
+    day_4_start: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    caller_vol_adj: {
+    day_4_end: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    agent_vol_adj: {
+    day_5: {
+      type: DataTypes.INTEGER(5),
+      allowNull: false,
+    },
+    day_5_start: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    autopause: {
+    day_5_end: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    maxcallers: {
+    day_6: {
+      type: DataTypes.INTEGER(5),
+      allowNull: false,
+    },
+    day_6_start: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    joinempty: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    leaveempty: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    s_agent: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    d_agent: {
+    day_6_end: {
       type: DataTypes.STRING,
       allowNull: false,
     }

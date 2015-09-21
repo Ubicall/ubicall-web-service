@@ -11,6 +11,16 @@ module.exports = function(grunt) {
         }
       }
     },
+    apidoc: {
+      myapp: {
+        src: "./api/",
+        dest: "./apidoc/",
+        options:{
+         includeFilters: [ ".*\\.js$" ],
+         excludeFilters: [ "node_modules/" ]
+        }
+      }
+    },
     copy: {
       docs: {
         expand : true,
@@ -23,8 +33,9 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-jsdoc');
   grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-apidoc');
+//  grunt.registerTask('default', ['jsdoc:docs', 'copy:docs']);
 
-
-  grunt.registerTask('default', ['jsdoc:docs', 'copy:docs']);
+  grunt.registerTask('default', ['apidoc:myapp']);
 
 }

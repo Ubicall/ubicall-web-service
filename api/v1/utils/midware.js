@@ -82,11 +82,12 @@ function callExtract(req, res, next) {
 
   var call = {};
   var missingParams = [];
-
+  call.license_key = req.user.license_key;
+  console.log(license_key);
   call.caller_type = req.body.caller_type || missingParams.push("caller_type");
   call.sip = req.body.phone || req.body.sip || req.body.voiceuser_id || missingParams.push("phone");
   call.queue = req.body.queue || req.body.queue_id || req.body.qid || missingParams.push("queue_id");
-  call.license_key = req.body.license || req.body.licence || req.body.license_key || missingParams.push("license_key");
+  //call.license_key = req.body.license || req.body.licence || req.body.license_key || missingParams.push("license_key");
 
   // if this is mobile call then device_token is critical parameter otherwise it not so important
   if (call.caller_type == 0 || call.caller_type == 1) {
@@ -113,8 +114,9 @@ function callExtract(req, res, next) {
   next();
 }
 
+
 module.exports = {
   isAuthenticated : isAuthenticated,
   isCallExist : isCallExist,
-  callExtract : callExtract
+  callExtract : callExtract,
 }
