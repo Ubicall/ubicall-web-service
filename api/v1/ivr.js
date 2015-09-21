@@ -33,7 +33,7 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
         plistHost: plistHost
       }
     };
-
+    log.info("Deploy to web " + JSON.stringify(options ));
     request(options, function(error, response, body) {
       if (!error && response.statusCode == 200) {
         return resolve(response.data);

@@ -1,51 +1,25 @@
-var request = require('sync-request');
+var loader = require('node-remote-config-loader');
 var log = require('./log');
-
-var config = {};
-var configUrl ;
 
 process.env.node_env = process.env.node_env || 'development';
 process.env.db_env = process.env.db_env || 'internal';
+process.env.config_version = process.env.config_version || 20150920;
 
-if(!process.env.config_version){
+var DEVENV = (process.env.node_env=="development" || process.env.node_env == "test");
+if(DEVENV){
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
+}
+
+if (!process.env.config_version) {
   log.help("You should specify configuration version to use, see README for detail")
   throw new Error("Missed config_version environment variable");
 }
 
-var CONFIG = "config_" + process.env.config_version + "_" + process.env.node_env + ".json";
-
-if(process.env.node_env == 'test' || process.env.node_env == 'development'){
-  configUrl = "http://developer.dev.ubicall.com/conf/" + CONFIG;
-} else { // production
-  configUrl = "http://developer.ubicall.com/conf/" + CONFIG;
-}
-
-var configResponse;
-try {
-    configResponse = request('GET', configUrl);
-} catch (e) {
-  (process.env.node_env == 'development' || process.env.node_env == 'test') ?
-    log.help("make sure you update hosts file, see README for detail")
-    : log.help("make sure you connect to right configuration server and  config_version is correct");
-  throw e;
-}
-
-if (configResponse.statusCode >= 300) {
-    (process.env.node_env == 'development' || process.env.node_env == 'test') ?
-      log.help("make sure you update hosts file, see README for detail")
-      : log.help("make sure your configuration version is correct");
-    var err = new Error('Server responded with status code ' + configResponse.statusCode + ':\n' + configResponse.body);
-    err.statusCode = configResponse.statusCode;
-    err.headers = configResponse.headers;
-    err.body = configResponse.body;
-    throw err;
-}
-try {
-    config = JSON.parse(configResponse.body.toString());
-} catch (e) {
-    log.help("Unable to parse configuration");
-    throw e;
-}
+var config = loader.load({
+  configHost: process.env.node_env == "production" ? "http://developer.ubicall.com/conf/" : "http://developer.dev.ubicall.com/conf/",
+  configVersion: process.env.config_version,
+  configEnv: process.env.node_env
+});
 
 
 module.exports = {
@@ -108,8 +82,8 @@ module.exports = {
     agentServer: config.voice_infra.agent_voice_server,
     clientServer: config.voice_infra.client_voice_server,
   },
-  plistHost: config.defaultPlistHost,
-  widgetHost: config.endPoints.widgetDeploy,
+  plistHost: DEVENV ? config.endPoints.dev.defaultPlistHost : config.endPoints.defaultPlistHost,
+  widgetHost: DEVENV ? config.endPoints.dev.widgetDeploy : config.endPoints.widgetDeploy,
 
   call: {
     status: {
