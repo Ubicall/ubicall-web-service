@@ -24,6 +24,7 @@ var MissedParams = require('./utils/errors').MissedParams;
 var Forbidden = require('./utils/errors').Forbidden;
 var ServerError = require('./utils/errors').ServerError;
 var NotFound = require('./utils/errors').NotFound;
+var ubicallOAuth = require('ubicall-oauth');
 
 
 var settings, storage;
@@ -44,9 +45,9 @@ function init(_settings, _storage) {
     // apiApp.use(cors(ubicallCors.options));
     // apiApp.use(ubicallCors.cors);
 
-    apiApp.post('/sip/call', midware.callExtract, call.createSipCall);
+    apiApp.post('/sip/call', ubicallOAuth.isBearerAuthenticated , midware.callExtract, call.createSipCall);
 
-    apiApp.post('/web/call', midware.callExtract, call.createWebCall);
+    apiApp.post('/web/call', ubicallOAuth.isBearerAuthenticated , midware.callExtract, call.createWebCall);
 
     apiApp.delete('/call/:call_id', call.cancel);
 
