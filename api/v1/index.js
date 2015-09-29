@@ -25,7 +25,7 @@ var Forbidden = require('./utils/errors').Forbidden;
 var ServerError = require('./utils/errors').ServerError;
 var NotFound = require('./utils/errors').NotFound;
 var ubicallOAuth = require('ubicall-oauth');
-
+var passport = require('passport');
 
 var settings, storage;
 var apiApp;
@@ -42,48 +42,52 @@ function init(_settings, _storage) {
       extended: true
     }));
     apiApp.use(bodyParser.json());
+    apiApp.use(passport.initialize());
+    apiApp.use(passport.session());
     // apiApp.use(cors(ubicallCors.options));
     // apiApp.use(ubicallCors.cors);
 
-    apiApp.post('/sip/call', ubicallOAuth.isBearerAuthenticated , midware.callExtract, call.createSipCall);
+    apiApp.post('/auth/token',ubicallOAuth.isClientAuthenticated,ubicallOAuth.isAuthenticated,ubicallOAuth.getToken);
 
-    apiApp.post('/web/call', ubicallOAuth.isBearerAuthenticated , midware.callExtract, call.createWebCall);
+    apiApp.post('/sip/call',ubicallOAuth.isBearerAuthenticated ,ubicallOAuth.needsPermission('write.sip.call'), midware.callExtract, call.createSipCall);
 
-    apiApp.delete('/call/:call_id', call.cancel);
+    apiApp.post('/web/call',ubicallOAuth.isBearerAuthenticated ,ubicallOAuth.needsPermission('write.web.call'), midware.callExtract, call.createWebCall);
 
-    apiApp.get('/call/:call_id',midware.isAuthenticated , midware.isCallExist, call.getDetail);
+    apiApp.delete('/call/:call_id',ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('delete.call'), call.cancel);
 
-    apiApp.get('/call/queue/:queue_id/:queue_slug',midware.isAuthenticated , call.call);
+    apiApp.get('/call/:call_id',ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('read.call'),midware.isCallExist, call.getDetail);
 
-    apiApp.put('/call/:call_id/done',midware.isAuthenticated , midware.isCallExist, call.done);
+    apiApp.get('/call/queue/:queue_id/:queue_slug',ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('read.call') ,call.call);
 
-    apiApp.put('/call/:call_id/failed',midware.isAuthenticated,midware.isCallExist, call.failed);
+    apiApp.put('/call/:call_id/done',ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('write.call'),midware.isCallExist, call.done);
 
-    apiApp.post('/call/:call_id/feedback', call.submitFeedback);
+    apiApp.put('/call/:call_id/failed',ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('write.call'),midware.isCallExist, call.failed);
 
-    apiApp.put('/call/:call_id/feedback', call.submitFeedback);
+    apiApp.post('/call/:call_id/feedback',ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('write.feedback'),call.submitFeedback);
 
-    apiApp.post('/sip/account', sip.createSipAccount);
+    apiApp.put('/call/:call_id/feedback',ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('write.feedback'), call.submitFeedback);
 
-    apiApp.post('/web/account', sip.createWebAccount);
+    apiApp.post('/sip/account',ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('write.sip.account'), sip.createSipAccount);
 
-    apiApp.get('/ivr/:license_key', ivr.fetchIvr);
+    apiApp.post('/web/account', ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('write.web.account'),sip.createWebAccount);
 
-    apiApp.post('/ivr/:license_key/:version', ivr.deployIVR);
+    apiApp.get('/ivr/:license_key', ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('read.ivr'),ivr.fetchIvr);
 
-    apiApp.put('/ivr/:license_key/:version', ivr.deployIVR);
+    apiApp.post('/ivr/:license_key/:version',ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('write.ivr'), ivr.deployIVR);
 
-    apiApp.post('/agent',midware.isAuthenticated,agent.update);
+    apiApp.put('/ivr/:license_key/:version',ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('write.ivr'), ivr.deployIVR);
 
-    apiApp.put('/agent',midware.isAuthenticated,agent.update);
+    apiApp.post('/agent',ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('write.agent'),agent.update);
 
-    apiApp.post('/agent/image', midware.isAuthenticated , upload.single('image'),  agent.updateImage);
+    apiApp.put('/agent',ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('write.agent'),agent.update);
 
-    apiApp.put('/agent/image',midware.isAuthenticated , upload.single('image') ,  agent.updateImage);
+    apiApp.post('/agent/image',ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('write.agent'), upload.single('image'),  agent.updateImage);
 
-    apiApp.get('/agent/calls', midware.isAuthenticated, agent.calls);
+    apiApp.put('/agent/image',ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('write.agent'),upload.single('image') ,  agent.updateImage);
 
-    apiApp.get('/agent/queues', midware.isAuthenticated, agent.queues);
+    apiApp.get('/agent/calls',ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('read.agent.calls'), agent.calls);
+
+    apiApp.get('/agent/queues',ubicallOAuth.isBearerAuthenticated,ubicallOAuth.needsPermission('read.agent.calls') ,agent.queues);
     /**
     * @param {String} key - license_key should be unique for each user.
     * @return {@link MissedParams} @param key doesn't exist
@@ -92,7 +96,7 @@ function init(_settings, _storage) {
     * @example
     * {'message':'queue retrieved successfully','id':id_no ,'name':url}
     */
-    apiApp.get('/queue/:key', function(req, res, next) {
+    apiApp.get('/queue/:key', ubicallOAuth.isBearerAuthenticated,function(req, res, next) {
       var key = req.params.key;
       if (!key) {
         return next(new MissedParams(req.path, "key"));
