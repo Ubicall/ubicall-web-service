@@ -350,6 +350,138 @@ function submitFeedback(req, res, next) {
   });
 
 }
+function map_day(day){
+  var strDay='';
+  if(day == 0)
+   strDay = 'day_6';
+  else if(day == 1)
+     strDay= 'day_0';
+     else if(day  == 2)
+     strDay = 'day_1';
+     else if(day== 3)
+     strDay = 'day_2';
+     else if(day== 4)
+     strDay = 'day_3';
+     else if(day== 5)
+     strDay= 'day_4';
+     else if(day== 6)
+     strDay = 'day_5';
+ return strDay;
+}
+/**
+* Gets the working hours of admin and whether the day is available or not
+* @param license_key {String} to get admin id
+* @param zone Time zone {Number} send to server to match the UTC server time
+* @param queue_id {Number} used to get count of queues of calls with status 'RETRY' or 'CANCELED'
+* @return HTTP status 200 - if minutes sent successfully
+* @return HTTP status 200 - if not open yet
+* @return HTTP status 200 - if day off
+* @throws {@link ServerError} if storage.getAdmin or storage.getHours failed
+* @throws {@link NotFound} if storage.getHours failed to return working hours using admin.id
+* @example
+* // returns {message: "successful","remaining":47.03625,"waiting":315}
+* GET /time/:license_key/:zone/:queue
+* @memberof API
+*/
+function _workingHours(req,res,next){
+var queue,waiting,flag,offset,day_start,day_end,start_time;
+var license_key = req.user.license_key;
+var time_zone = req.params.zone ;
+var queue_id=req.params.queue;console.log('queue id is',queue_id);
+var d = new Date();console.log(d);
+utc_time = new Date().getTime();//utc time in milliseconds
+var day = new Date().getDay();//returns day in number
+storage.getAdmin(license_key).then(function(admin){
+  var _id = admin.id;
+   var today = map_day(day);
+   storage.getHours(_id).then(function(result){
+    var flag = result[today];
+    var offset = result.time_zone_offset;
+    var day_start = result[today+'_start'];console.log('day starts at',day_start);
+    var day_end = result[today+'_end'];console.log('day ends at',day_end);
+    if(flag == 1){
+      day_start=day_start.split(":");console.log('day start',day_start);
+      day_end=day_end.split(":");console.log(day_end);
+      hours_start=day_start[0];
+      hours_end=day_end[0];
+      minutes_start=day_start[1];
+      minutes_end=day_end[1];
+      minutes_start= Number(minutes_start);
+      utc_start=Number(hours_start)-offset;console.log('starts at',utc_start);
+      utc_end=Number(hours_end)-offset;
+      //change to milliseconds
+      var start = new Date(); start.setHours(utc_start);start.setMinutes(minutes_start);console.log(start.getTime());
+       var end = new Date();end.setHours(utc_end);  end.setMinutes(minutes_end);console.log(end.getTime());
+       console.log(utc_time);
+            if( utc_time > start){
+              if(end > utc_time){  //check on end
+                milliseconds=end-utc_time;
+                min= milliseconds/(1000*60);
+                storage.getQueueCallsCount(queue_id).then(function(count){
+                  console.log(count);
+                res.status(200).json({
+                  message:'successful',
+                  remaining:min,
+                  waiting:count*5 //assuming average call is 5 minutes
+                });
+                  });
+              }
+              else{
+                start=utc_start;
+                start = start-Number(time_zone);console.log(start);
+                if(start > 23){
+                  start=start-23;
+                  start=0+start;
+                }
+                end=utc_end-Number(time_zone);
+                if(end > 23){
+                  end=end-23-1;
+                  end=0+end;
+                }
+                start = start+':'+day_start[1];
+                end = end+':'+day_end[1];
+                res.status(200).json({
+                  message:'closed',
+                  starts:start,
+                  ends:end
+                });
+              }
+
+        }
+        else{
+          start=utc_start;
+            start=start-Number(time_zone);console.log(start);
+            if(start > 23){
+              start=start-23-1;
+              start=0+start;
+            }
+            end=utc_end;
+            end=end-Number(time_zone);
+            if(end > 23){
+              end=end-23-1;
+              end=0+end;
+            }
+            start = start+':'+day_start[1];
+            end = end+':'+day_end[1];
+            res.status(200).json({
+              message:'closed',
+              starts:start,
+              ends:end
+            });
+        }
+    }
+    else{
+        res.status(200).json({
+          message:'day off',
+        });
+    }
+  }).otherwise(function(err){
+    return next(new NotFound(err,req.path));
+  });
+}).otherwise(function(err){
+      return next(new ServerError(err , req.path));
+});
+}
 
 module.exports = {
   createSipCall: createSipCall,
@@ -359,5 +491,6 @@ module.exports = {
   cancel: cancel,
   done:done,
   failed:failed,
-  submitFeedback: submitFeedback
+  submitFeedback: submitFeedback,
+  _workingHours:_workingHours
 }

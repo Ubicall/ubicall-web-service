@@ -49,7 +49,7 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
 /**
 * get latest ivr for @param license_key
 * @param req.params - req params object
-* @param {String} req.params.license_key - your api license key
+* @param {String} req.user.license_key - your api license key
 * @throws {@link MissedParams} - if @param license_key is missed
 * @throws {@link NotFound} - if storage.getVersion failed
 * @return HTTP status 200 - when your license_key ivr fetched successfully
@@ -59,7 +59,7 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
 * @memberof API
 */
 function fetchIvr(req, res , next) {
-  var license_key = req.params.license_key;
+  var license_key = req.user.license_key;
   if (!license_key) {
     return next(new MissedParams(req.path, "license_key"));
   }
@@ -78,7 +78,7 @@ function fetchIvr(req, res , next) {
 /**
 * deploy ivr in both Mobile and Web clients
 * @param {Object} req.params - request param Object
-* @param {String} req.params.license_key - your license key
+* @param {String} req.user.license_key - your license key
 * @param {String} req.params.version - the version of plist file.
 * @param {Object} req.headers - request headers object
 * @param {Url} req.headers.plistHost - param can override default plistHost value
@@ -98,7 +98,7 @@ function fetchIvr(req, res , next) {
 */
 function deployIVR(req, res, next) {
   var ivr = {};
-  ivr.license_key = req.params.license_key;
+  ivr.license_key = req.user.license_key;
   ivr.version = req.params.version;
 
   if (!ivr.license_key) {
