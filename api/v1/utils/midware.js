@@ -90,7 +90,6 @@ function callExtract(req, res, next) {
 }
 
 module.exports = {
-  isAuthenticated : isAuthenticated,
   isCallExist : isCallExist,
   callExtract : callExtract
 }
