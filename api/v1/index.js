@@ -71,11 +71,11 @@ function init(_settings, _storage) {
 
     apiApp.post('/web/account', isBearerAuthenticated, needsPermission('web.account.write'), sip.createWebAccount);
 
-    apiApp.get('/ivr/:license_key', isBearerAuthenticated, needsPermission('ivr.read'), ivr.fetchIvr);
+    apiApp.get('/ivr', isBearerAuthenticated, needsPermission('ivr.read'), ivr.fetchIvr);
 
-    apiApp.post('/ivr/:license_key/:version', isBearerAuthenticated, needsPermission('ivr.write'), ivr.deployIVR);
+    apiApp.post('/ivr/:version', isBearerAuthenticated, needsPermission('ivr.write'), ivr.deployIVR);
 
-    apiApp.put('/ivr/:license_key/:version', isBearerAuthenticated, needsPermission('ivr.write'), ivr.deployIVR);
+    apiApp.put('/ivr/:version', isBearerAuthenticated, needsPermission('ivr.write'), ivr.deployIVR);
 
     apiApp.post('/agent', isBearerAuthenticated, needsPermission('agent.write'), agent.update);
 
