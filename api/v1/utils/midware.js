@@ -17,30 +17,6 @@ var NotFound = require('./errors').NotFound;
 var log = require('../../../log');
 
 /**
- * demo middle ware to simulate oauth and will be replaced by https://github.com/Ubicall/ubicall-web-service/tree/feature-oauth
- * @memberof middleware
- */
-function isAuthenticated(req, res, next) {
-  if(process.env.demo_user == "true"){
-    req.user = settings.demo_user;
-    if(req.headers['x-rtmp-session']){
-        req.user.rtmp = req.headers['x-rtmp-session'];
-    }
-    next();
-  }else {
-    if (!req.user) {
-      return next(new Forbidden({
-        message: "user not found"
-      }, req.path));
-    }
-    if(req.headers['x-rtmp-session']){
-        req.user.rtmp = req.headers['x-rtmp-session'];
-    }
-    next();
-  }
-}
-
-/**
  * middleware to check if your request has @param call_id
  * @param {Object} req.params - request params object
  * @param {Object} req.params.call_id - call_id request param

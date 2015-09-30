@@ -16,11 +16,10 @@ sudo grunt jsdoc:docs copy:docs
 # to run test units
 npm test
 # node_env [test | development | production]
-# demo_user - [true] use default user and will pass authentication middle ware
 # db_env - [internal | external] control db connections attributes , default *internal* which use internal_ip and internal_port to connect to DB
 # config_version - which configuration version you like to use i.e. 20150920 ,it will fetch default version
 # in production we use forever : https://github.com/foreverjs/forever
-node_env=test db_env=external demo_user=true config_version=20150920 node api.js
+node_env=test db_env=external config_version=20150920 node api.js
 ```
 **create model from db using :**
 ``` bash
