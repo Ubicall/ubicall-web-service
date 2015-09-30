@@ -35,7 +35,7 @@
     "sprintf": "~0.1.5",
     "sprintf-js": "^1.0.3",
     "sync-request": "^2.0.1",
-    "ubicall-oauth": "git://github.com/Ubicall/ubicall-oauth#v0.0.1",
+    "ubicall-oauth": "git://github.com/Ubicall/ubicall-oauth",
     "validator": "^4.0.2",
     "when": "^3.7.3",
     "winston": "^1.0.1"

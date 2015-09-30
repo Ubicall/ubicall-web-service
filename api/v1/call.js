@@ -174,13 +174,13 @@ function call(req,res,next){
     var queue_id = req.params.queue_id;
     var queue_slug = req.params.queue_slug;
     if (!queue_id) {
-      return next(new MissedParams(req.path, "queue_id"));
+      return next(new MissedParams(req.path, ["queue_id"]));
     }
     if (!queue_slug) {
-      return next(new MissedParams(req.path, "queue_slug"));
+      return next(new MissedParams(req.path, ["queue_slug"]));
     }
     if(!req.user.rtmp){
-      return next(new MissedParams(req.path, "x-rtmp-session"));
+      return next(new MissedParams(req.path, ["x-rtmp-session"]));
     }
     storage.getCall(req.user,queue_id,queue_slug).then(function(call){
       res.status(200).json(call);
