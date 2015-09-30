@@ -42,6 +42,15 @@ var storageModuleInterface = {
 
     return when.all(promises);
   },
+  getHours:function(id){
+  return when.promise(function(resolve,reject){
+    ubicallStorageModule.getHours(id).then(function(result){
+      return resolve(result);
+    });
+  }).otherwise(function(error){
+    return reject(error);
+  });
+},
   scheduleCall: function(call) {
     return when.promise(function(resolve, reject) {
       return ubicallStorageModule.scheduleCall(call).then(function(call) {
@@ -108,7 +117,15 @@ var storageModuleInterface = {
       });
     });
   },
-
+  getQueueCallsCount:function(queue){
+    return when.promise(function(resolve,reject){
+      ubicallStorageModule.getQueueCallsCount(queue).then(function(count){
+        return resolve(count);
+      }).otherwise(function(error){
+        return reject(error);
+      });
+    });
+  },
   getVersion: function(key) {
     return when.promise(function(resolve, reject) {
       ubicallStorageModule.getVersion(key).then(function(version) {

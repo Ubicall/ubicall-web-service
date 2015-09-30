@@ -60,6 +60,7 @@ function init(_settings) {
     $client_version_view = sequlizeImport('client_version_view');
     $sip_friends = sequlizeImport2('sipfriends.js');
     $admin = sequlizeImport('admin.js');
+    $working_hours = sequlizeImport('working_hours.js');
     return resolve({});
   });
 }
@@ -473,6 +474,20 @@ function getCallDetail(agent , call_id){
   })
 }
 
+function getHours(_id){
+  return when.promise(function(resolve,reject){
+    $working_hours.findOne({
+    where: {
+        id: _id
+      }
+    }).then(function(result){
+      return resolve(result);
+    }).catch(function(error){
+      return reject(error);
+    });
+  });
+}
+
 function getCall(agent , queue_id , queue_slug){
   return when.promise(function(resolve,reject){
     return $calls.findOne({
@@ -583,5 +598,7 @@ module.exports = {
   getCallDetail:getCallDetail,
   getCall : getCall,
   markCallDone: markCallDone,
-  markCallFail: markCallFail
+  markCallFail: markCallFail,
+  getHours:getHours,
+  getQueueCallsCount:getQueueCallsCount
 }

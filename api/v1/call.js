@@ -179,9 +179,9 @@ function call(req,res,next){
     if (!queue_slug) {
       return next(new MissedParams(req.path, ["queue_slug"]));
     }
-    if(!req.user.rtmp){
+  /*  if(!req.user.rtmp){
       return next(new MissedParams(req.path, ["x-rtmp-session"]));
-    }
+    }*/
     storage.getCall(req.user,queue_id,queue_slug).then(function(call){
       res.status(200).json(call);
       infra.call(call,req.user).otherwise(function(error){
@@ -387,7 +387,7 @@ function _workingHours(req,res,next){
 var queue,waiting,flag,offset,day_start,day_end,start_time;
 var license_key = req.user.licence_key;
 var time_zone = req.params.zone ;
-var queue_id=req.params.queue;console.log('queue id is',queue_id);
+var queue_id=req.params.queue;
 var d = new Date();console.log(d);
 utc_time = new Date().getTime();//utc time in milliseconds
 var day = new Date().getDay();//returns day in number
@@ -397,11 +397,11 @@ storage.getAdmin(license_key).then(function(admin){
    storage.getHours(_id).then(function(result){
     var flag = result[today];
     var offset = result.time_zone_offset;
-    var day_start = result[today+'_start'];console.log('day starts at',day_start);
-    var day_end = result[today+'_end'];console.log('day ends at',day_end);
+    var day_start = result[today+'_start'];console.log(day_start);
+    var day_end = result[today+'_end'];console.log(day_end);
     if(flag == 1){
-      day_start=day_start.split(":");console.log('day start',day_start);
-      day_end=day_end.split(":");console.log(day_end);
+      day_start=day_start.split(":");
+      day_end=day_end.split(":");
       hours_start=day_start[0];
       hours_end=day_end[0];
       minutes_start=day_start[1];
@@ -410,21 +410,19 @@ storage.getAdmin(license_key).then(function(admin){
       utc_start=Number(hours_start)-offset;console.log('starts at',utc_start);
       utc_end=Number(hours_end)-offset;
       //change to milliseconds
-      var start = new Date(); start.setHours(utc_start);start.setMinutes(minutes_start);console.log(start.getTime());
-       var end = new Date();end.setHours(utc_end);  end.setMinutes(minutes_end);console.log(end.getTime());
-       console.log(utc_time);
+      var start = new Date(); start.setHours(utc_start);start.setMinutes(minutes_start);
+       var end = new Date();end.setHours(utc_end);end.setMinutes(minutes_end);
             if( utc_time > start){
               if(end > utc_time){  //check on end
                 milliseconds=end-utc_time;
                 min= milliseconds/(1000*60);
                 storage.getQueueCallsCount(queue_id).then(function(count){
-                  console.log(count);
                 res.status(200).json({
                   message:'successful',
                   remaining:min,
                   waiting:count*5 //assuming average call is 5 minutes
                 });
-                  });
+                });
               }
               else{
                 start=utc_start;
