@@ -1,10 +1,10 @@
 /**
-* API EndPoints
-* @version 0.0.1
-* @module api/v1/index
-* @exports .
-* @namespace API
-*/
+ * API EndPoints
+ * @version 0.0.1
+ * @module api/v1/index
+ * @exports .
+ * @namespace API
+ */
 var express = require('express');
 var when = require('when');
 var bodyParser = require('body-parser');
@@ -37,7 +37,9 @@ function init(_settings, _storage) {
     storage = _storage;
     apiApp = express();
 
-    var upload = multer({ dest: settings.cdn.agent.avatarDestinationFolder })
+    var upload = multer({
+      dest: settings.cdn.agent.avatarDestinationFolder
+    })
 
     apiApp.use(bodyParser.urlencoded({
       extended: true
@@ -48,54 +50,54 @@ function init(_settings, _storage) {
     // apiApp.use(cors(ubicallCors.options));
     // apiApp.use(ubicallCors.cors);
 
-    apiApp.post('/sip/call',isBearerAuthenticated ,needsPermission('write.sip.call'), midware.callExtract, call.createSipCall);
+    apiApp.post('/sip/call', isBearerAuthenticated, needsPermission('sip.call.write'), midware.callExtract, call.createSipCall);
 
-    apiApp.post('/web/call',isBearerAuthenticated ,needsPermission('write.web.call'), midware.callExtract, call.createWebCall);
+    apiApp.post('/web/call', isBearerAuthenticated, needsPermission('web.call.write'), midware.callExtract, call.createWebCall);
 
-    apiApp.delete('/call/:call_id',isBearerAuthenticated,needsPermission('delete.call'), call.cancel);
+    apiApp.delete('/call/:call_id', isBearerAuthenticated, needsPermission('call.delete'), call.cancel);
 
-    apiApp.get('/call/:call_id',isBearerAuthenticated,needsPermission('read.call'),midware.isCallExist, call.getDetail);
+    apiApp.get('/call/:call_id', isBearerAuthenticated, needsPermission('call.read'), midware.isCallExist, call.getDetail);
 
-    apiApp.get('/call/queue/:queue_id/:queue_slug',isBearerAuthenticated,needsPermission('read.call') ,call.call);
+    apiApp.get('/call/queue/:queue_id/:queue_slug', isBearerAuthenticated, needsPermission('call.make'), call.call);
 
-    apiApp.put('/call/:call_id/done',isBearerAuthenticated,needsPermission('write.call'),midware.isCallExist, call.done);
+    apiApp.put('/call/:call_id/done', isBearerAuthenticated, needsPermission('call.write'), midware.isCallExist, call.done);
 
-    apiApp.put('/call/:call_id/failed',isBearerAuthenticated,needsPermission('write.call'),midware.isCallExist, call.failed);
+    apiApp.put('/call/:call_id/failed', isBearerAuthenticated, needsPermission('call.write'), midware.isCallExist, call.failed);
 
-    apiApp.post('/call/:call_id/feedback',isBearerAuthenticated,needsPermission('write.feedback'),call.submitFeedback);
+    apiApp.post('/call/:call_id/feedback', isBearerAuthenticated, needsPermission('feedback.write'), call.submitFeedback);
 
-    apiApp.put('/call/:call_id/feedback',isBearerAuthenticated,needsPermission('write.feedback'), call.submitFeedback);
+    apiApp.put('/call/:call_id/feedback', isBearerAuthenticated, needsPermission('feedback.write'), call.submitFeedback);
 
-    apiApp.post('/sip/account',isBearerAuthenticated,needsPermission('write.sip.account'), sip.createSipAccount);
+    apiApp.post('/sip/account', isBearerAuthenticated, needsPermission('sip.account.write'), sip.createSipAccount);
 
-    apiApp.post('/web/account', isBearerAuthenticated,needsPermission('write.web.account'),sip.createWebAccount);
+    apiApp.post('/web/account', isBearerAuthenticated, needsPermission('web.account.write'), sip.createWebAccount);
 
-    apiApp.get('/ivr/:license_key', isBearerAuthenticated,needsPermission('read.ivr'),ivr.fetchIvr);
+    apiApp.get('/ivr/:license_key', isBearerAuthenticated, needsPermission('ivr.read'), ivr.fetchIvr);
 
-    apiApp.post('/ivr/:license_key/:version',isBearerAuthenticated,needsPermission('write.ivr'), ivr.deployIVR);
+    apiApp.post('/ivr/:license_key/:version', isBearerAuthenticated, needsPermission('ivr.write'), ivr.deployIVR);
 
-    apiApp.put('/ivr/:license_key/:version',isBearerAuthenticated,needsPermission('write.ivr'), ivr.deployIVR);
+    apiApp.put('/ivr/:license_key/:version', isBearerAuthenticated, needsPermission('ivr.write'), ivr.deployIVR);
 
-    apiApp.post('/agent',isBearerAuthenticated,needsPermission('write.agent'),agent.update);
+    apiApp.post('/agent', isBearerAuthenticated, needsPermission('agent.write'), agent.update);
 
-    apiApp.put('/agent',isBearerAuthenticated,needsPermission('write.agent'),agent.update);
+    apiApp.put('/agent', isBearerAuthenticated, needsPermission('agent.write'), agent.update);
 
-    apiApp.post('/agent/image',isBearerAuthenticated,needsPermission('write.agent'), upload.single('image'),  agent.updateImage);
+    apiApp.post('/agent/image', isBearerAuthenticated, needsPermission('agent.write'), upload.single('image'), agent.updateImage);
 
-    apiApp.put('/agent/image',isBearerAuthenticated,needsPermission('write.agent'),upload.single('image') ,  agent.updateImage);
+    apiApp.put('/agent/image', isBearerAuthenticated, needsPermission('agent.write'), upload.single('image'), agent.updateImage);
 
-    apiApp.get('/agent/calls',isBearerAuthenticated,needsPermission('read.agent.calls'), agent.calls);
+    apiApp.get('/agent/calls', isBearerAuthenticated, needsPermission('agent.calls.read'), agent.calls);
 
-    apiApp.get('/agent/queues',isBearerAuthenticated,needsPermission('read.agent.calls') ,agent.queues);
+    apiApp.get('/agent/queues', isBearerAuthenticated, needsPermission('agent.calls.read'), agent.queues);
     /**
-    * @param {String} key - license_key should be unique for each user.
-    * @return {@link MissedParams} @param key doesn't exist
-    * @return HTTP status - 200
-    * @return HTTP status - 404 {@link NotFound} If can't return queue data
-    * @example
-    * {'message':'queue retrieved successfully','id':id_no ,'name':url}
-    */
-    apiApp.get('/queue/:key', isBearerAuthenticated,function(req, res, next) {
+     * @param {String} key - license_key should be unique for each user.
+     * @return {@link MissedParams} @param key doesn't exist
+     * @return HTTP status - 200
+     * @return HTTP status - 404 {@link NotFound} If can't return queue data
+     * @example
+     * {'message':'queue retrieved successfully','id':id_no ,'name':url}
+     */
+    apiApp.get('/queue/:key', isBearerAuthenticated, function(req, res, next) {
       var key = req.params.key;
       if (!key) {
         return next(new MissedParams(req.path, "key"));
@@ -107,7 +109,7 @@ function init(_settings, _storage) {
           name: queue.url
         });
       }).otherwise(function(error) {
-        return next(new Forbidden(error , req.originalUrl));
+        return next(new Forbidden(error, req.originalUrl));
       });
     });
 
