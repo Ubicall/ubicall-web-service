@@ -361,7 +361,7 @@ function getCalls(agent , options) {
     return $calls.findAll({
       where: {
         id_agent: agent.id,
-        api_key: agent.api_key,
+        api_key: agent.licence_key,
         status: settings.call.status.done
       },
       order: 'schedule_time DESC',
@@ -460,7 +460,7 @@ function getCallDetail(agent , call_id){
     $calls.findOne({
       where: {
         id : call_id,
-        api_key : agent.api_key
+        api_key : agent.licence_key
       }
     }).then(function(call) {
       if (!call) {
@@ -477,7 +477,7 @@ function getCall(agent , queue_id , queue_slug){
   return when.promise(function(resolve,reject){
     return $calls.findOne({
       where: Sequelize.and(
-        { api_key: agent.api_key },
+        { api_key: agent.licence_key },
         { queue_id: queue_id },
         Sequelize.or(
           { status: {$eq: null} },
