@@ -19,7 +19,7 @@ var ServerError =require('./utils/errors').ServerError;
 /**
 * create sip account for mobile client
 * @param {Object} req.body - request body Object
-* @param {String} req.user.license_key - your api licence_key
+* @param {String} req.user.licence_key - your api licence_key
 * @param {String} req.body.sdk_name -the name of the sdk. Each client have a unique name
 * @param {String} req.body.sdk_version -version of the client’s sdk.
 * @param {String} req.body.device_model - the model of the device. (Ex: IPhone 5, iPhone 6, Samsung S3)
@@ -47,7 +47,7 @@ function createSipAccount(req, res, next) {
   var device = {};
   var missingParams = [];
 
-  device.license_key = req.user.license_key || missingParams.push("license_key");
+  device.license_key = req.user.licence_key || missingParams.push("license_key");
   device.sdk_name = req.body.sdk_name || missingParams.push("sdk_name");
   device.sdk_version = req.body.sdk_version || missingParams.push("sdk_version");
   device.token = req.body.device_token || missingParams.push("device_token");
@@ -106,7 +106,7 @@ function createSipAccount(req, res, next) {
 /**
 * create sip account for web client
 * @param {Object} req.body - request body object
-* @param {String} req.user.license_key - unique api licence_key
+* @param {String} req.user.licence_key - unique api licence_key
 * @param {String} req.body.sdk_name -the name of the sdk.
 * @param {String} req.body.sdk_version -version of the client’s sdk.
 * @param {String} req.body.uid - each device has a unique user id @default **0000**
@@ -131,7 +131,7 @@ function createWebAccount(req, res, next) {
   var device = {};
   var missingParams = [];
 
-  device.license_key = req.user.license_key || missingParams.push("license_key");;
+  device.license_key = req.user.licence_key || missingParams.push("license_key");;
   device.sdk_name = req.body.sdk_name || missingParams.push("sdk_name");;
   device.sdk_version = req.body.sdk_version || missingParams.push("sdk_version");
   device.uid = req.body.device_uid || '0000';

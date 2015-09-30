@@ -385,7 +385,7 @@ function map_day(day){
 */
 function _workingHours(req,res,next){
 var queue,waiting,flag,offset,day_start,day_end,start_time;
-var license_key = req.user.license_key;
+var license_key = req.user.licence_key;
 var time_zone = req.params.zone ;
 var queue_id=req.params.queue;console.log('queue id is',queue_id);
 var d = new Date();console.log(d);
