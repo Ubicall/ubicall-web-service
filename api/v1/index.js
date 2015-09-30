@@ -26,7 +26,7 @@ var ServerError = require('./utils/errors').ServerError;
 var NotFound = require('./utils/errors').NotFound;
 var isBearerAuthenticated = require('ubicall-oauth').isBearerAuthenticated;
 var needsPermission = require('ubicall-oauth').needsPermission;
-
+var passport = require('passport');
 var settings, storage;
 var apiApp;
 
@@ -40,6 +40,8 @@ function init(_settings, _storage) {
       dest: settings.cdn.agent.avatarDestinationFolder
     })
 
+    apiApp.use(passport.initialize());
+    apiApp.use(passport.session());
     apiApp.use(bodyParser.urlencoded({
       extended: true
     }));
