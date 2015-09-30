@@ -88,6 +88,8 @@ function init(_settings, _storage) {
     apiApp.get('/agent/calls', isBearerAuthenticated, needsPermission('agent.calls.read'), agent.calls);
 
     apiApp.get('/agent/queues', isBearerAuthenticated, needsPermission('agent.calls.read'), agent.queues);
+
+    apiApp.get('/workinghours/:zone/:queue',isBearerAuthenticated,needsPermission('workinghours.read'), call._workingHours);
     /**
      * @param {String} key - license_key should be unique for each user.
      * @return {@link MissedParams} @param key doesn't exist
@@ -96,11 +98,8 @@ function init(_settings, _storage) {
      * @example
      * {'message':'queue retrieved successfully','id':id_no ,'name':url}
      */
-    apiApp.get('/queue/:key', isBearerAuthenticated, function(req, res, next) {
-      var key = req.params.key;
-      if (!key) {
-        return next(new MissedParams(req.path, "key"));
-      }
+    apiApp.get('/queue', isBearerAuthenticated, function(req, res, next) {
+      var key = req.user.license_key;
       storage.findQueue(key).then(function(queue) {
         return res.status(200).json({
           message: 'queue retrieved successfully',
