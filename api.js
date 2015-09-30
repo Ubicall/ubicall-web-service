@@ -83,22 +83,6 @@ storage.init(settings).then(function() {
     log.info('Server use configuration version ' + process.env.config_version);
     log.info('Server running now on ' + process.env.node_env + " Mode - Avialable options are : test ,development ,production ");
     log.info('DB connections use ' + process.env.db_env + " Mode - Avialable options are : internal ,external ");
-    if(process.env.demo_user == "true"){
-      settings.demo_user = {
-        id: 56,
-        name: "Antoine FS",
-        email: "aatef@rocketmail.com",
-        number: "2222",
-        image: "https://cdn.ubicall.com/agent/avatar/bcf3c1faaf30b15168db4da6575001ad.jpg",
-        lic: "e6053eb8d35e02ae40beeeacef203c1a",
-        api_key: "e6053eb8d35e02ae40beeeacef203c1a",
-        sip: {
-              num: "90000000000000021@104.239.164.247",
-              cred: "xmolVGdwTRGsbDOJ"
-              }
-      };
-      log.warn('No authentication required , you are using default user ' + JSON.stringify(settings.demo_user,null,4));
-    }
     log.info('Server now running at ' + getListenPath());
     log.help('To stop app gracefully just type in shell pkill api');
   });
