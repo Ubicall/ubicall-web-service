@@ -57,7 +57,7 @@ function init(_settings, _storage) {
 
     apiApp.get('/call/:call_id', isBearerAuthenticated, needsPermission('call.read'), midware.isCallExist, call.getDetail);
 
-    apiApp.get('/call/queue/:queue_id/:queue_slug', isBearerAuthenticated, needsPermission('call.make'), call.call);
+    apiApp.get('/call/queue/:queue_id/:queue_slug', isBearerAuthenticated, needsPermission('call.make'), midware.ensureRTMP, call.call);
 
     apiApp.put('/call/:call_id/done', isBearerAuthenticated, needsPermission('call.write'), midware.isCallExist, call.done);
 

@@ -17,6 +17,21 @@ var NotFound = require('./errors').NotFound;
 var log = require('../../../log');
 
 /**
+ * middleware to check if your request has @param x-rtmp-session
+ * @param {Object} req.headers - request params object
+ * @param {Object} req.headers.x-rtmp-session - rtmp session
+ * @throws {@link MissedParams} if @param req.params.x-rtmp-session is undefined
+ * @memberof middleware
+ */
+function ensureRTMP(req, res, next){
+  req.user.rtmp = req.headers['x-rtmp-session']  || req.params['x-rtmp-session'] || req.query['x-rtmp-session'];
+  if(!req.user.rtmp){
+    return next(new MissedParams(req.path, ["x-rtmp-session"]));
+  }
+  next();
+}
+
+/**
  * middleware to check if your request has @param call_id
  * @param {Object} req.params - request params object
  * @param {Object} req.params.call_id - call_id request param
@@ -90,6 +105,7 @@ function callExtract(req, res, next) {
 }
 
 module.exports = {
+  ensureRTMP: ensureRTMP,
   isCallExist : isCallExist,
   callExtract : callExtract
 }

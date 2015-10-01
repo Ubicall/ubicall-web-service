@@ -12,14 +12,14 @@ exposed ubicall web service for public and internal use
 
 ``` bash
 npm install
-sudo grunt jsdoc:docs copy:docs
+sudo grunt preserve
 # to run test units
 npm test
-# node_env [test | development | production]
-# db_env - [internal | external] control db connections attributes , default *internal* which use internal_ip and internal_port to connect to DB
-# config_version - which configuration version you like to use i.e. 20150920 ,it will fetch default version
+# node_env [test | development | production] - default _development_
+# db_env - [internal | external] control db connections attributes , default *internal* which use internal_ip and internal_port to connect to DB - default _internel_
+# config_version - which configuration version you like to use i.e. 20150920 - default _specified in settings.js_
 # in production we use forever : https://github.com/foreverjs/forever
-node_env=test db_env=external config_version=20150920 node api.js
+db_env=external node api.js
 ```
 **create model from db using :**
 ``` bash

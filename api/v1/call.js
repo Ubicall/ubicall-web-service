@@ -163,7 +163,7 @@ function getDetail(req,res,next){
 * @param req.user.x-rtmp-session - your rtmp session to call you back
 * @throws {@link MissedParams} if @param req.params.queue_id not found
 * @throws {@link MissedParams} if @param req.params.queue_slug not found
-* @throws {@link MissedParams} if header @param req.user.x-rtmp-session not found
+* @throws {@link MissedParams} if @param req.user.x-rtmp-session not found
 * @return HTTP status 200 if your call fetched successfully from queue
 * @example
 * // returns {message: 'call updated successfully',call: {id:'xx',agent:'xxx'}}
@@ -179,9 +179,9 @@ function call(req,res,next){
     if (!queue_slug) {
       return next(new MissedParams(req.path, ["queue_slug"]));
     }
-  /*  if(!req.user.rtmp){
+    if(!req.user.rtmp){
       return next(new MissedParams(req.path, ["x-rtmp-session"]));
-    }*/
+    }
     storage.getCall(req.user,queue_id,queue_slug).then(function(call){
       res.status(200).json(call);
       infra.call(call,req.user).otherwise(function(error){

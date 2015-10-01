@@ -515,7 +515,8 @@ function getCall(agent , queue_id , queue_slug){
         date_init: start_at,
         time_init: start_at,
         retries: (call.retries && call.retries > 0) ? call.retries + 1 : 0,
-        duration_wait: moment.utc(moment().diff(moment(call.schedule_time))).format(settings.call.duration_format),
+        // TODO should add more enhancment for duration_wait
+        // duration_wait: moment.utc(moment().diff(moment(call.schedule_time))).format(settings.call.duration_format),
         datetime_originate: start_at,
       };
       return call.updateAttributes(uAttrs).then(function(updated) {
