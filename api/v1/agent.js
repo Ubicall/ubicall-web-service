@@ -86,7 +86,7 @@ function update(req,res,next){
     update.newPass = req.body.newPass;
   }
   if(!update.currentPass){
-    return next(new MissedParams(req.path, "currentPass"));
+    return next(new MissedParams(req.path, ["currentPass"]));
   }
   storage.updateAgent(req.user ,update).then(function(done){
       return res.status(200).json({message : "Your info updated"});
