@@ -19,7 +19,7 @@ npm test
 # db_env - [internal | external] control db connections attributes , default *internal* which use internal_ip and internal_port to connect to DB - default _internel_
 # config_version - which configuration version you like to use i.e. 20150920 - default _specified in settings.js_
 # in production we use forever : https://github.com/foreverjs/forever
-sudo grunt preserve ; db_env=external node api.js
+sudo grunt preserve && db_env=external node api.js
 ```
 **create model from db using :**
 ``` bash
