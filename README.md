@@ -1,6 +1,13 @@
 # ubicall-web-service
 exposed ubicall web service for public and internal use
 
+**preinstall:**
+
+  ```bash
+   sudo mkdir -p /opt/ubicall/conf/
+   sudo chown :nginx /opt/ubicall/conf/
+  ```
+
 
 **generate & deploy API documentation :**
 
