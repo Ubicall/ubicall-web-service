@@ -217,9 +217,9 @@ function call(req,res,next){
 */
 function done(req,res,next){
   var details = {};
-  details.duration = req.body.duration || 0;
-  var call_id = req.call_id;
-  storage.getCall(req.user , call_id).then(function(call){
+  details.duration = req.body.duration || req.headers['x-call-duration'] || 0;
+  var call_id = req.params.call_id;
+  storage.getCallDetail(req.user , call_id).then(function(call){
     if(call.id_agent != req.user.id || call.status != settings.call.status.progress){
         return next(new Forbidden({message : "you do not has call with id " + call_id },req.path));
     }
@@ -257,9 +257,9 @@ function done(req,res,next){
 */
 function failed(req,res,next){
   var details = {};
-  details.error = req.body.error || 'unable to contact client';
-  var call_id = req.call_id;
-  storage.getCall(req.user,call_id).then(function(call){
+  details.error = req.body.error || req.headers['x-call-error'] || 'unable to contact client';
+  var call_id = req.params.call_id;
+  storage.getCallDetail(req.user,call_id).then(function(call){
     if(call.id_agent != req.user.id || call.status != settings.call.status.progress){
         return next(new Forbidden({message : "you do not has call with id " + call_id },req.path));
     }

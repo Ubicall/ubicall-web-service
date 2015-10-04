@@ -530,22 +530,23 @@ function getCall(agent , queue_id , queue_slug){
   });
 }
 
-function markCallDone(call){
+function markCallDone(call) {
   return when.promise(function(resolve, reject) {
     var endat;
-    if (call.duration){
+    if (call.duration) {
       var copyInitDate = new Date(call.date_init.getTime());
-      endat = copyInitDate.setSeconds(copyInitDate.getSeconds() + duration);
-      endat = moment(endat).format(settings.call.duration_format);
-    }else {
-      endat = moment().format(settings.call.duration_format);
+      endat = copyInitDate.setSeconds(copyInitDate.getSeconds() + call.duration);
+      endat = moment(endat).format(settings.call.date_format);
+    } else {
+      endat = moment().format(settings.call.date_format);
     }
     return call.updateAttributes({
       status: settings.call.status.done,
       date_end: endat,
       time_end: endat,
       end_time: endat,
-      duration: moment.utc(moment(endat).diff(moment(call.date_init))).format(settings.call.duration_format)
+      // TODO should add more enhancment for duration_wait
+      // duration: moment.utc(moment(endat).diff(moment(call.date_init))).format(settings.call.duration_format)
     }).then(function(updated) {
       return resolve(updated);
     }).catch(function(error) {
