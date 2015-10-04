@@ -6,6 +6,8 @@ exposed ubicall web service for public and internal use
   ```bash
    sudo mkdir -p /opt/ubicall/conf/
    sudo chown :nginx /opt/ubicall/conf/
+   sudo mkdir -p /var/www/html/
+   sudo chown :nginx /var/www/html/
   ```
 
 
