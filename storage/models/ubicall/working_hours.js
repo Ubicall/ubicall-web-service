@@ -4,6 +4,7 @@ module.exports = function(sequelize, DataTypes) {
   return sequelize.define('working_hours', {
     id: {
       type: DataTypes.INTEGER(255),
+       primaryKey: true,
       allowNull: false,
     },
     client_id: {
