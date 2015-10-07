@@ -48,9 +48,8 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
 
 /**
 * get latest ivr for @param licence_key
-* @param req.params - req params object
+* @param req.user - req current user
 * @param {String} req.user.licence_key - your api licence key
-* @throws {@link MissedParams} - if @param licence_key is missed
 * @throws {@link NotFound} - if storage.getVersion failed
 * @return HTTP status 200 - when your licence_key ivr fetched successfully
 * @example
@@ -59,19 +58,24 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
 * @memberof API
 */
 function fetchIvr(req, res , next) {
-  var license_key = req.user.licence_key;
-  if (!license_key) {
-    return next(new MissedParams(req.path, "license_key"));
-  }
-  storage.getVersion(license_key).then(function(version) {
+  req.cache.ivr.get({licence_key : req.user.licence_key}).then(function(version){
     return res.status(200).json({
       message: "ivr with version "+ version.version +"retrieved successfully",
       version : version.version ,
       url : version.url
     });
-  }).otherwise(function(error) {
-    log.error('error : ' + error);
-    return next(new Forbidden(error , req.path));
+  }).otherwise(function(nfnd){
+    storage.getVersion(req.user.licence_key).then(function(version) {
+      res.status(200).json({
+        message: "ivr with version "+ version.version +"retrieved successfully",
+        version : version.version ,
+        url : version.url
+      });
+    req.cache.ivr.is({licence_key : req.user.licence_key , ivr : version});
+    }).otherwise(function(error) {
+      log.error('error : ' + error);
+      return next(new Forbidden(error , req.path));
+    });
   });
 }
 

@@ -26,7 +26,6 @@ var ServerError = require('./utils/errors').ServerError;
 var NotFound = require('./utils/errors').NotFound;
 var isBearerAuthenticated = require('ubicall-oauth').isBearerAuthenticated;
 var needsPermission = require('ubicall-oauth').needsPermission;
-var cache = require('ubicall-cache').cache;
 var passport = require('passport');
 var settings, storage;
 var apiApp;
@@ -50,6 +49,8 @@ function init(_settings, _storage) {
     // apiApp.use(cors(ubicallCors.options));
     // apiApp.use(ubicallCors.cors);
 
+    apiApp.use(midware.ensureCache)
+
     apiApp.post('/sip/call', isBearerAuthenticated, needsPermission('sip.call.write'), midware.callExtract, call.createSipCall);
 
     apiApp.post('/web/call', isBearerAuthenticated, needsPermission('web.call.write'), midware.callExtract, call.createWebCall);
@@ -72,23 +73,23 @@ function init(_settings, _storage) {
 
     apiApp.post('/web/account', isBearerAuthenticated, needsPermission('web.account.write'), sip.createWebAccount);
 
-    apiApp.get('/ivr', isBearerAuthenticated, needsPermission('ivr.read'),cache.ivr.get, ivr.fetchIvr);
+    apiApp.get('/ivr', isBearerAuthenticated, needsPermission('ivr.read'),req.ubicall.cache.ivr.get, ivr.fetchIvr);
 
-    apiApp.post('/ivr/:version', isBearerAuthenticated, needsPermission('ivr.write'),cache.ivr.invalidate, ivr.deployIVR);
+    apiApp.post('/ivr/:version', isBearerAuthenticated, needsPermission('ivr.write'),req.ubicall.cache.ivr.invalidate, ivr.deployIVR);
 
-    apiApp.put('/ivr/:version', isBearerAuthenticated, needsPermission('ivr.write'),cache.ivr.invalidate, ivr.deployIVR);
+    apiApp.put('/ivr/:version', isBearerAuthenticated, needsPermission('ivr.write'),req.ubicall.cache.ivr.invalidate, ivr.deployIVR);
 
-    apiApp.post('/agent', isBearerAuthenticated, needsPermission('agent.write'),cache.agent.invalidate, agent.update);
+    apiApp.post('/agent', isBearerAuthenticated, needsPermission('agent.write'),req.ubicall.cache.agent.invalidate, agent.update);
 
-    apiApp.put('/agent', isBearerAuthenticated, needsPermission('agent.write'),cache.agent.invalidate, agent.update);
+    apiApp.put('/agent', isBearerAuthenticated, needsPermission('agent.write'),req.ubicall.cache.agent.invalidate, agent.update);
 
-    apiApp.post('/agent/image', isBearerAuthenticated, needsPermission('agent.write'), upload.single('image'),cache.agent.invalidate, agent.updateImage);
+    apiApp.post('/agent/image', isBearerAuthenticated, needsPermission('agent.write'), upload.single('image'),req.ubicall.cache.agent.invalidate, agent.updateImage);
 
-    apiApp.put('/agent/image', isBearerAuthenticated, needsPermission('agent.write'), upload.single('image'),cache.agent.invalidate, agent.updateImage);
+    apiApp.put('/agent/image', isBearerAuthenticated, needsPermission('agent.write'), upload.single('image'),req.ubicall.cache.agent.invalidate, agent.updateImage);
 
-    apiApp.get('/agent/calls', isBearerAuthenticated, needsPermission('agent.calls.read'),cache.agent.getCalls , agent.calls);
+    apiApp.get('/agent/calls', isBearerAuthenticated, needsPermission('agent.calls.read'), agent.calls);
 
-    apiApp.get('/agent/queues', isBearerAuthenticated, needsPermission('agent.calls.read') , cache.agent.getQueues, agent.queues);
+    apiApp.get('/agent/queues', isBearerAuthenticated, needsPermission('agent.calls.read'), agent.queues);
 
     apiApp.get('/workinghours/:zone/:queue',isBearerAuthenticated,needsPermission('workinghours.read'), call._workingHours);
     /**

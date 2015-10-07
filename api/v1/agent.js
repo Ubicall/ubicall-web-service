@@ -36,11 +36,17 @@ function getCalls(req, res, next) {
   var options = {};
   options.page = req.query.page || 1;
   options.per_page = req.query.per_page || 20;
-  storage.getCalls(req.user, options).then(function(calls) {
+
+  req.ubicall.cache.agent.calls.get({licence_key : req.user.licence_key,page : page , per_page : per_page}).then(function(calls){
     return res.status(200).json(calls);
-  }).otherwise(function(error) {
-    log.error('error : ' + error);
-    return next(new ServerError(error, req.path));
+  }).otherwise(function(nfnd){
+    storage.getCalls(req.user, options).then(function(calls) {
+      res.status(200).json(calls);
+      req.ubicall.cache.agent.calls.add({licence_key : req.user.licence_key,page : page , per_page : per_page ,calls : calls});
+    }).otherwise(function(error) {
+      log.error('error : ' + error);
+      return next(new ServerError(error, req.path));
+    });
   });
 }
 
@@ -55,11 +61,16 @@ function getCalls(req, res, next) {
  * @memberof API
  */
 function getQueues(req, res, next) {
-  storage.getQueues(req.user).then(function(queues) {
+  req.ubicall.cache.agent.queues.get({licence_key : req.user.licence_key}).then(function(queues){
     return res.status(200).json(queues);
-  }).otherwise(function(error) {
-    log.error('error : ' + error);
-    return next(new ServerError(error, req.path));
+  }).otherwise(function(nfnd){
+    storage.getQueues(req.user).then(function(queues) {
+      res.status(200).json(queues);
+      req.ubicall.cache.agent.queues.is(queues);
+    }).otherwise(function(error) {
+      log.error('error : ' + error);
+      return next(new ServerError(error, req.path));
+    });
   });
 }
 

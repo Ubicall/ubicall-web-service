@@ -15,6 +15,7 @@ var Forbidden = require('./errors').Forbidden;
 var ServerError = require('./errors').ServerError;
 var NotFound = require('./errors').NotFound;
 var log = require('../../../log');
+var cache = require('ubicall-cache').cache;
 
 /**
  * middleware to check if your request has @param x-rtmp-session
@@ -28,6 +29,15 @@ function ensureRTMP(req, res, next){
   if(!req.user.rtmp){
     return next(new MissedParams(req.path, ["x-rtmp-session"]));
   }
+  next();
+}
+
+/**
+ * middleware to ensure cache & publish object available in req.ubicall.cache & req.ubicall.publish
+ * @memberof middleware
+ */
+function ensureCache(req, res, next){
+  req.ubicall.cache = cache;
   next();
 }
 
@@ -106,6 +116,7 @@ function callExtract(req, res, next) {
 
 module.exports = {
   ensureRTMP: ensureRTMP,
+  ensureCache: ensureCache,
   isCallExist : isCallExist,
   callExtract : callExtract
 }
