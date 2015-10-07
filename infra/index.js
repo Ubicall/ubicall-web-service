@@ -17,7 +17,7 @@ function moduleSelector(_settings) {
 }
 
 var communicationModuleInterface = {
-    init: function (_settings) {
+    init: function(_settings) {
         settings = _settings;
         try {
             communicationModule = moduleSelector(_settings);
@@ -26,14 +26,14 @@ var communicationModuleInterface = {
         }
         return communicationModule.init(settings);
     },
-    call: function (call,agent) {
-      return when.promise(function(resolve,reject){
-        return communicationModule.call(call, agent).then(function(){
-          return resolve({});
-        }).otherwise(function(error){
-          return reject(error);
+    call: function(call, agent) {
+        return when.promise(function(resolve, reject) {
+            return communicationModule.call(call, agent).then(function() {
+                return resolve({});
+            }).otherwise(function(error) {
+                return reject(error);
+            });
         });
-      });
     }
 };
 
