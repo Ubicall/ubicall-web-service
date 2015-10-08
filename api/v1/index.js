@@ -14,6 +14,7 @@ var ubicallCors = require('../../ubicallCors');
 var log = require('../../log');
 var sip = require('./sip');
 var call = require('./call');
+var email = require('./email');
 var agent = require('./agent');
 var ivr = require('./ivr');
 var midware = require('./utils/midware');
@@ -31,94 +32,99 @@ var settings, storage;
 var apiApp;
 
 function init(_settings, _storage) {
-  return when.promise(function(resolve, reject) {
-    settings = _settings;
-    storage = _storage;
-    apiApp = express();
+    return when.promise(function(resolve, reject) {
+        settings = _settings;
+        storage = _storage;
+        apiApp = express();
 
-    var upload = multer({
-      dest: settings.cdn.agent.avatarDestinationFolder
-    })
+        var upload = multer({
+            dest: settings.cdn.agent.avatarDestinationFolder
+        })
 
-    apiApp.use(passport.initialize());
-    apiApp.use(passport.session());
-    apiApp.use(bodyParser.urlencoded({
-      extended: true
-    }));
-    apiApp.use(bodyParser.json());
-    // apiApp.use(cors(ubicallCors.options));
-    // apiApp.use(ubicallCors.cors);
+        apiApp.use(passport.initialize());
+        apiApp.use(passport.session());
+        apiApp.use(bodyParser.urlencoded({
+            extended: true
+        }));
+        apiApp.use(bodyParser.json());
+        // apiApp.use(cors(ubicallCors.options));
+        // apiApp.use(ubicallCors.cors);
 
-    apiApp.post('/sip/call', isBearerAuthenticated, needsPermission('sip.call.write'), midware.callExtract, call.createSipCall);
+        apiApp.post('/sip/call', isBearerAuthenticated, needsPermission('sip.call.write'), midware.callExtract, call.createSipCall);
 
-    apiApp.post('/web/call', isBearerAuthenticated, needsPermission('web.call.write'), midware.callExtract, call.createWebCall);
+        apiApp.post('/web/call', isBearerAuthenticated, needsPermission('web.call.write'), midware.callExtract, call.createWebCall);
 
-    apiApp.delete('/call/:call_id', isBearerAuthenticated, needsPermission('call.delete'), call.cancel);
+        apiApp.delete('/call/:call_id', isBearerAuthenticated, needsPermission('call.delete'), call.cancel);
 
-    apiApp.get('/call/:call_id', isBearerAuthenticated, needsPermission('call.read'), midware.isCallExist, call.getDetail);
+        apiApp.get('/call/:call_id', isBearerAuthenticated, needsPermission('call.read'), midware.isCallExist, call.getDetail);
 
-    apiApp.get('/call/queue/:queue_id/:queue_slug', isBearerAuthenticated, needsPermission('call.make'), midware.ensureRTMP, call.call);
+        apiApp.get('/call/queue/:queue_id/:queue_slug', isBearerAuthenticated, needsPermission('call.make'), midware.ensureRTMP, call.call);
 
-    apiApp.put('/call/:call_id/done', isBearerAuthenticated, needsPermission('call.write'), midware.isCallExist, call.done);
+        apiApp.put('/call/:call_id/done', isBearerAuthenticated, needsPermission('call.write'), midware.isCallExist, call.done);
 
-    apiApp.put('/call/:call_id/failed', isBearerAuthenticated, needsPermission('call.write'), midware.isCallExist, call.failed);
+        apiApp.put('/call/:call_id/failed', isBearerAuthenticated, needsPermission('call.write'), midware.isCallExist, call.failed);
 
-    apiApp.post('/call/:call_id/feedback', isBearerAuthenticated, needsPermission('feedback.write'), call.submitFeedback);
+        apiApp.post('/call/:call_id/feedback', isBearerAuthenticated, needsPermission('feedback.write'), call.submitFeedback);
 
-    apiApp.put('/call/:call_id/feedback', isBearerAuthenticated, needsPermission('feedback.write'), call.submitFeedback);
+        apiApp.put('/call/:call_id/feedback', isBearerAuthenticated, needsPermission('feedback.write'), call.submitFeedback);
 
-    apiApp.post('/sip/account', isBearerAuthenticated, needsPermission('sip.account.write'), sip.createSipAccount);
+        apiApp.post('/sip/account', isBearerAuthenticated, needsPermission('sip.account.write'), sip.createSipAccount);
 
-    apiApp.post('/web/account', isBearerAuthenticated, needsPermission('web.account.write'), sip.createWebAccount);
+        apiApp.post('/web/account', isBearerAuthenticated, needsPermission('web.account.write'), sip.createWebAccount);
 
-    apiApp.get('/ivr', isBearerAuthenticated, needsPermission('ivr.read'), ivr.fetchIvr);
+        apiApp.get('/ivr', isBearerAuthenticated, needsPermission('ivr.read'), ivr.fetchIvr);
 
-    apiApp.post('/ivr/:version', isBearerAuthenticated, needsPermission('ivr.write'), ivr.deployIVR);
+        apiApp.post('/ivr/:version', isBearerAuthenticated, needsPermission('ivr.write'), ivr.deployIVR);
 
-    apiApp.put('/ivr/:version', isBearerAuthenticated, needsPermission('ivr.write'), ivr.deployIVR);
+        apiApp.put('/ivr/:version', isBearerAuthenticated, needsPermission('ivr.write'), ivr.deployIVR);
 
-    apiApp.post('/agent', isBearerAuthenticated, needsPermission('agent.write'), agent.update);
+        apiApp.post('/agent', isBearerAuthenticated, needsPermission('agent.write'), agent.update);
 
-    apiApp.put('/agent', isBearerAuthenticated, needsPermission('agent.write'), agent.update);
+        apiApp.put('/agent', isBearerAuthenticated, needsPermission('agent.write'), agent.update);
 
-    apiApp.post('/agent/image', isBearerAuthenticated, needsPermission('agent.write'), upload.single('image'), agent.updateImage);
+        apiApp.post('/agent/image', isBearerAuthenticated, needsPermission('agent.write'), upload.single('image'), agent.updateImage);
 
-    apiApp.put('/agent/image', isBearerAuthenticated, needsPermission('agent.write'), upload.single('image'), agent.updateImage);
+        apiApp.put('/agent/image', isBearerAuthenticated, needsPermission('agent.write'), upload.single('image'), agent.updateImage);
 
-    apiApp.get('/agent/calls', isBearerAuthenticated, needsPermission('agent.calls.read'), agent.calls);
+        apiApp.get('/agent/calls', isBearerAuthenticated, needsPermission('agent.calls.read'), agent.calls);
 
-    apiApp.get('/agent/queues', isBearerAuthenticated, needsPermission('agent.calls.read'), agent.queues);
+        apiApp.get('/agent/queues', isBearerAuthenticated, needsPermission('agent.calls.read'), agent.queues);
 
-    apiApp.get('/workinghours/:zone/:queue',isBearerAuthenticated,needsPermission('workinghours.read'), call._workingHours);
-    /**
-     * @param {String} key - license_key should be unique for each user.
-     * @return {@link MissedParams} @param key doesn't exist
-     * @return HTTP status - 200
-     * @return HTTP status - 404 {@link NotFound} If can't return queue data
-     * @example
-     * {'message':'queue retrieved successfully','id':id_no ,'name':url}
-     */
-    apiApp.get('/queue', isBearerAuthenticated, function(req, res, next) {
-      var key = req.user.license_key;
-      storage.findQueue(key).then(function(queue) {
-        return res.status(200).json({
-          message: 'queue retrieved successfully',
-          id: queue.id,
-          name: queue.url
+        apiApp.get('/workinghours/:zone/:queue', isBearerAuthenticated, needsPermission('workinghours.read'), call._workingHours);
+
+        apiApp.get('/email', isBearerAuthenticated, email.getEmail);
+
+        apiApp.post('/email', isBearerAuthenticated, email.sendEmail);
+
+        /**
+         * @param {String} key - license_key should be unique for each user.
+         * @return {@link MissedParams} @param key doesn't exist
+         * @return HTTP status - 200
+         * @return HTTP status - 404 {@link NotFound} If can't return queue data
+         * @example
+         * {'message':'queue retrieved successfully','id':id_no ,'name':url}
+         */
+        apiApp.get('/queue', isBearerAuthenticated, function(req, res, next) {
+            var key = req.user.license_key;
+            storage.findQueue(key).then(function(queue) {
+                return res.status(200).json({
+                    message: 'queue retrieved successfully',
+                    id: queue.id,
+                    name: queue.url
+                });
+            }).otherwise(function(error) {
+                return next(new Forbidden(error, req.originalUrl));
+            });
         });
-      }).otherwise(function(error) {
-        return next(new Forbidden(error, req.originalUrl));
-      });
+
+        apiApp.use(errorHandler.log);
+        apiApp.use(errorHandler.handle);
+
+
+        return resolve(apiApp);
     });
-
-    apiApp.use(errorHandler.log);
-    apiApp.use(errorHandler.handle);
-
-
-    return resolve(apiApp);
-  });
 }
 
 module.exports = {
-  init: init
+    init: init
 }

@@ -4,8 +4,8 @@ module.exports = function(sequelize, DataTypes) {
   return sequelize.define('feedback', {
     id: {
       type: DataTypes.INTEGER(11),
-      primaryKey: true,
-      autoIncrement: true
+      allowNull: false,
+      primaryKey:true
     },
     call_id: {
       type: DataTypes.INTEGER(32),

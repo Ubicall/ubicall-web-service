@@ -4,8 +4,8 @@ module.exports = function(sequelize, DataTypes) {
   return sequelize.define('admin', {
     id: {
       type: DataTypes.INTEGER(100),
-      primaryKey: true,
-      autoIncrement: true
+      allowNull: false,
+      primaryKey:true
     },
     full_name: {
       type: DataTypes.STRING,
