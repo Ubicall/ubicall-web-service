@@ -20,16 +20,18 @@ var NotFound = require('./utils/errors').NotFound;
 * @param {String} req.user.licence_key - your api licence_key
 * @throws {@link NotFound} if no email found
 * @return HTTP 200 if your email retrieved successfully
-* @example "message": "email retrieved successfully", "email": [
-    {
-      "id": 5,
-      "client_id": 1,
-      "licence_key": "XXXXXXXXXX",
-      "name": "Ahmed",
-      "destination": "ayousef@sandcti.com",
-      "subject": "Sales request",
-      "message": null
-    }]
+* @example 
+* // returns { "emails": [
+* //   {
+* //      "id": XX,"client_id": XXXXX,"licence_key": "XXXXXXXXXX","name": "XXX XXXX",
+* //     "destination": "sales@sandcti.com","subject": "Sales request","message": null
+* //    },
+* //   {
+* //      "id": XXX,"client_id": XXXXXX,"licence_key": "XXXXXXXXXX","name": "XXX XXXX",
+* //      "destination": "support@sandcti.com","subject": "Support request","message": null
+* //   },
+* //  ]    
+* //}
 * GET  /email
 * @memberof API
 */
