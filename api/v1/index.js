@@ -92,9 +92,9 @@ function init(_settings, _storage) {
 
         apiApp.get('/workinghours/:zone/:queue', isBearerAuthenticated, needsPermission('workinghours.read'), call._workingHours);
 
-        apiApp.get('/email', isBearerAuthenticated, email.getEmail);
+        apiApp.get('/email', isBearerAuthenticated, needsPermission('email.read'),email.getEmail);
 
-        apiApp.post('/email', isBearerAuthenticated, email.sendEmail);
+        apiApp.post('/email', isBearerAuthenticated, needsPermission('email.write'),email.sendEmail);
 
         /**
          * @param {String} key - license_key should be unique for each user.
