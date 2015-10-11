@@ -20,7 +20,7 @@ var NotFound = require('./utils/errors').NotFound;
 * @param {String} req.user.licence_key - your api licence_key
 * @throws {@link NotFound} if no email found
 * @return HTTP 200 if your email retrieved successfully
-* @example 
+* @example
 * // returns { "emails": [
 * //   {
 * //      "id": XX,"client_id": XXXXX,"licence_key": "XXXXXXXXXX","name": "XXX XXXX",
@@ -30,7 +30,7 @@ var NotFound = require('./utils/errors').NotFound;
 * //      "id": XXX,"client_id": XXXXXX,"licence_key": "XXXXXXXXXX","name": "XXX XXXX",
 * //      "destination": "support@sandcti.com","subject": "Support request","message": null
 * //   },
-* //  ]    
+* //  ]
 * //}
 * GET  /email
 * @memberof API
@@ -39,7 +39,6 @@ function getEmail(req, res, next) {
     var licence_key = req.user.licence_key;
     storage.getEmail(licence_key).then(function(email) {
         return res.status(200).json({
-            message: "email retrieved successfully",
             email: email
         });
     }).otherwise(function(err) {
@@ -79,9 +78,7 @@ function sendEmail(req, res, next) {
     }
     storage.getEmail2(email.email_id).then(function(result) {
         storage.insertEmail(result.subject, result.destination, email).then(function(email) {
-            return res.status(200).json({
-                message: 'email sent successfully'
-            });
+            return res.status(200);
         }).otherwise(function(error) {
             return next(new ServerError(error, req.path));
         });

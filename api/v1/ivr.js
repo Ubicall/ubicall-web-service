@@ -55,7 +55,7 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
 * @return HTTP status 200 - when your licence_key ivr fetched successfully
 * @example
 * // returns { message: "ivr with version "+ version.version +"retrieved successfully",version : version.version ,url : version.url }
-* GET /ivr/:license_key
+* GET /ivr
 * @memberof API
 */
 function fetchIvr(req, res , next) {
@@ -92,8 +92,8 @@ function fetchIvr(req, res , next) {
 * @todo check on plistHost concatenated with slash
 * @example
 * // returns {message: "mobile & web clients updated successfully"}
-* POST /ivr/:license_key/:version
-* PUT /ivr/:license_key/:version
+* POST /ivr/:version
+* PUT /ivr/:version
 * @memberof API
 */
 function deployIVR(req, res, next) {
