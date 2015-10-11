@@ -1,35 +1,35 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('pl_user', {
-    pl_id: {
-      type: DataTypes.INTEGER(11),
+  return sequelize.define('email_destination', {
+    id: {
+      type: DataTypes.INTEGER(100),
       allowNull: false,
       primaryKey:true
     },
-    pl_username: {
+    client_id: {
+      type: DataTypes.INTEGER(100),
+      allowNull: false,
+    },
+    licence_key: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    pl_name: {
+    name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    pl_password: {
+    destination: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    pl_email: {
+    subject: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
-    pl_status: {
-      type: DataTypes.INTEGER(11),
-      allowNull: false,
-    },
-    pl_type: {
-      type: DataTypes.INTEGER(11),
-      allowNull: false,
+    message: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     }
   });
 };

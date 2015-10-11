@@ -51,6 +51,35 @@ var storageModuleInterface = {
             return reject(error);
         });
     },
+    getEmail: function(licence_key) {
+        return when.promise(function(resolve, reject) {
+            ubicallStorageModule.getEmail(licence_key).then(function(result) {
+                return resolve(result);
+            });
+        }).otherwise(function(error) {
+            return reject(error);
+        });
+    },
+
+    getEmail2: function(email_id) {
+        return when.promise(function(resolve, reject) {
+            ubicallStorageModule.getEmail2(email_id).then(function(result) {
+                return resolve(result);
+            });
+        }).otherwise(function(error) {
+            return reject(error);
+        });
+    },
+
+    insertEmail: function(email, subject, destination) {
+        return when.promise(function(resolve, reject) {
+            ubicallStorageModule.insertEmail(email, subject, destination).then(function(email) {
+                return resolve(email);
+            }).otherwise(function(error) {
+                return reject(error);
+            });
+        })
+    },
     scheduleCall: function(call) {
         return when.promise(function(resolve, reject) {
             return ubicallStorageModule.scheduleCall(call).then(function(call) {

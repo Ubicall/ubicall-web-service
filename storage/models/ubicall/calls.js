@@ -4,8 +4,8 @@ module.exports = function(sequelize, DataTypes) {
   return sequelize.define('calls', {
     id: {
       type: DataTypes.INTEGER(10),
-      primaryKey: true,
-      autoIncrement: true
+      allowNull: false,
+      primaryKey:true
     },
     queue_id: {
       type: DataTypes.INTEGER(10),
