@@ -78,7 +78,7 @@ function sendEmail(req, res, next) {
     }
     storage.getEmail2(email.email_id).then(function(result) {
         storage.insertEmail(result.subject, result.destination, email).then(function(email) {
-            return res.status(200);
+            return res.status(200).json({});
         }).otherwise(function(error) {
             return next(new ServerError(error, req.path));
         });
