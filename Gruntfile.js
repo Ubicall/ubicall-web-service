@@ -36,7 +36,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-nginx');
 
   grunt.registerTask('preserve', 'connect resources for development mode deployment', [
-    'jsdoc:docs', 'copy:docs', 'copy:nginx', 'nginx:restart'
+    'jsdoc:docs', 'copy:docs'
   ]);
 
   grunt.registerTask('prebuild', 'connect resources for production mode deployment', [

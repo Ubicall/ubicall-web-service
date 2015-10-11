@@ -19,10 +19,8 @@ var NotFound = require('./utils/errors').NotFound;
 * @param {Array} email -email input data
 * @param {String} req.user.licence_key - your api licence_key
 * @throws {@link NotFound} if no email found
-* @example
-* // returns
-"message": "email retrieved successfully",
-  "email": [
+* @return HTTP 200 if your email retrieved successfully
+* @example "message": "email retrieved successfully", "email": [
     {
       "id": 5,
       "client_id": 1,
@@ -32,6 +30,8 @@ var NotFound = require('./utils/errors').NotFound;
       "subject": "Sales request",
       "message": null
     }]
+* GET  /email
+* @memberof API
 */
 function getEmail(req, res, next) {
     var licence_key = req.user.licence_key;
@@ -53,12 +53,14 @@ function getEmail(req, res, next) {
  * @param {String} req.body.long - the input longitude
  * @param {String} req.body.email_id - email id
  * @param {String} req.body.address - address
- * @param {String} req.body.device_token -  your mobile device_token, not required if you use web client
- * @param {String} req.body.device_uid - each device has a unique user id @default **0000**
+ * @param {String} req.body.device_token -  your mobile device_token
+ * @return HTTP 200 if your call submitted successfully
  * @throws {@link NotFound} if no email found
  * @throws {@link MissedParams} if no input email id
  * @throws {@link ServerError} if cannot send email
  * @example message: 'email sent successfully'
+ * POST  /email
+ * @memberof API
  */
 function sendEmail(req, res, next) {
     var email = {};
