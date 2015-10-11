@@ -380,7 +380,7 @@ function map_day(day){
 * @throws {@link NotFound} if storage.getHours failed to return working hours using admin.id
 * @example
 * // returns {message: "successful","remaining":47.03625,"waiting":315}
-* GET /time/:license_key/:zone/:queue
+* GET /workinghours/:zone/:queue
 * @memberof API
 */
 function _workingHours(req,res,next){
