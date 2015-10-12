@@ -25,7 +25,6 @@ var MissedParams = require('./utils/errors').MissedParams;
 var Forbidden = require('./utils/errors').Forbidden;
 var ServerError = require('./utils/errors').ServerError;
 var NotFound = require('./utils/errors').NotFound;
-var isBearerAuthenticated = require('ubicall-oauth').isBearerAuthenticated;
 var needsPermission = require('ubicall-oauth').needsPermission;
 var passport = require('passport');
 var settings, storage;
@@ -42,7 +41,6 @@ function init(_settings, _storage) {
         })
 
         apiApp.use(passport.initialize());
-        apiApp.use(passport.session());
         apiApp.use(bodyParser.urlencoded({
             extended: true
         }));
@@ -50,51 +48,51 @@ function init(_settings, _storage) {
         // apiApp.use(cors(ubicallCors.options));
         // apiApp.use(ubicallCors.cors);
 
-        apiApp.post('/sip/call', isBearerAuthenticated, needsPermission('sip.call.write'), midware.callExtract, call.createSipCall);
+        apiApp.post('/sip/call', needsPermission('sip.call.write'), midware.callExtract, call.createSipCall);
 
-        apiApp.post('/web/call', isBearerAuthenticated, needsPermission('web.call.write'), midware.callExtract, call.createWebCall);
+        apiApp.post('/web/call', needsPermission('web.call.write'), midware.callExtract, call.createWebCall);
 
-        apiApp.delete('/call/:call_id', isBearerAuthenticated, needsPermission('call.delete'), call.cancel);
+        apiApp.delete('/call/:call_id', needsPermission('call.delete'), call.cancel);
 
-        apiApp.get('/call/:call_id', isBearerAuthenticated, needsPermission('call.read'), midware.isCallExist, call.getDetail);
+        apiApp.get('/call/:call_id', needsPermission('call.read'), midware.isCallExist, call.getDetail);
 
-        apiApp.get('/call/queue/:queue_id/:queue_slug', isBearerAuthenticated, needsPermission('call.make'), midware.ensureRTMP, call.call);
+        apiApp.get('/call/queue/:queue_id/:queue_slug', needsPermission('call.make'), midware.ensureRTMP, call.call);
 
-        apiApp.put('/call/:call_id/done', isBearerAuthenticated, needsPermission('call.write'), midware.isCallExist, call.done);
+        apiApp.put('/call/:call_id/done', needsPermission('call.write'), midware.isCallExist, call.done);
 
-        apiApp.put('/call/:call_id/failed', isBearerAuthenticated, needsPermission('call.write'), midware.isCallExist, call.failed);
+        apiApp.put('/call/:call_id/failed', needsPermission('call.write'), midware.isCallExist, call.failed);
 
-        apiApp.post('/call/:call_id/feedback', isBearerAuthenticated, needsPermission('feedback.write'), call.submitFeedback);
+        apiApp.post('/call/:call_id/feedback', needsPermission('feedback.write'), call.submitFeedback);
 
-        apiApp.put('/call/:call_id/feedback', isBearerAuthenticated, needsPermission('feedback.write'), call.submitFeedback);
+        apiApp.put('/call/:call_id/feedback', needsPermission('feedback.write'), call.submitFeedback);
 
-        apiApp.post('/sip/account', isBearerAuthenticated, needsPermission('sip.account.write'), sip.createSipAccount);
+        apiApp.post('/sip/account', needsPermission('sip.account.write'), sip.createSipAccount);
 
-        apiApp.post('/web/account', isBearerAuthenticated, needsPermission('web.account.write'), sip.createWebAccount);
+        apiApp.post('/web/account', needsPermission('web.account.write'), sip.createWebAccount);
 
-        apiApp.get('/ivr', isBearerAuthenticated, needsPermission('ivr.read'), ivr.fetchIvr);
+        apiApp.get('/ivr', needsPermission('ivr.read'), ivr.fetchIvr);
 
-        apiApp.post('/ivr/:version', isBearerAuthenticated, needsPermission('ivr.write'), ivr.deployIVR);
+        apiApp.post('/ivr/:version', needsPermission('ivr.write'), ivr.deployIVR);
 
-        apiApp.put('/ivr/:version', isBearerAuthenticated, needsPermission('ivr.write'), ivr.deployIVR);
+        apiApp.put('/ivr/:version', needsPermission('ivr.write'), ivr.deployIVR);
 
-        apiApp.post('/agent', isBearerAuthenticated, needsPermission('agent.write'), agent.update);
+        apiApp.post('/agent', needsPermission ('agent.write'), agent.update);
 
-        apiApp.put('/agent', isBearerAuthenticated, needsPermission('agent.write'), agent.update);
+        apiApp.put('/agent', needsPermission ('agent.write'), agent.update);
 
-        apiApp.post('/agent/image', isBearerAuthenticated, needsPermission('agent.write'), upload.single('image'), agent.updateImage);
+        apiApp.post('/agent/image', needsPermission ('agent.write'), upload.single('image'), agent.updateImage);
 
-        apiApp.put('/agent/image', isBearerAuthenticated, needsPermission('agent.write'), upload.single('image'), agent.updateImage);
+        apiApp.put('/agent/image', needsPermission ('agent.write'), upload.single('image'), agent.updateImage);
 
-        apiApp.get('/agent/calls', isBearerAuthenticated, needsPermission('agent.calls.read'), agent.calls);
+        apiApp.get('/agent/calls', needsPermission ('agent.calls.read'), agent.calls);
 
-        apiApp.get('/agent/queues', isBearerAuthenticated, needsPermission('agent.calls.read'), agent.queues);
+        apiApp.get('/agent/queues', needsPermission ('agent.calls.read'), agent.queues);
 
-        apiApp.get('/workinghours/:zone/:queue', isBearerAuthenticated, needsPermission('workinghours.read'), call._workingHours);
+        apiApp.get('/workinghours/:zone/:queue', needsPermission ('workinghours.read'), call._workingHours);
 
-        apiApp.get('/email', isBearerAuthenticated, needsPermission('email.read'),email.getEmail);
+        apiApp.get('/email', needsPermission ('email.read'),email.getEmail);
 
-        apiApp.post('/email', isBearerAuthenticated, needsPermission('email.write'),email.sendEmail);
+        apiApp.post('/email', needsPermission ('email.write'),email.sendEmail);
 
         /**
          * @param {String} key - license_key should be unique for each user.
@@ -104,7 +102,7 @@ function init(_settings, _storage) {
          * @example
          * {'message':'queue retrieved successfully','id':id_no ,'name':url}
          */
-        apiApp.get('/queue', isBearerAuthenticated, function(req, res, next) {
+        apiApp.get('/queue',   function(req, res, next) {
             var key = req.user.license_key;
             storage.findQueue(key).then(function(queue) {
                 return res.status(200).json({
