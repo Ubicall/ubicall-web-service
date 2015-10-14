@@ -19,7 +19,6 @@ var ServerError =require('./utils/errors').ServerError;
 /**
 * create sip account for mobile client
 * @param {Object} req.body - request body Object
-* @param {String} req.user.licence_key - your api licence_key
 * @param {String} req.body.sdk_name -the name of the sdk. Each client have a unique name
 * @param {String} req.body.sdk_version -version of the client’s sdk.
 * @param {String} req.body.device_model - the model of the device. (Ex: IPhone 5, iPhone 6, Samsung S3)
@@ -106,7 +105,6 @@ function createSipAccount(req, res, next) {
 /**
 * create sip account for web client
 * @param {Object} req.body - request body object
-* @param {String} req.user.licence_key - unique api licence_key
 * @param {String} req.body.sdk_name -the name of the sdk.
 * @param {String} req.body.sdk_version -version of the client’s sdk.
 * @param {String} req.body.uid - each device has a unique user id @default **0000**
