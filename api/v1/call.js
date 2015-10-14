@@ -370,7 +370,6 @@ function map_day(day){
 }
 /**
 * Gets the working hours of admin and whether the day is available or not
-* @param license_key {String} to get admin id
 * @param zone Time zone {Number} send to server to match the UTC server time
 * @param queue_id {Number} used to get count of queues of calls with status 'RETRY' or 'CANCELED'
 * @return HTTP status 200 - if minutes sent successfully

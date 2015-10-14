@@ -49,7 +49,6 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
 /**
 * get latest ivr for @param licence_key
 * @param req.params - req params object
-* @param {String} req.user.licence_key - your api licence key
 * @throws {@link MissedParams} - if @param licence_key is missed
 * @throws {@link NotFound} - if storage.getVersion failed
 * @return HTTP status 200 - when your licence_key ivr fetched successfully
@@ -78,7 +77,6 @@ function fetchIvr(req, res , next) {
 /**
 * deploy ivr in both Mobile and Web clients
 * @param {Object} req.params - request param Object
-* @param {String} req.user.licence_key - your license key
 * @param {String} req.params.version - the version of plist file.
 * @param {Object} req.headers - request headers object
 * @param {Url} req.headers.plistHost - param can override default plistHost value

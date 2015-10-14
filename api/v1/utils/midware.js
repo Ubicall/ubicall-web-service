@@ -54,7 +54,6 @@ function isCallExist(req, res, next) {
  * @param {integer} req.body.caller_type - flag to distinguish between mobile app [android - iphone - web - pstn] , web and regular phone call as {iphone : 0 , android : 1 , web : 2 , phone : 3}
  * @param {integer} req.body.sip - your phone number , virtual which generated from /sip/account or /web/account APIs or your real phone number if you will recieve un voip call
  * @param {integer} req.body.queue - what queue id you like to submit your call
- * @param {UID} req.body.licence_key - your api licence_key
  * @param {UID} req.body.device_token - your mobile device_token, not required if you use web client
  * @param {Object} req.body.call_data - json object contain your call meta info @default **NULL**
  * @param {UID} req.body.longitude - your location longitude and it grabbed automatically @default **NULL**
