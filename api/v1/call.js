@@ -350,6 +350,11 @@ function submitFeedback(req, res, next) {
   });
 
 }
+
+/**
+helper function to map day from Number to STRING
+* example: 0 ---> day_6
+*/
 function map_day(day){
   var strDay='';
   if(day == 0)
@@ -379,6 +384,8 @@ function map_day(day){
 * @throws {@link NotFound} if storage.getHours failed to return working hours using admin.id
 * @example
 * // returns {message: "successful","remaining":47.03625,"waiting":315}
+* // returns {message: "closed","starts":9:00,"ends":17:00}
+* // returns {message: "day off"}
 * GET /workinghours/:zone/:queue
 * @memberof API
 */

@@ -26,7 +26,6 @@ var ServerError =require('./utils/errors').ServerError;
 * @param {String} req.body.device_token -  your mobile device_token, not required if you use web client
 * @param {String} req.body.device_uid - each device has a unique user id @default **0000**
 * @param {String} req.body.device_name - name of your device @default **UNKNOWN**
-* @throws {@link MissedParams} if @param device.license_key is missing
 * @throws {@link MissedParams} if @param device.sdk_name is missing
 * @throws {@link MissedParams} if @param device.sdk_version is missing
 * @throws {@link MissedParams} if @param device.device_model is missing
@@ -46,7 +45,7 @@ function createSipAccount(req, res, next) {
   var device = {};
   var missingParams = [];
 
-  device.license_key = req.user.licence_key || missingParams.push("license_key");
+  device.license_key = req.user.licence_key;
   device.sdk_name = req.body.sdk_name || missingParams.push("sdk_name");
   device.sdk_version = req.body.sdk_version || missingParams.push("sdk_version");
   device.token = req.body.device_token || missingParams.push("device_token");
@@ -112,7 +111,6 @@ function createSipAccount(req, res, next) {
 * @param {String} req.body.name - name of your device @default **WEB**
 * @param {String} req.body.model - the model of the device @default **WEB**
 * @param {String} req.body.version - device’s version @default **WEB**
-* @throws {@link MissedParams} if license_key was missed
 * @throws {@link MissedParams} if sdk_name was missed
 * @throws {@link MissedParams} if sdk_version was missed
 * @return {@link Forbidden} if no client found with this license_key
@@ -129,7 +127,7 @@ function createWebAccount(req, res, next) {
   var device = {};
   var missingParams = [];
 
-  device.license_key = req.user.licence_key || missingParams.push("license_key");;
+  device.license_key = req.user.licence_key;
   device.sdk_name = req.body.sdk_name || missingParams.push("sdk_name");;
   device.sdk_version = req.body.sdk_version || missingParams.push("sdk_version");
   device.uid = req.body.device_uid || '0000';
