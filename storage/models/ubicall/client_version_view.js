@@ -4,8 +4,8 @@ module.exports = function(sequelize, DataTypes) {
   return sequelize.define('client_version_view', {
     id: {
       type: DataTypes.INTEGER(64),
-      allowNull: false,
-      primaryKey:true
+      primaryKey: true,
+      autoIncrement: true
     },
     client_id: {
       type: DataTypes.INTEGER(64),

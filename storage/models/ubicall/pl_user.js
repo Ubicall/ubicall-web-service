@@ -4,8 +4,8 @@ module.exports = function(sequelize, DataTypes) {
   return sequelize.define('pl_user', {
     pl_id: {
       type: DataTypes.INTEGER(11),
-      allowNull: false,
-      primaryKey:true
+      primaryKey: true,
+      autoIncrement: true
     },
     pl_username: {
       type: DataTypes.STRING,

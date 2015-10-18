@@ -4,8 +4,8 @@ module.exports = function(sequelize, DataTypes) {
   return sequelize.define('email_destination', {
     id: {
       type: DataTypes.INTEGER(100),
-      allowNull: false,
-      primaryKey:true
+      primaryKey: true,
+      autoIncrement: true
     },
     client_id: {
       type: DataTypes.INTEGER(100),

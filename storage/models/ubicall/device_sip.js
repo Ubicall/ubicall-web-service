@@ -4,8 +4,8 @@ module.exports = function(sequelize, DataTypes) {
   return sequelize.define('device_sip', {
     id: {
       type: DataTypes.INTEGER(11),
-      allowNull: false,
-      primaryKey:true
+      primaryKey: true,
+      autoIncrement: true
     },
     sdk_name: {
       type: DataTypes.STRING,

@@ -6,9 +6,8 @@ module.exports = function(sequelize, DataTypes) {
   return sequelize.define('send_email', {
     id: {
       type: DataTypes.INTEGER(11),
-      allowNull: false,
-      primaryKey:true,
-      autoIncrement:true
+      primaryKey: true,
+      autoIncrement: true
     },
     email_id: {
       type: DataTypes.INTEGER(11),

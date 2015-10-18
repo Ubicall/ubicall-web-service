@@ -4,8 +4,8 @@ module.exports = function(sequelize, DataTypes) {
   return sequelize.define('demo_calls', {
     id: {
       type: DataTypes.INTEGER(11),
-      allowNull: false,
-      primaryKey:true
+      primaryKey: true,
+      autoIncrement: true
     },
     phone: {
       type: DataTypes.STRING,
