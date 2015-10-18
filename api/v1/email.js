@@ -59,7 +59,8 @@ function getEmail(req, res, next) {
  * @throws {@link NotFound} if no email found
  * @throws {@link MissedParams} if no input email id
  * @throws {@link ServerError} if cannot send email
- * @example message: 'email sent successfully'
+ * @example
+ * // returns { message: "email submitted successfully"}
  * POST  /email
  * @memberof API
  */
@@ -78,7 +79,7 @@ function sendEmail(req, res, next) {
     }
     storage.getEmail2(email.email_id).then(function(result) {
         storage.insertEmail(result.subject, result.destination, email).then(function(email) {
-            return res.status(200).json({});
+            return res.status(200).json({message : "email submitted successfully"});
         }).otherwise(function(error) {
             return next(new ServerError(error, req.path));
         });
