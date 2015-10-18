@@ -47,12 +47,10 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
 }
 
 /**
-* get latest ivr for @param licence_key
+* get latest ivr
 * @param req.params - req params object
-* @param {String} req.user.licence_key - your api licence key
-* @throws {@link MissedParams} - if @param licence_key is missed
 * @throws {@link NotFound} - if storage.getVersion failed
-* @return HTTP status 200 - when your licence_key ivr fetched successfully
+* @return HTTP status 200 - when your ivr fetched successfully
 * @example
 * // returns { message: "ivr with version "+ version.version +"retrieved successfully",version : version.version ,url : version.url }
 * GET /ivr
@@ -60,9 +58,6 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
 */
 function fetchIvr(req, res , next) {
   var license_key = req.user.licence_key;
-  if (!license_key) {
-    return next(new MissedParams(req.path, "license_key"));
-  }
   storage.getVersion(license_key).then(function(version) {
     return res.status(200).json({
       message: "ivr with version "+ version.version +"retrieved successfully",
@@ -78,14 +73,12 @@ function fetchIvr(req, res , next) {
 /**
 * deploy ivr in both Mobile and Web clients
 * @param {Object} req.params - request param Object
-* @param {String} req.user.licence_key - your license key
 * @param {String} req.params.version - the version of plist file.
 * @param {Object} req.headers - request headers object
 * @param {Url} req.headers.plistHost - param can override default plistHost value
-* @throws {@link MissedParams} - if @param ivr.license_key is missing
 * @throws {@link MissedParams} - if @param ivr.version is missing
 * @throws {@link ServerError} - if unable able to Update Web -  message *Unable to update Web,hence cannot update Mobile*
-* @throws {@link Forbidden} - if not able to fetch ivr with @param licence_key from storage
+* @throws {@link Forbidden} - if not able to fetch ivr with from storage
 * @throws {@link ServerError} - if web updated but unable to update mobile client , so we rollback web to previous version - message *Unable to update Mobile,hence rollback web*
 * @throws {@link ServerError} - if web updated but unable to update mobile client **and failed to rollback web version** - message *Unable to update Mobile or rollback web*
 * @return HTTP status 200 - if ivr deplyed successfully in both web and mobile clients
@@ -100,10 +93,6 @@ function deployIVR(req, res, next) {
   var ivr = {};
   ivr.license_key = req.user.licence_key;
   ivr.version = req.params.version;
-
-  if (!ivr.license_key) {
-    return next(new MissedParams(req.path, "license_key"));
-  }
 
   if (!ivr.version) {
     return next(new MissedParams(req.path, "version"));
