@@ -5,11 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "jasmine-node spec/api/ --junitreport",
-    "js-beautify": "node_modules/.bin/js-beautify -r **/*.js",
-    "jshint": "jshint -c .jshintrc --exclude-path .gitignore .",
+    "jshint": "node_modules/.bin/jshint -c .jshintrc --exclude-path .gitignore .",
+    "js-beautify": "node_modules/.bin/js-beautify -r **/*.js **/**/*.js",
     "git-add": "git add --all"
   },
   "pre-commit": [
+    "jshint",
     "js-beautify",
     "git-add"
   ],

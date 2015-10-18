@@ -1,20 +1,20 @@
 /**
-* api shared middleware
-* @version 0.0.1
-* @module api/v1/utils/midware
-* @exports .
-* @namespace middleware
-*/
-var when = require('when');
-var validator = require('validator');
-var settings = require('../../../settings');
-var NotImplementedError = require('./errors').NotImplementedError;
-var BadRequest = require('./errors').BadRequest;
-var MissedParams = require('./errors').MissedParams;
-var Forbidden = require('./errors').Forbidden;
-var ServerError = require('./errors').ServerError;
-var NotFound = require('./errors').NotFound;
-var log = require('../../../log');
+ * api shared middleware
+ * @version 0.0.1
+ * @module api/v1/utils/midware
+ * @exports .
+ * @namespace middleware
+ */
+var when = require("when");
+var validator = require("validator");
+var settings = require("../../../settings");
+var NotImplementedError = require("./errors").NotImplementedError;
+var BadRequest = require("./errors").BadRequest;
+var MissedParams = require("./errors").MissedParams;
+var Forbidden = require("./errors").Forbidden;
+var ServerError = require("./errors").ServerError;
+var NotFound = require("./errors").NotFound;
+var log = require("../../../log");
 
 /**
  * middleware to check if your request has @param x-rtmp-session
@@ -23,12 +23,12 @@ var log = require('../../../log');
  * @throws {@link MissedParams} if @param req.params.x-rtmp-session is undefined
  * @memberof middleware
  */
-function ensureRTMP(req, res, next){
-  req.user.rtmp = req.headers['x-rtmp-session']  || req.params['x-rtmp-session'] || req.query['x-rtmp-session'];
-  if(!req.user.rtmp){
-    return next(new MissedParams(req.path, ["x-rtmp-session"]));
-  }
-  next();
+function ensureRTMP(req, res, next) {
+    req.user.rtmp = req.headers["x-rtmp-session"] || req.params["x-rtmp-session"] || req.query["x-rtmp-session"];
+    if (!req.user.rtmp) {
+        return next(new MissedParams(req.path, ["x-rtmp-session"]));
+    }
+    next();
 }
 
 /**
@@ -39,13 +39,13 @@ function ensureRTMP(req, res, next){
  * @memberof middleware
  */
 function isCallExist(req, res, next) {
-  var call_id = req.params.call_id;
-  if (!call_id) {
-    return next(new MissedParams(req.path, "call_id"));
-  }
-  req.ubi = req.ubi || {};
-  req.ubi.call_id = req.params.call_id;
-  next();
+    var call_id = req.params.call_id;
+    if (!call_id) {
+        return next(new MissedParams(req.path, "call_id"));
+    }
+    req.ubi = req.ubi || {};
+    req.ubi.call_id = req.params.call_id;
+    next();
 }
 
 /**
@@ -69,41 +69,41 @@ function isCallExist(req, res, next) {
  */
 function callExtract(req, res, next) {
 
-  var call = {};
-  var missingParams = [];
+    var call = {};
+    var missingParams = [];
 
-  call.caller_type = req.body.caller_type || missingParams.push("caller_type");
-  call.sip = req.body.phone || req.body.sip || req.body.voiceuser_id || missingParams.push("phone");
-  call.queue = req.body.queue || req.body.queue_id || req.body.qid || missingParams.push("queue_id");
-  call.license_key =req.user.licence_key || missingParams.push("license_key");
+    call.caller_type = req.body.caller_type || missingParams.push("caller_type");
+    call.sip = req.body.phone || req.body.sip || req.body.voiceuser_id || missingParams.push("phone");
+    call.queue = req.body.queue || req.body.queue_id || req.body.qid || missingParams.push("queue_id");
+    call.license_key = req.user.licence_key || missingParams.push("license_key");
 
-  // if this is mobile call then device_token is critical parameter otherwise it not so important
-  if (call.caller_type == 0 || call.caller_type == 1) {
-    call.device_token = req.body.device_token || missingParams.push("device_token");
-  } else {
-    call.device_token = req.body.device_token;
-  }
-  //TODO check if call.call_data is valid json if exist
-  call.call_data = req.body.json || req.body.call_data || req.body.form_data;
-  call.longitude = req.body.longitude || req.body.long;
-  call.latitude = req.body.latitude || req.body.lat;
-  call.address = req.body.address;
-  call.time = req.body.time || req.body.call_time;
+    // if this is mobile call then device_token is critical parameter otherwise it not so important
+    if (call.caller_type === 0 || call.caller_type === 1) {
+        call.device_token = req.body.device_token || missingParams.push("device_token");
+    } else {
+        call.device_token = req.body.device_token;
+    }
+    //TODO check if call.call_data is valid json if exist
+    call.call_data = req.body.json || req.body.call_data || req.body.form_data;
+    call.longitude = req.body.longitude || req.body.long;
+    call.latitude = req.body.latitude || req.body.lat;
+    call.address = req.body.address;
+    call.time = req.body.time || req.body.call_time;
 
-  if (missingParams.length > 0) {
-    return next(new MissedParams(req.path, missingParams));
-  }
+    if (missingParams.length > 0) {
+        return next(new MissedParams(req.path, missingParams));
+    }
 
-  if (call.time && !validator.isAfter(call.time)) {
-    return next(new BadRequest(req.path, "call_time"));
-  }
-  req.ubi = {};
-  req.ubi.call = call;
-  next();
+    if (call.time && !validator.isAfter(call.time)) {
+        return next(new BadRequest(req.path, "call_time"));
+    }
+    req.ubi = {};
+    req.ubi.call = call;
+    next();
 }
 
 module.exports = {
-  ensureRTMP: ensureRTMP,
-  isCallExist : isCallExist,
-  callExtract : callExtract
-}
+    ensureRTMP: ensureRTMP,
+    isCallExist: isCallExist,
+    callExtract: callExtract
+};

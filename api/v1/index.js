@@ -5,28 +5,28 @@
  * @exports .
  * @namespace API
  */
-var express = require('express');
-var when = require('when');
-var bodyParser = require('body-parser');
-var cors = require('cors');
-var multer = require('multer');
-var ubicallCors = require('../../ubicallCors');
-var log = require('../../log');
-var sip = require('./sip');
-var call = require('./call');
-var email = require('./email');
-var agent = require('./agent');
-var ivr = require('./ivr');
-var midware = require('./utils/midware');
-var errorHandler = require('./utils/errorHandler');
-var NotImplementedError = require('./utils/errors').NotImplementedError;
-var BadRequest = require('./utils/errors').BadRequest;
-var MissedParams = require('./utils/errors').MissedParams;
-var Forbidden = require('./utils/errors').Forbidden;
-var ServerError = require('./utils/errors').ServerError;
-var NotFound = require('./utils/errors').NotFound;
-var needsPermission = require('ubicall-oauth').needsPermission;
-var passport = require('passport');
+var express = require("express");
+var when = require("when");
+var bodyParser = require("body-parser");
+var cors = require("cors");
+var multer = require("multer");
+var ubicallCors = require("../../ubicallCors");
+var log = require("../../log");
+var sip = require("./sip");
+var call = require("./call");
+var email = require("./email");
+var agent = require("./agent");
+var ivr = require("./ivr");
+var midware = require("./utils/midware");
+var errorHandler = require("./utils/errorHandler");
+var NotImplementedError = require("./utils/errors").NotImplementedError;
+var BadRequest = require("./utils/errors").BadRequest;
+var MissedParams = require("./utils/errors").MissedParams;
+var Forbidden = require("./utils/errors").Forbidden;
+var ServerError = require("./utils/errors").ServerError;
+var NotFound = require("./utils/errors").NotFound;
+var needsPermission = require("ubicall-oauth").needsPermission;
+var passport = require("passport");
 var settings, storage;
 var apiApp;
 
@@ -38,7 +38,7 @@ function init(_settings, _storage) {
 
         var upload = multer({
             dest: settings.cdn.agent.avatarDestinationFolder
-        })
+        });
 
         apiApp.use(passport.initialize());
         apiApp.use(bodyParser.urlencoded({
@@ -48,65 +48,65 @@ function init(_settings, _storage) {
         // apiApp.use(cors(ubicallCors.options));
         // apiApp.use(ubicallCors.cors);
 
-        apiApp.post('/sip/call', needsPermission('sip.call.write'), midware.callExtract, call.createSipCall);
+        apiApp.post("/sip/call", needsPermission("sip.call.write"), midware.callExtract, call.createSipCall);
 
-        apiApp.post('/web/call', needsPermission('web.call.write'), midware.callExtract, call.createWebCall);
+        apiApp.post("/web/call", needsPermission("web.call.write"), midware.callExtract, call.createWebCall);
 
-        apiApp.delete('/call/:call_id', needsPermission('call.delete'), call.cancel);
+        apiApp.delete("/call/:call_id", needsPermission("call.delete"), call.cancel);
 
-        apiApp.get('/call/:call_id', needsPermission('call.read'), midware.isCallExist, call.getDetail);
+        apiApp.get("/call/:call_id", needsPermission("call.read"), midware.isCallExist, call.getDetail);
 
-        apiApp.get('/call/queue/:queue_id/:queue_slug', needsPermission('call.make'), midware.ensureRTMP, call.call);
+        apiApp.get("/call/queue/:queue_id/:queue_slug", needsPermission("call.make"), midware.ensureRTMP, call.call);
 
-        apiApp.put('/call/:call_id/done', needsPermission('call.write'), midware.isCallExist, call.done);
+        apiApp.put("/call/:call_id/done", needsPermission("call.write"), midware.isCallExist, call.done);
 
-        apiApp.put('/call/:call_id/failed', needsPermission('call.write'), midware.isCallExist, call.failed);
+        apiApp.put("/call/:call_id/failed", needsPermission("call.write"), midware.isCallExist, call.failed);
 
-        apiApp.post('/call/:call_id/feedback', needsPermission('feedback.write'), call.submitFeedback);
+        apiApp.post("/call/:call_id/feedback", needsPermission("feedback.write"), call.submitFeedback);
 
-        apiApp.put('/call/:call_id/feedback', needsPermission('feedback.write'), call.submitFeedback);
+        apiApp.put("/call/:call_id/feedback", needsPermission("feedback.write"), call.submitFeedback);
 
-        apiApp.post('/sip/account', needsPermission('sip.account.write'), sip.createSipAccount);
+        apiApp.post("/sip/account", needsPermission("sip.account.write"), sip.createSipAccount);
 
-        apiApp.post('/web/account', needsPermission('web.account.write'), sip.createWebAccount);
+        apiApp.post("/web/account", needsPermission("web.account.write"), sip.createWebAccount);
 
-        apiApp.get('/ivr', needsPermission('ivr.read'), ivr.fetchIvr);
+        apiApp.get("/ivr", needsPermission("ivr.read"), ivr.fetchIvr);
 
-        apiApp.post('/ivr/:version', needsPermission('ivr.write'), ivr.deployIVR);
+        apiApp.post("/ivr/:version", needsPermission("ivr.write"), ivr.deployIVR);
 
-        apiApp.put('/ivr/:version', needsPermission('ivr.write'), ivr.deployIVR);
+        apiApp.put("/ivr/:version", needsPermission("ivr.write"), ivr.deployIVR);
 
-        apiApp.post('/agent', needsPermission ('agent.write'), agent.update);
+        apiApp.post("/agent", needsPermission("agent.write"), agent.update);
 
-        apiApp.put('/agent', needsPermission ('agent.write'), agent.update);
+        apiApp.put("/agent", needsPermission("agent.write"), agent.update);
 
-        apiApp.post('/agent/image', needsPermission ('agent.write'), upload.single('image'), agent.updateImage);
+        apiApp.post("/agent/image", needsPermission("agent.write"), upload.single("image"), agent.updateImage);
 
-        apiApp.put('/agent/image', needsPermission ('agent.write'), upload.single('image'), agent.updateImage);
+        apiApp.put("/agent/image", needsPermission("agent.write"), upload.single("image"), agent.updateImage);
 
-        apiApp.get('/agent/calls', needsPermission ('agent.calls.read'), agent.calls);
+        apiApp.get("/agent/calls", needsPermission("agent.calls.read"), agent.calls);
 
-        apiApp.get('/agent/queues', needsPermission ('agent.calls.read'), agent.queues);
+        apiApp.get("/agent/queues", needsPermission("agent.calls.read"), agent.queues);
 
-        apiApp.get('/workinghours/:zone/:queue', needsPermission ('workinghours.read'), call._workingHours);
+        apiApp.get("/workinghours/:zone/:queue", needsPermission("workinghours.read"), call._workingHours);
 
-        apiApp.get('/email', needsPermission ('email.read'),email.getEmail);
+        apiApp.get("/email", needsPermission("email.read"), email.getEmail);
 
-        apiApp.post('/email', needsPermission ('email.write'),email.sendEmail);
+        apiApp.post("/email", needsPermission("email.write"), email.sendEmail);
 
         /**
          * @param {String} key - license_key should be unique for each user.
-         * @return {@link MissedParams} @param key doesn't exist
+         * @return {@link MissedParams} @param key doesn"t exist
          * @return HTTP status - 200
-         * @return HTTP status - 404 {@link NotFound} If can't return queue data
+         * @return HTTP status - 404 {@link NotFound} If can"t return queue data
          * @example
-         * {'message':'queue retrieved successfully','id':id_no ,'name':url}
+         * {"message":"queue retrieved successfully","id":id_no ,"name":url}
          */
-        apiApp.get('/queue',   function(req, res, next) {
+        apiApp.get("/queue", function(req, res, next) {
             var key = req.user.license_key;
             storage.findQueue(key).then(function(queue) {
                 return res.status(200).json({
-                    message: 'queue retrieved successfully',
+                    message: "queue retrieved successfully",
                     id: queue.id,
                     name: queue.url
                 });
@@ -125,4 +125,4 @@ function init(_settings, _storage) {
 
 module.exports = {
     init: init
-}
+};

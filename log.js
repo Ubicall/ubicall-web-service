@@ -28,7 +28,7 @@ var logger = new (winston.Logger)({
 
 
 logger.add(winston.transports.Console, {
-  level: process.env.node_env != 'production' ? 'verbose' : 'info',
+  level: process.env.node_env !== 'production' ? 'verbose' : 'info',
   prettyPrint: true,
   colorize: true,
   silent: false,
@@ -36,7 +36,7 @@ logger.add(winston.transports.Console, {
 });
 
 logger.add(winston.transports.DailyRotateFile, {
-  level: process.env.node_env != 'production' ? 'verbose' : 'info',
+  level: process.env.node_env !== 'production' ? 'verbose' : 'info',
   prettyPrint: false,
   silent: false,
   colorize: false,
@@ -45,4 +45,4 @@ logger.add(winston.transports.DailyRotateFile, {
   json: false
 });
 
-module.exports = logger
+module.exports = logger;

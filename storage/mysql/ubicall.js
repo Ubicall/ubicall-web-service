@@ -23,7 +23,7 @@ function init(_settings) {
         settings = _settings;
         var _host = settings.storage.ubicall_mysql.external_ip;
         var _port = settings.storage.ubicall_mysql.external_port;
-        if (!process.env.db_env || process.env.db_env == "internal") {
+        if (!process.env.db_env || process.env.db_env === "internal") {
             _host = settings.storage.ubicall_mysql.internal_ip;
             _port = settings.storage.ubicall_mysql.internal_port;
         }
@@ -221,23 +221,23 @@ function getQueue(id) {
     });
 }
 
-function feedback(feedback) {
+function feedback(fdback) {
     return when.promise(function(resolve, reject) {
-        if (!feedback.call_id) {
-            return reject("no call found to sumit this feedback")
+        if (!fdback.call_id) {
+            return reject("no call found to sumit this feedback");
         }
         //update create to upsert , inside db the call id should be unique
         //TODO update time from server time to local time
         $feedback.create({
-            call_id: feedback.call_id,
-            feedback: feedback.feedback,
-            feedback_text: feedback.feedback_text,
+            call_id: fdback.call_id,
+            feedback: fdback.feedback,
+            feedback_text: fdback.feedback_text,
             time: moment().format(settings.call.date_format)
-        }).then(function(feedback) {
-            if (!feedback) {
+        }).then(function(feedk) {
+            if (!feedk) {
                 return reject('cannot send feedback');
             }
-            return resolve(feedback);
+            return resolve(feedk);
         }).catch(function(error) {
             return reject(error);
         });
@@ -276,7 +276,7 @@ function updateIVR(ivr) {
                 return reject('Invaled Key');
             }
         }).catch(function(error) {
-            return reject(error)
+            return reject(error);
         });
     });
 }
@@ -432,8 +432,8 @@ function getQueueCallsCount(_queue) {
     });
 }
 
-function updateAgentImage(agnt, image) {
-    var agnt = $agent.build(agnt);
+function updateAgentImage(xagnt, image) {
+    var agnt = $agent.build(xagnt);
     agnt.isNewRecord = false;
     return when.promise(function(resolve, reject) {
         return agnt.updateAttributes({
@@ -446,11 +446,11 @@ function updateAgentImage(agnt, image) {
     });
 }
 
-function updateAgent(agnt, data) {
-    var agnt = $agent.build(agnt);
+function updateAgent(xagnt, data) {
+    var agnt = $agent.build(xagnt);
     agnt.isNewRecord = false;
     return when.promise(function(resolve, reject) {
-        if (agnt.password == data.currentPass) {
+        if (agnt.password === data.currentPass) {
             var info = {};
             if (data.newPass) {
                 info.password = data.newPass;
@@ -484,7 +484,7 @@ function getCallDetail(agent, call_id) {
         }).catch(function(error) {
             return reject(error);
         });
-    })
+    });
 }
 
 function getHours(_id) {
@@ -692,4 +692,4 @@ module.exports = {
     getEmail2: getEmail2,
     insertEmail: insertEmail,
     getQueueCallsCount: getQueueCallsCount
-}
+};

@@ -1,22 +1,22 @@
 /**
-* agent main functionality
-* @version 0.0.1
-* @module api/v1/agent
-* @exports .
-* @namespace agent
-*/
-var when = require('when');
-var request = require('request');
-var validator = require('validator');
-var settings = require('../../settings');
-var storage = require('../../storage');
-var log = require('../../log');
-var NotImplementedError = require('./utils/errors').NotImplementedError;
-var BadRequest = require('./utils/errors').BadRequest;
-var MissedParams = require('./utils/errors').MissedParams;
-var Forbidden = require('./utils/errors').Forbidden;
-var ServerError = require('./utils/errors').ServerError;
-var NotFound = require('./utils/errors').NotFound;
+ * agent main functionality
+ * @version 0.0.1
+ * @module api/v1/agent
+ * @exports .
+ * @namespace agent
+ */
+var when = require("when");
+var request = require("request");
+var validator = require("validator");
+var settings = require("../../settings");
+var storage = require("../../storage");
+var log = require("../../log");
+var NotImplementedError = require("./utils/errors").NotImplementedError;
+var BadRequest = require("./utils/errors").BadRequest;
+var MissedParams = require("./utils/errors").MissedParams;
+var Forbidden = require("./utils/errors").Forbidden;
+var ServerError = require("./utils/errors").ServerError;
+var NotFound = require("./utils/errors").NotFound;
 
 
 /**
@@ -28,20 +28,20 @@ var NotFound = require('./utils/errors').NotFound;
  * @throws {@link ServerError} if storage.getCalls failed
  * @return HTTP status - 200 with agent calls as json
  * @example
- * // returns {[{{id : 'xx' , phone : 'xxxxx'} , call ...call}] }
+ * // returns {[{{id : "xx" , phone : "xxxxx"} , call ...call}] }
  * GET /agent/calls?page=1&per_page=5
  * @memberof API
  */
 function getCalls(req, res, next) {
-  var options = {};
-  options.page = req.query.page || 1;
-  options.per_page = req.query.per_page || 20;
-  storage.getCalls(req.user, options).then(function(calls) {
-    return res.status(200).json(calls);
-  }).otherwise(function(error) {
-    log.error('error : ' + error);
-    return next(new ServerError(error, req.path));
-  });
+    var options = {};
+    options.page = req.query.page || 1;
+    options.per_page = req.query.per_page || 20;
+    storage.getCalls(req.user, options).then(function(calls) {
+        return res.status(200).json(calls);
+    }).otherwise(function(error) {
+        log.error("error : " + error);
+        return next(new ServerError(error, req.path));
+    });
 }
 
 /**
@@ -50,17 +50,17 @@ function getCalls(req, res, next) {
  * @return {@link ServerError} if storage.getQueues failed
  * @return HTTP status - 200 with agent queues as json
  * @example
- * // returns {[{{id : 'xx' , name : 'xxxxx'} , queue ...queue}] }
+ * // returns {[{{id : "xx" , name : "xxxxx"} , queue ...queue}] }
  * GET /agent/queues
  * @memberof API
  */
 function getQueues(req, res, next) {
-  storage.getQueues(req.user).then(function(queues) {
-    return res.status(200).json(queues);
-  }).otherwise(function(error) {
-    log.error('error : ' + error);
-    return next(new ServerError(error, req.path));
-  });
+    storage.getQueues(req.user).then(function(queues) {
+        return res.status(200).json(queues);
+    }).otherwise(function(error) {
+        log.error("error : " + error);
+        return next(new ServerError(error, req.path));
+    });
 }
 
 /**
@@ -79,21 +79,23 @@ function getQueues(req, res, next) {
  * PUT /agent
  * @memberof API
  */
-function update(req,res,next){
-  var update = {};
-  update.currentPass = req.body.currentPass;
-  if(req.body.newPass){
-    update.newPass = req.body.newPass;
-  }
-  if(!update.currentPass){
-    return next(new MissedParams(req.path, ["currentPass"]));
-  }
-  storage.updateAgent(req.user ,update).then(function(done){
-      return res.status(200).json({message : "Your info updated"});
-    }).otherwise(function(error){
-      log.error('error : ' + error);
-      return next(new ServerError(error, req.path));
-  });
+function update(req, res, next) {
+    var updates = {};
+    updates.currentPass = req.body.currentPass;
+    if (req.body.newPass) {
+        updates.newPass = req.body.newPass;
+    }
+    if (!updates.currentPass) {
+        return next(new MissedParams(req.path, ["currentPass"]));
+    }
+    storage.updateAgent(req.user, updates).then(function(done) {
+        return res.status(200).json({
+            message: "Your info updated"
+        });
+    }).otherwise(function(error) {
+        log.error("error : " + error);
+        return next(new ServerError(error, req.path));
+    });
 }
 
 /**
@@ -108,22 +110,24 @@ function update(req,res,next){
  * PUT /agent/image
  * @memberof API
  */
-function updateImage(req,res,next){
-  if(!req.file){
-    return next(new MissedParams(req.path, "image"));
-  }
-  var image = settings.cdn.agent.avatarHost + req.file.name;
-  storage.updateAgentImage(req.user,image).then(function(){
-    return res.status(200).json({message : "Your Image updated"});
-  }).otherwise(function(error){
-    log.error('error : ' + error);
-    return next(new ServerError(error, req.path));
-  });
+function updateImage(req, res, next) {
+    if (!req.file) {
+        return next(new MissedParams(req.path, "image"));
+    }
+    var image = settings.cdn.agent.avatarHost + req.file.name;
+    storage.updateAgentImage(req.user, image).then(function() {
+        return res.status(200).json({
+            message: "Your Image updated"
+        });
+    }).otherwise(function(error) {
+        log.error("error : " + error);
+        return next(new ServerError(error, req.path));
+    });
 }
 
 module.exports = {
-  queues: getQueues,
-  calls: getCalls,
-  update:update,
-  updateImage:updateImage
-}
+    queues: getQueues,
+    calls: getCalls,
+    update: update,
+    updateImage: updateImage
+};

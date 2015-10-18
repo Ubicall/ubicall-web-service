@@ -25,7 +25,7 @@ storage.init(settings).then(function() {
   var meta = function(req, res) {
     res.status(200).json({
       'apiv1': 'https://api.ubicall.com/v1/'
-    })
+    });
   };
 
   app.get('/', meta);
@@ -35,7 +35,7 @@ storage.init(settings).then(function() {
     app.use('/v1' , apia);
 
     app.use(function(err, req, res, next) {
-      if (process.env.node_env != 'production') {
+      if (process.env.node_env !== 'production') {
         res.status(500).send({
           app: "api",
           message: err.message || err,
@@ -93,7 +93,7 @@ storage.init(settings).then(function() {
 */
 function getListenPath() {
   var listenPath = 'http' + (settings.https ? 's' : '') + '://' +
-    (settings.host == '0.0.0.0' ? '127.0.0.1' : settings.host) +
+    (settings.host === '0.0.0.0' ? '127.0.0.1' : settings.host) +
     ':' + settings.port || 4000;
   return listenPath;
 }

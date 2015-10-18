@@ -9,7 +9,7 @@ var ubicallStorageModule, astStorageModule, cacheModule, cache;
 function _initStorage(_settings) {
     var toReturnPromises = [];
     if (_settings.storage && _settings.storage.ubicallStorageModule) {
-        if (typeof _settings.storage.ubicallStorageModule === "string" && _settings.storage.ubicallStorageModule == "mysql") {
+        if (typeof _settings.storage.ubicallStorageModule === "string" && _settings.storage.ubicallStorageModule === "mysql") {
             ubicallStorageModule = require("./mysql/ubicall.js");
             astStorageModule = require("./mysql/ast_rt.js");
             webFSStorageModule = require("./mysql/web_fs_db.js");
@@ -17,7 +17,7 @@ function _initStorage(_settings) {
             toReturnPromises.push(astStorageModule.init(_settings));
             toReturnPromises.push(webFSStorageModule.init(_settings));
         } else {
-            throw new Error("unsupport storage")
+            throw new Error("unsupport storage");
         }
         toReturnPromises.push(agentInterface.init(ubicallStorageModule, astStorageModule, cacheModule, cache));
         toReturnPromises.push(callInterface.init(ubicallStorageModule, astStorageModule, cacheModule, cache));
@@ -78,7 +78,7 @@ var storageModuleInterface = {
             }).otherwise(function(error) {
                 return reject(error);
             });
-        })
+        });
     },
     scheduleCall: function(call) {
         return when.promise(function(resolve, reject) {
@@ -233,7 +233,7 @@ var storageModuleInterface = {
     incrementClientCount: function(clientId) {
         return when.promise(function(resolve, reject) {
             ubicallStorageModule.incrementClientCount(clientId).then(function(client) {
-                return resolve(client)
+                return resolve(client);
             }).otherwise(function(error) {
                 return reject(error);
             });

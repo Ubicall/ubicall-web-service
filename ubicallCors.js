@@ -21,7 +21,7 @@ function ubicallCors(req, res, next) {
     return res.status(403).json({
       message: 'Forbidden',
       hint: 'you don\'t allowed to call this api'
-    })
+    });
   } else {
     req.isOriginAllowed = true;
     next();

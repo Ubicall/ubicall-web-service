@@ -1,29 +1,29 @@
-var frisby = require('frisby');
+var frisby = require("frisby");
 
 
 
-frisby.create('post feedback')
-  .post('https://api.ubicall.com/v1/call/feedback/1',{
-     feedback: "test",
+frisby.create("post feedback")
+    .post("https://api.ubicall.com/v1/call/feedback/1", {
+        feedback: "test",
         feedback_text: "test text"
     })
-  .expectStatus(200)
+    .expectStatus(200)
 
-.expectJSON( {
-  message:'feedback sent successfully'
+.expectJSON({
+        message: "feedback sent successfully"
 
-  })
-.toss();
+    })
+    .toss();
 /////////////////////////////////////////
 
-frisby.create('Missed Params feedback')
-  .post('https://api.ubicall.com/v1/call/feedback/1',{
-       
-        
+frisby.create("Missed Params feedback")
+    .post("https://api.ubicall.com/v1/call/feedback/1", {
+
+
         feedback_text: "test text"
-      
+
     })
-  .expectStatus(422)
+    .expectStatus(422)
 
 
 .toss();
@@ -32,16 +32,13 @@ frisby.create('Missed Params feedback')
 
 
 
-frisby.create('get feedback')
-  .get('https://api.ubicall.com/v1/call/feedback/1',{
-      feedback: "test",
+frisby.create("get feedback")
+    .get("https://api.ubicall.com/v1/call/feedback/1", {
+        feedback: "test",
         feedback_text: "test text"
     })
-  .expectStatus(404)
+    .expectStatus(404)
 
 .toss();
 
 /////////////////////////
-
-
-

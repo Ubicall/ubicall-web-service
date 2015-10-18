@@ -1,6 +1,6 @@
-var frisby = require('frisby');
-frisby.create('post web Account')
-  .post('https://api.ubicall.com/v1/web/account',{
+var frisby = require("frisby");
+frisby.create("post web Account")
+    .post("https://api.ubicall.com/v1/web/account", {
         sdk_name: "ubcall1",
         sdk_version: 1.0,
         deviceuid: "32FCB73C-A977-43FB-B5A1-3E4F330F60D9",
@@ -10,20 +10,20 @@ frisby.create('post web Account')
         device_version: 8.4,
         license_key: "e6053eb8d35e02ae40beeeacef203c1a"
     })
-  .expectStatus(200)
+    .expectStatus(200)
 
-  .expectJSONTypes( {
-    username: String,
-    password: String,
-    domain:String
-   
-  })
-.toss();
+.expectJSONTypes({
+        username: String,
+        password: String,
+        domain: String
+
+    })
+    .toss();
 
 ///////////////////////////////////
 
-frisby.create('Missed Params web Account')
-  .post('https://api.ubicall.com/v1/web/account',{
+frisby.create("Missed Params web Account")
+    .post("https://api.ubicall.com/v1/web/account", {
         sdk_name: "ubcall1",
         sdk_version: 1.0,
         deviceuid: "32FCB73C-A977-43FB-B5A1-3E4F330F60D9",
@@ -33,17 +33,17 @@ frisby.create('Missed Params web Account')
         device_version: 8.4,
         license_key: "e6053eb8d35e02ae40beeeacef203c1a"
     })
-  .expectStatus(422)
+    .expectStatus(422)
 
-  .expectJSON( {
-  message:'Validation Failed',
+.expectJSON({
+        message: "Validation Failed",
 
 
-  })
-.toss();
+    })
+    .toss();
 /////////////////////////////////
-frisby.create('client not found web Account')
-  .post('https://api.ubicall.com/v1/web/account',{
+frisby.create("client not found web Account")
+    .post("https://api.ubicall.com/v1/web/account", {
         sdk_name: "ubcall1",
         sdk_version: 1.0,
         deviceuid: "32FCB73C-A977-43FB-B5A1-3E4F330F60D9",
@@ -53,17 +53,17 @@ frisby.create('client not found web Account')
         device_version: 8.4,
         license_key: "e6053eb8d35easdasdas02ae40beeeacef203c1a"
     })
-  .expectStatus(403)
+    .expectStatus(403)
 
-  .expectJSON( {
-  message:'message:Bad credentials',
+.expectJSON({
+        message: "message:Bad credentials",
 
-  })
-.toss();
+    })
+    .toss();
 
 /////////////////////////////////////
-frisby.create('get web Account')
-  .get('https://api.ubicall.com/v1/web/account',{
+frisby.create("get web Account")
+    .get("https://api.ubicall.com/v1/web/account", {
         sdk_name: "ubcall1",
         sdk_version: 1.0,
         deviceuid: "32FCB73C-A977-43FB-B5A1-3E4F330F60D9",
@@ -73,8 +73,6 @@ frisby.create('get web Account')
         device_version: 8.4,
         license_key: "e6053eb8d35e02ae40beeeacef203c1a"
     })
-  .expectStatus(404)
+    .expectStatus(404)
 
 .toss();
-
-

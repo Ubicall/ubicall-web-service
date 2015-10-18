@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('calls', {
+  return sequelize.define("calls", {
     id: {
       type: DataTypes.INTEGER(10),
       primaryKey: true,
@@ -26,7 +26,7 @@ module.exports = function(sequelize, DataTypes) {
     schedule_time: {
       type: DataTypes.DATE,
       allowNull: true,
-      defaultValue: 'CURRENT_TIMESTAMP'
+      defaultValue: "CURRENT_TIMESTAMP"
     },
     start_time: {
       type: DataTypes.DATE,
@@ -39,7 +39,7 @@ module.exports = function(sequelize, DataTypes) {
     retries: {
       type: DataTypes.INTEGER(10),
       allowNull: false,
-      defaultValue: '0'
+      defaultValue: "0"
     },
     duration: {
       type: DataTypes.INTEGER(10),
@@ -129,7 +129,7 @@ module.exports = function(sequelize, DataTypes) {
     caller_type: {
       type: DataTypes.INTEGER(4),
       allowNull: true,
-      defaultValue: '0'
+      defaultValue: "0"
     }
   });
 };

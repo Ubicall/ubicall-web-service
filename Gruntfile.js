@@ -45,4 +45,4 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', ['jsdoc:docs', 'copy:docs', 'copy:nginx', 'nginx:restart']);
 
-}
+};
