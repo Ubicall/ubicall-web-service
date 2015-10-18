@@ -24,7 +24,7 @@ var NotFound = require('./utils/errors').NotFound;
 * // returns { "emails": [
 * //   {
 * //      "id": XX,"client_id": XXXXX,"licence_key": "XXXXXXXXXX","name": "XXX XXXX",
-* //     "destination": "sales@sandcti.com","subject": "Sales request","message": null
+* //     "destination": "support@sandcti.com","subject": "Sales request","message": null
 * //    },
 * //   {
 * //      "id": XXX,"client_id": XXXXXX,"licence_key": "XXXXXXXXXX","name": "XXX XXXX",

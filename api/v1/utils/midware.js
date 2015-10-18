@@ -61,7 +61,6 @@ function isCallExist(req, res, next) {
  * @param {String} req.body.address - your location address and it grabbed automatically  @default **NULL**
  * @param {Date} req.body.time - time you like to call you , if not existed you will be called using FIFO algorithm (this may changed in next releases)  @default **NULL**
  * @todo check if req.body.call_data is valid json if exist
- * @todo check if req.body.licence_key is valid and enabled key
  * @throws {@link MissedParams} if @param req.body.caller_type is missing
  * @throws {@link MissedParams} if @param req.body.sip is missing
  * @throws {@link MissedParams} if @param req.body.device_token is missing and your client is mobile.

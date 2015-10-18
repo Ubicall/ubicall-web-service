@@ -47,10 +47,10 @@ function __deployToWeb(widgetHost, plistHost, license_key, version) {
 }
 
 /**
-* get latest ivr for @param licence_key
+* get latest ivr
 * @param req.params - req params object
 * @throws {@link NotFound} - if storage.getVersion failed
-* @return HTTP status 200 - when your licence_key ivr fetched successfully
+* @return HTTP status 200 - when your ivr fetched successfully
 * @example
 * // returns { message: "ivr with version "+ version.version +"retrieved successfully",version : version.version ,url : version.url }
 * GET /ivr
@@ -78,7 +78,7 @@ function fetchIvr(req, res , next) {
 * @param {Url} req.headers.plistHost - param can override default plistHost value
 * @throws {@link MissedParams} - if @param ivr.version is missing
 * @throws {@link ServerError} - if unable able to Update Web -  message *Unable to update Web,hence cannot update Mobile*
-* @throws {@link Forbidden} - if not able to fetch ivr with @param licence_key from storage
+* @throws {@link Forbidden} - if not able to fetch ivr with from storage
 * @throws {@link ServerError} - if web updated but unable to update mobile client , so we rollback web to previous version - message *Unable to update Mobile,hence rollback web*
 * @throws {@link ServerError} - if web updated but unable to update mobile client **and failed to rollback web version** - message *Unable to update Mobile or rollback web*
 * @return HTTP status 200 - if ivr deplyed successfully in both web and mobile clients
