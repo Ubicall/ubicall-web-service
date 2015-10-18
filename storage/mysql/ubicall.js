@@ -561,6 +561,16 @@ function insertEmail(subject, destination, email) {
 
 function getCall(agent, queue_id, queue_slug) {
     return when.promise(function(resolve, reject) {
+        // insure that agent has no more call with progress status #47
+        //TODO should be cached or something
+        $calls.update({
+            status: settings.call.status.retry
+        }, {
+            where: {
+                status: settings.call.status.progress,
+                id_agent: agent.id
+            }
+        });
         return $calls.findOne({
             where: Sequelize.and({
                     api_key: agent.licence_key
