@@ -350,6 +350,11 @@ function submitFeedback(req, res, next) {
   });
 
 }
+
+/**
+helper function to map day from Number to STRING
+* example: 0 ---> day_6
+*/
 function map_day(day){
   var strDay='';
   if(day == 0)
@@ -370,7 +375,6 @@ function map_day(day){
 }
 /**
 * Gets the working hours of admin and whether the day is available or not
-* @param license_key {String} to get admin id
 * @param zone Time zone {Number} send to server to match the UTC server time
 * @param queue_id {Number} used to get count of queues of calls with status 'RETRY' or 'CANCELED'
 * @return HTTP status 200 - if minutes sent successfully
@@ -380,6 +384,8 @@ function map_day(day){
 * @throws {@link NotFound} if storage.getHours failed to return working hours using admin.id
 * @example
 * // returns {message: "successful","remaining":47.03625,"waiting":315}
+* // returns {message: "closed","starts":9:00,"ends":17:00}
+* // returns {message: "day off"}
 * GET /workinghours/:zone/:queue
 * @memberof API
 */
