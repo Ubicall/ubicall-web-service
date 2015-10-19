@@ -51,7 +51,7 @@ function isCallExist(req, res, next) {
 /**
  * extract call attributes from request body
  * @param {Object} req.body - request body object
- * @param {integer} req.body.caller_type - flag to distinguish between mobile app [android - iphone - web - pstn] , web and regular phone call as {iphone : 0 , android : 1 , web : 2 , phone : 3}
+ * @param {integer} req.body.caller_type - flag to distinguish how actual call will acquired {iphone : 0 , android : 1 , web : 2 , phone : 3}, will extracted form req.client if not sent
  * @param {integer} req.body.sip - your phone number , virtual which generated from /sip/account or /web/account APIs or your real phone number if you will recieve un voip call
  * @param {integer} req.body.queue - what queue id you like to submit your call
  * @param {UID} req.body.device_token - your mobile device_token, not required if you use web client
@@ -71,8 +71,22 @@ function callExtract(req, res, next) {
 
     var call = {};
     var missingParams = [];
-
-    call.caller_type = req.body.caller_type || missingParams.push("caller_type");
+    call.caller_type = req.body.caller_type;
+    if(!call.caller_type){
+      switch (req.user.appid) {
+        case "ubicall-mob-ios":
+          call.caller_type = "0";
+          break;
+        case "ubicall-mob-android":
+          call.caller_type = "1";
+          break;
+        case "ubicall-widget":
+          call.caller_type = "2";
+          break;
+        default:
+          call.caller_type = missingParams.push("caller_type");
+      }
+    }
     call.sip = req.body.phone || req.body.sip || req.body.voiceuser_id || missingParams.push("phone");
     call.queue = req.body.queue || req.body.queue_id || req.body.qid || missingParams.push("queue_id");
     call.license_key = req.user.licence_key || missingParams.push("license_key");
