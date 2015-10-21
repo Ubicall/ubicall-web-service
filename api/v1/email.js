@@ -17,11 +17,10 @@ var NotFound = require("./utils/errors").NotFound;
 /**
  * get Email using user licence_key
  * @param {Array} email -email input data
- * @param {String} req.user.licence_key - your api licence_key
  * @throws {@link NotFound} if no email found
  * @return HTTP 200 if your email retrieved successfully
  * @example
- * // returns { "emails": [
+ * // returns [
  * //   {
  * //      "id": XX,"client_id": XXXXX,"licence_key": "XXXXXXXXXX","name": "XXX XXXX",
  * //     "destination": "support@sandcti.com","subject": "Sales request","message": null
@@ -31,16 +30,13 @@ var NotFound = require("./utils/errors").NotFound;
  * //      "destination": "support@sandcti.com","subject": "Support request","message": null
  * //   },
  * //  ]
- * //}
  * GET  /email
  * @memberof API
  */
 function getEmail(req, res, next) {
     var licence_key = req.user.licence_key;
-    storage.getEmail(licence_key).then(function(email) {
-        return res.status(200).json({
-            email: email
-        });
+    storage.getEmail(licence_key).then(function(emails) {
+        return res.status(200).json(emails);
     }).otherwise(function(err) {
         return next(new NotFound(err, req.path));
     });
