@@ -249,11 +249,15 @@ function feedback(fdback) {
 function updateIVR(ivr) {
     return when.promise(function(resolve, reject) {
         $client_version_view.findOne({
-            licence_key: ivr.license_key
+            where: {
+                licence_key: ivr.license_key
+            }
         }).then(function(client) {
             if (client) {
                 $version.findOne({
-                    client_id: client.id
+                    where: {
+                        client_id: client.id
+                    }
                 }).then(function(version) {
                     if (!version) {
                         return reject("cannot find client");

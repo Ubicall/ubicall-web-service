@@ -206,11 +206,10 @@ var storageModuleInterface = {
             });
         });
     },
-
     updateIVR: function(ivr) {
         return when.promise(function(resolve, reject) {
-            ubicallStorageModule.updateIVR(ivr).then(function(ivr) {
-                return resolve(ivr);
+            return ubicallStorageModule.updateIVR(ivr).then(function(_ivr) {
+                return resolve(_ivr);
             }).otherwise(function(error) {
                 return reject(error);
             });

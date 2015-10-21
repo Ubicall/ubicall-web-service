@@ -35,11 +35,13 @@ function __deployToWeb(version, authz) {
                 Authorization: authz
             }
         };
-        log.info("Deploy to web " + JSON.stringify(options));
+        log.verbose("working on deploying ivr to web " + options.url);
         request(options, function(error, response, body) {
             if (error || response.statusCode !== 200) {
+                log.verbose("error deploying " + options.url + " to web ");
                 return reject(error || response.statusCode);
             } else {
+                log.verbose(options.url + "deployed successfully to web ");
                 return resolve(response.data);
             }
         });
@@ -103,19 +105,22 @@ function deployIVR(req, res, next) {
     }
 
     ivr.url = settings.plistHost + ivr.version;
-    log.verbose("working on deploying ivr " + ivr.url);
-
+    log.verbose("working on deploying ivr from " + ivr.url);
     __deployToWeb(ivr.version, authz).then(function() {
         storage.updateIVR(ivr).then(function(updated) {
             return res.status(200).json({
-                message: "mobile & web clients updated successfully"
+                message: "mobile & web clients updated successfully",
+                version: updated.version,
+                url: updated.url
             });
         }).otherwise(function(error) {
             log.error("error : " + error);
             storage.getIVR(ivr.license_key).then(function(ivr) { // get & deploy old ivr version
                 __deployToWeb(ivr.version, authz).then(function() {
+                    log.error("error : " + error);
                     return next(new ServerError({}, req.path, "Unable to update Mobile,hence rollback web"));
                 }).otherwise(function(error) {
+                    log.error("error : " + error);
                     return next(new ServerError({}, req.path, "Unable to update Mobile or rollback web"));
                 });
             }).otherwise(function(error) {
