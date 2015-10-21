@@ -19,8 +19,6 @@ var NotFound = require("./utils/errors").NotFound;
 
 /**
  * deploy plist on web by calling an api
- * @param widgetHost - where widget api deploy endpoint
- * @param plistHost - where plist fetch url
  * @param version - plist version to deploy
  * @param authorization_header - Authorization used to proceed in this transaction
  * @return {@link NotFound} - if api return 404 error
@@ -28,13 +26,12 @@ var NotFound = require("./utils/errors").NotFound;
  * @private
  * @memberof ivr
  */
-function __deployToWeb(widgetHost, plistHost, version, authz) {
+function __deployToWeb(version, authz) {
     return when.promise(function(resolve, reject) {
         var options = {
-            url: widgetHost + version,
+            url: settings.widgetHost + version,
             method: "POST",
             headers: {
-                plistHost: plistHost,
                 Authorization: authz
             }
         };
@@ -55,15 +52,15 @@ function __deployToWeb(widgetHost, plistHost, version, authz) {
  * @throws {@link NotFound} - if storage.getVersion failed
  * @return HTTP status 200 - when your ivr fetched successfully
  * @example
- * // returns { message: "ivr with version "+ version.version +"retrieved successfully",version : version.version ,url : version.url }
+ * // returns {version : version.version ,url : version.url }
  * GET /ivr
  * @memberof API
  */
 function fetchIvr(req, res, next) {
     var license_key = req.user.licence_key;
     storage.getVersion(license_key).then(function(version) {
+        log.verbose("ivr for " + license_key + " avialable at " + version.url);
         return res.status(200).json({
-            message: "ivr with version " + version.version + "retrieved successfully",
             version: version.version,
             url: version.url
         });
@@ -78,14 +75,12 @@ function fetchIvr(req, res, next) {
  * @param {Object} req.params - request param Object
  * @param {String} req.params.version - the version of plist file.
  * @param {Object} req.headers - request headers object
- * @param {Url} req.headers.plistHost - param can override default plistHost value
  * @throws {@link MissedParams} - if @param ivr.version is missing
  * @throws {@link ServerError} - if unable able to Update Web -  message *Unable to update Web,hence cannot update Mobile*
  * @throws {@link Forbidden} - if not able to fetch ivr with from storage
  * @throws {@link ServerError} - if web updated but unable to update mobile client , so we rollback web to previous version - message *Unable to update Mobile,hence rollback web*
  * @throws {@link ServerError} - if web updated but unable to update mobile client **and failed to rollback web version** - message *Unable to update Mobile or rollback web*
  * @return HTTP status 200 - if ivr deplyed successfully in both web and mobile clients
- * @todo check on plistHost concatenated with slash
  * @example
  * // returns {message: "mobile & web clients updated successfully"}
  * POST /ivr/:version
@@ -107,11 +102,10 @@ function deployIVR(req, res, next) {
         return next(new MissedParams(req.path, "version"));
     }
 
-    //TODO check on plistHost concatenated with slash
-    var plistHost = req.header("plistHost") || settings.plistHost;
-    ivr.url = plistHost + ivr.version;
+    ivr.url = settings.plistHost + ivr.version;
+    log.verbose("working on deploying ivr " + ivr.url);
 
-    __deployToWeb(settings.widgetHost, settings.plistHost, ivr.version, authz).then(function() {
+    __deployToWeb(ivr.version, authz).then(function() {
         storage.updateIVR(ivr).then(function(updated) {
             return res.status(200).json({
                 message: "mobile & web clients updated successfully"
@@ -119,7 +113,7 @@ function deployIVR(req, res, next) {
         }).otherwise(function(error) {
             log.error("error : " + error);
             storage.getIVR(ivr.license_key).then(function(ivr) { // get & deploy old ivr version
-                __deployToWeb(settings.widgetHost, plistHost, ivr.version, authz).then(function() {
+                __deployToWeb(ivr.version, authz).then(function() {
                     return next(new ServerError({}, req.path, "Unable to update Mobile,hence rollback web"));
                 }).otherwise(function(error) {
                     return next(new ServerError({}, req.path, "Unable to update Mobile or rollback web"));
