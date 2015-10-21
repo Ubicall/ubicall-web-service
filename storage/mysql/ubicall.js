@@ -674,7 +674,7 @@ module.exports = {
     getDevice: getDevice,
     getClient: getClient,
     scheduleDemoCall: scheduleDemoCall,
-    getAdminQueues,
+    getAdminQueues:getAdminQueues,
     feedback: feedback,
     getAdmin: getAdmin,
     updateIVR: updateIVR,
