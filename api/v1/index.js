@@ -103,7 +103,7 @@ function init(_settings, _storage) {
          * {"message":"queue retrieved successfully","id":id_no ,"name":url}
          */
         apiApp.get("/queue", function(req, res, next) {
-            var key = req.user.license_key;
+            var key = req.user.licence_key;
             storage.findQueue(key).then(function(queue) {
                 return res.status(200).json({
                     message: "queue retrieved successfully",
