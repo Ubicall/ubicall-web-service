@@ -16,6 +16,7 @@ var sip = require("./sip");
 var call = require("./call");
 var email = require("./email");
 var agent = require("./agent");
+var queue = require("./queue")
 var ivr = require("./ivr");
 var midware = require("./utils/midware");
 var errorHandler = require("./utils/errorHandler");
@@ -94,26 +95,7 @@ function init(_settings, _storage) {
 
         apiApp.post("/email", needsPermission("email.write"), email.sendEmail);
 
-        /**
-         * @param {String} key - license_key should be unique for each user.
-         * @return {@link MissedParams} @param key doesn"t exist
-         * @return HTTP status - 200
-         * @return HTTP status - 404 {@link NotFound} If can"t return queue data
-         * @example
-         * {"message":"queue retrieved successfully","id":id_no ,"name":url}
-         */
-        apiApp.get("/queue", function(req, res, next) {
-            var key = req.user.licence_key;
-            storage.findQueue(key).then(function(queue) {
-                return res.status(200).json({
-                    message: "queue retrieved successfully",
-                    id: queue.id,
-                    name: queue.url
-                });
-            }).otherwise(function(error) {
-                return next(new Forbidden(error, req.originalUrl));
-            });
-        });
+        apiApp.get("/queue", needsPermission("-"), queue.fetchAdminQueues);
 
         apiApp.use(errorHandler.log);
         apiApp.use(errorHandler.handle);
