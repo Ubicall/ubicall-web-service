@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('sofia_conf', { 
+  return sequelize.define("sofia_conf", { 
     id: {
       type: DataTypes.INTEGER(11),
       allowNull: false,

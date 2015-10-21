@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('sofia_domains', { 
+  return sequelize.define("sofia_domains", { 
     id: {
       type: DataTypes.INTEGER(11),
       allowNull: false,

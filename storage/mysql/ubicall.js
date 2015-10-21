@@ -1,14 +1,16 @@
-var when = require('when');
-var Sequelize = require('sequelize');
-var moment = require('moment');
+var when = require("when");
+var Sequelize = require("sequelize");
+var moment = require("moment");
 var randomstring = require("randomstring");
 var sprintf = require("sprintf-js").sprintf;
-var slug = require('slug');
-var ast_rt = require('./ast_rt');
-var log = require('../../log');
+var slug = require("slug");
+var ast_rt = require("./ast_rt");
+var log = require("../../log");
 
 var settings, _sequelize;
-var calls, agent, queueAgent, clients;
+var //calls, agent, queueAgent, clients;
+    $agent, $queueAgent, $calls, $queue, $version, $demo_calls, $device_sip, $client, $feedback,
+    $client_version_view, $sip_friends, $admin, $working_hours, $email_destination, $send_email;
 
 function sequlizeImport(model) {
     return _sequelize.import(__dirname + "/../models/ubicall/" + model);
@@ -29,9 +31,9 @@ function init(_settings) {
         }
         _sequelize = new Sequelize(settings.storage.ubicall_mysql.database,
             settings.storage.ubicall_mysql.username, settings.storage.ubicall_mysql.password, {
-                host: _host || 'localhost',
-                port: _port || '3306',
-                dialect: 'mysql',
+                host: _host || "localhost",
+                port: _port || "3306",
+                dialect: "mysql",
                 define: {
                     freezeTableName: true,
                     timestamps: false
@@ -49,21 +51,21 @@ function init(_settings) {
             log.error("Unable to connect to DB => " + settings.storage.ubicall_mysql.database + ":" + _host + ":" + _port);
             throw error;
         });
-        $agent = sequlizeImport('agent');
-        $queueAgent = sequlizeImport('queue_agent');
-        $calls = sequlizeImport('calls');
-        $queue = sequlizeImport('queue');
-        $version = sequlizeImport('version');
-        $demo_calls = sequlizeImport('demo_calls');
-        $device_sip = sequlizeImport('device_sip');
-        $client = sequlizeImport('client');
-        $feedback = sequlizeImport('feedback');
-        $client_version_view = sequlizeImport('client_version_view');
-        $sip_friends = sequlizeImport2('sipfriends.js');
-        $admin = sequlizeImport('admin.js');
-        $working_hours = sequlizeImport('working_hours.js');
-        $email_destination = sequlizeImport('email_destination');
-        $send_email = sequlizeImport('send_email');
+        $agent = sequlizeImport("agent");
+        $queueAgent = sequlizeImport("queue_agent");
+        $calls = sequlizeImport("calls");
+        $queue = sequlizeImport("queue");
+        $version = sequlizeImport("version");
+        $demo_calls = sequlizeImport("demo_calls");
+        $device_sip = sequlizeImport("device_sip");
+        $client = sequlizeImport("client");
+        $feedback = sequlizeImport("feedback");
+        $client_version_view = sequlizeImport("client_version_view");
+        $sip_friends = sequlizeImport2("sipfriends.js");
+        $admin = sequlizeImport("admin.js");
+        $working_hours = sequlizeImport("working_hours.js");
+        $email_destination = sequlizeImport("email_destination");
+        $send_email = sequlizeImport("send_email");
         return resolve({});
     });
 }
@@ -85,7 +87,7 @@ function scheduleCall(call, device) {
             schedule_time: call.time
         }).then(function(call) {
             if (!call) {
-                return reject('cannot schedule call');
+                return reject("cannot schedule call");
             }
             return resolve(call);
         }).catch(function(error) {
@@ -110,7 +112,7 @@ function scheduleDemoCall(call) {
             created_time: moment().format(settings.call.date_format)
         }).then(function(call) {
             if (!call) {
-                return reject('cannot schedule Demo call');
+                return reject("cannot schedule Demo call");
             }
             return resolve(call);
         }).catch(function(error) {
@@ -181,7 +183,7 @@ function cancelCall(callId) {
             }
         }).then(function() {
             return resolve();
-        }).catch(function() {
+        }).catch(function(error) {
             return reject(error);
         });
     });
@@ -235,7 +237,7 @@ function feedback(fdback) {
             time: moment().format(settings.call.date_format)
         }).then(function(feedk) {
             if (!feedk) {
-                return reject('cannot send feedback');
+                return reject("cannot send feedback");
             }
             return resolve(feedk);
         }).catch(function(error) {
@@ -254,7 +256,7 @@ function updateIVR(ivr) {
                     client_id: client.id
                 }).then(function(version) {
                     if (!version) {
-                        return reject('cannot find client');
+                        return reject("cannot find client");
                     }
                     return version.updateAttributes({
                         server_id: ivr.version,
@@ -273,7 +275,7 @@ function updateIVR(ivr) {
                     return reject(error);
                 });
             } else {
-                return reject('Invaled Key');
+                return reject("Invaled Key");
             }
         }).catch(function(error) {
             return reject(error);
@@ -287,7 +289,7 @@ function getClients() {
             where: {
                 enabled: 1
             },
-            attributes: ['name', 'licence_key', 'url']
+            attributes: ["name", "licence_key", "url"]
         }).then(function(clients) {
             if (!clients) {
                 return reject("no result found");
@@ -318,7 +320,7 @@ function createSip(device, password, domain, sip) {
             creation_date: moment().format(settings.call.date_format)
         }).then(function(sipDevice) {
             if (!sipDevice) {
-                return reject('cannot create sip Device');
+                return reject("cannot create sip Device");
             }
             return resolve(sipDevice);
         }).catch(function(error) {
@@ -335,9 +337,9 @@ function incrementClientCount(clientId) {
                 id: clientId
             }
         }).then(function(client) {
-            client.increment('count').then(function(incremented) {
+            client.increment("count").then(function(incremented) {
                 if (!incremented) {
-                    return reject('cannot update client count');
+                    return reject("cannot update client count");
                 }
                 return resolve(incremented);
             }).catch(function(error) {
@@ -374,36 +376,11 @@ function getCalls(agent, options) {
                 api_key: agent.licence_key,
                 status: settings.call.status.done
             },
-            order: 'schedule_time DESC',
+            order: "schedule_time DESC",
             offset: (options.page - 1) * options.per_page,
             limit: options.page * options.per_page
         }).then(function(calls) {
             return resolve(calls);
-        }).catch(function(error) {
-            return reject(error);
-        });
-    });
-}
-
-function getQueues(_agent) {
-    return when.promise(function(resolve, reject) {
-        var queues = [];
-        return $queueAgent.findAll({
-            where: {
-                agent_id: _agent.id
-            },
-            attributes: ['queue_name', 'queue_id']
-        }).then(function(_queues) {
-            // now get calls waiting in this queue
-            return when.all(_queues.map(function(queue) {
-                return getQueueCallsCount(queue).then(function(count) {
-                    queue.setDataValue('calls', count);
-                    queue.setDataValue('queue_slug', slug(queue.queue_name));
-                    queues.push(queue);
-                });
-            })).then(function() {
-                return resolve(queues);
-            });
         }).catch(function(error) {
             return reject(error);
         });
@@ -428,6 +405,31 @@ function getQueueCallsCount(_queue) {
             return resolve(qCallsCount);
         }).catch(function(err) {
             return reject(err);
+        });
+    });
+}
+
+function getQueues(_agent) {
+    return when.promise(function(resolve, reject) {
+        var queues = [];
+        return $queueAgent.findAll({
+            where: {
+                agent_id: _agent.id
+            },
+            attributes: ["queue_name", "queue_id"]
+        }).then(function(_queues) {
+            // now get calls waiting in this queue
+            return when.all(_queues.map(function(queue) {
+                return getQueueCallsCount(queue).then(function(count) {
+                    queue.setDataValue("calls", count);
+                    queue.setDataValue("queue_slug", slug(queue.queue_name));
+                    queues.push(queue);
+                });
+            })).then(function() {
+                return resolve(queues);
+            });
+        }).catch(function(error) {
+            return reject(error);
         });
     });
 }
@@ -495,7 +497,7 @@ function getHours(_id) {
             }
         }).then(function(result) {
             if (!result) {
-                return reject('no result found');
+                return reject("no result found");
             }
             return resolve(result);
         }).catch(function(error) {
@@ -512,7 +514,7 @@ function getEmail(licence_key) {
             }
         }).then(function(email) {
             if (!email) {
-                return reject('no result found');
+                return reject("no result found");
             }
             return resolve(email);
         }).catch(function(error) {
@@ -550,7 +552,7 @@ function insertEmail(subject, destination, email) {
             device_token: email.device_token
         }).then(function(email) {
             if (!email) {
-                return reject('cannot insert email');
+                return reject("cannot insert email");
             }
             return resolve(email);
         }).catch(function(error) {
@@ -586,7 +588,7 @@ function getCall(agent, queue_id, queue_slug) {
                 })
             ),
             //get call from this queue depend on schedule_time (FIFO)
-            order: 'datetime_originate ASC , schedule_time ASC'
+            order: "datetime_originate ASC , schedule_time ASC"
         }).then(function(call) {
             if (!call) {
                 return reject("no result found");

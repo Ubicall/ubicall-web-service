@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('rss_conf', { 
+  return sequelize.define("rss_conf", { 
     id: {
       type: DataTypes.INTEGER(11),
       allowNull: false,
@@ -25,7 +25,7 @@ module.exports = function(sequelize, DataTypes) {
     priority: {
       type: DataTypes.INTEGER(11),
       allowNull: false,
-      defaultValue: '1000'
+      defaultValue: "1000"
     }
   });
 };

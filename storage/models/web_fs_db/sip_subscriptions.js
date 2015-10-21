@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('sip_subscriptions', { 
+  return sequelize.define("sip_subscriptions", { 
     proto: {
       type: DataTypes.STRING,
       allowNull: true,

@@ -1,5 +1,5 @@
-var when = require('when');
-var settings;
+var when = require("when");
+var settings, communicationModule;
 
 
 function moduleSelector(_settings) {

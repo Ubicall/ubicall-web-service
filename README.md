@@ -19,8 +19,8 @@ exposed ubicall web service for public and internal use , for documention checko
     10.0.0.170  developer.dev.ubicall.com
     ```
 
-``` bash
-npm install
+```bash
+nvm use 0.12 && npm install
 # to run test units
 npm test
 #grunt [preserve | prebuild] package app in development or production respectively

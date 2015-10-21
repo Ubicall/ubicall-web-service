@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('cdr', { 
+  return sequelize.define("cdr", { 
     accountcode: {
       type: DataTypes.STRING,
       allowNull: true,

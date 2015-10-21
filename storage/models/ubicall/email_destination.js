@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('email_destination', {
+  return sequelize.define("email_destination", {
     id: {
       type: DataTypes.INTEGER(100),
       primaryKey: true,

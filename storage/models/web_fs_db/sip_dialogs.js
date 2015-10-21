@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('sip_dialogs', { 
+  return sequelize.define("sip_dialogs", { 
     call_id: {
       type: DataTypes.STRING,
       allowNull: true,

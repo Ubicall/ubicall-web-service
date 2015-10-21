@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('client', {
+  return sequelize.define("client", {
     id: {
       type: DataTypes.INTEGER(11),
       primaryKey: true,
@@ -18,17 +18,17 @@ module.exports = function(sequelize, DataTypes) {
     count: {
       type: DataTypes.INTEGER(10),
       allowNull: false,
-      defaultValue: '0'
+      defaultValue: "0"
     },
     enabled: {
       type: DataTypes.INTEGER(10),
       allowNull: true,
-      defaultValue: '1'
+      defaultValue: "1"
     },
     demo: {
       type: DataTypes.INTEGER(2),
       allowNull: true,
-      defaultValue: '0'
+      defaultValue: "0"
     }
   });
 };

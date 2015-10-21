@@ -64,7 +64,7 @@ module.exports = function(sequelize, DataTypes) {
     dnc: {
       type: DataTypes.INTEGER(1),
       allowNull: false,
-      defaultValue: '0'
+      defaultValue: "0"
     },
     date_init: {
       type: DataTypes.DATE,

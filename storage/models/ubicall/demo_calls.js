@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('demo_calls', {
+  return sequelize.define("demo_calls", {
     id: {
       type: DataTypes.INTEGER(11),
       primaryKey: true,
@@ -18,17 +18,17 @@ module.exports = function(sequelize, DataTypes) {
     created_time: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: 'CURRENT_TIMESTAMP'
+      defaultValue: "CURRENT_TIMESTAMP"
     },
     time: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: ''
+      defaultValue: ""
     },
     status: {
       type: DataTypes.INTEGER(2),
       allowNull: false,
-      defaultValue: '0'
+      defaultValue: "0"
     },
     long: {
       type: DataTypes.STRING,

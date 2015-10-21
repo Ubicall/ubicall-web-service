@@ -1,7 +1,7 @@
-var when = require('when');
-var Sequelize = require('sequelize');
-var moment = require('moment');
-var log = require('../../log');
+var when = require("when");
+var Sequelize = require("sequelize");
+var moment = require("moment");
+var log = require("../../log");
 
 var settings, _sequelize;
 var $directory, $directoryParams;
@@ -21,9 +21,9 @@ function init(_settings) {
         }
         _sequelize = new Sequelize(settings.storage.web_fs_db_mysql.database,
             settings.storage.web_fs_db_mysql.username, settings.storage.web_fs_db_mysql.password, {
-                host: _host || 'localhost',
-                port: _port || '3306',
-                dialect: 'mysql',
+                host: _host || "localhost",
+                port: _port || "3306",
+                dialect: "mysql",
                 define: {
                     freezeTableName: true,
                     timestamps: false
@@ -41,8 +41,8 @@ function init(_settings) {
             log.error("Unable to connect to DB => " + settings.storage.web_fs_db_mysql.database + ":" + _host + ":" + _port);
             throw error;
         });
-        $directory = sequlizeImport('directory');
-        $directoryParams = sequlizeImport('directory_params');
+        $directory = sequlizeImport("directory");
+        $directoryParams = sequlizeImport("directory_params");
         return resolve({});
     });
 }
@@ -56,7 +56,7 @@ function createSipDirectory(sip) {
             creation_date: moment().format(settings.call.date_format)
         }).then(function(directory) {
             if (!directory) {
-                return reject('cannot create directory');
+                return reject("cannot create directory");
             }
             return resolve(directory);
         }).catch(function(error) {
@@ -78,12 +78,12 @@ function createSipDirectoryParams(directory, password) {
         }).then(function(dparam) {
             $directoryParams.create({
                 directory_id: directory.id,
-                // dialString is static string '\${rtmp_contact(default/\${dialed_user}@Client's_Web_Voice_Server_IP )}'
+                // dialString is static string "\${rtmp_contact(default/\${dialed_user}@Client"s_Web_Voice_Server_IP )}"
                 param_name: "dial-string",
                 param_value: "${rtmp_contact(default/\${dialed_user}@" + settings.infra.clientServer.web_voice_server.external_ip + ")}"
             }).then(function(dparam2) {
                 if (!dparam2) {
-                    return reject('cannot create directoryParams');
+                    return reject("cannot create directoryParams");
                 }
                 return resolve(dparam, dparam2);
             }).catch(function(error) {

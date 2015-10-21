@@ -15,6 +15,15 @@ var DEFAULT_REDIS_SETTINGS = {
     hmsetFieldName: "data"
 };
 
+function clear() {
+    return when.promise(function(resolve, reject) {
+        //This command never fails.
+        client.flushdb(function(err, res) {
+            return resolve();
+        });
+    });
+}
+
 function init(_settings) {
     return when.promise(function(resolve, reject) {
         settings = _settings;
@@ -48,11 +57,17 @@ function init(_settings) {
     });
 }
 
-function clear() {
+function _hgetall(key) {
     return when.promise(function(resolve, reject) {
-        //This command never fails.
-        client.flushdb(function(err, res) {
-            return resolve();
+        client.hgetall(key, function(error, result) {
+            if (error) {
+                return reject("redis:hgetall(" + key + ") error " + error);
+            }
+            if (result && result[settings.cache.redis.hmsetFieldName]) {
+                return resolve(JSON.parse(result.data));
+            } else {
+                return reject("redis: " + key + " has no " + settings.cache.redis.hmsetFieldName + " object");
+            }
         });
     });
 }
@@ -194,12 +209,12 @@ function removeQueue(agent, queueid) {
         var redisQueueHashKey = agent.licence_key + ":" + agent.email + ":queue:" + queueid;
         client.srem(redisQueueSetKey, redisQueueHashKey, function(err, res) {
             if (err) {
-                return reject("redis:srem(" + redisQueueSetKey + "," + redisQueueHashKey + ") error " + error);
+                return reject("redis:srem(" + redisQueueSetKey + "," + redisQueueHashKey + ") error " + err);
             }
             if (res) {
                 client.del(redisQueueHashKey, function(err, res) {
                     if (err) {
-                        return reject("Redis del(" + redisQueueHashKey + ") error " + error);
+                        return reject("Redis del(" + redisQueueHashKey + ") error " + err);
                     }
                     if (res) {
                         return resolve(res);
@@ -232,28 +247,13 @@ function updateQueue(agent, queueid, options) {
     });
 }
 
-function _hgetall(key) {
-    return when.promise(function(resolve, reject) {
-        client.hgetall(key, function(error, result) {
-            if (error) {
-                return reject("redis:hgetall(" + key + ") error " + error);
-            }
-            if (result && result[settings.cache.redis.hmsetFieldName]) {
-                return resolve(JSON.parse(result.data));
-            } else {
-                return reject("redis: " + key + " has no " + settings.cache.redis.hmsetFieldName + " object");
-            }
-        });
-    });
-}
-
 function getCurrentCall(agent) {
     log.verbose("redis:hit getCurrentCall");
     return when.promise(function(resolve, reject) {
         var currentCallKey = agent.licence_key + ":" + agent.email + ":current_call";
         client.get(currentCallKey, function(err, res) {
             if (err) {
-                return reject("redis:get(" + currentCallKey + ") error " + error);
+                return reject("redis:get(" + currentCallKey + ") error " + err);
             }
             if (res) {
                 return resolve(JSON.parse(res));
@@ -271,7 +271,7 @@ function setCurrentCall(agent, call) {
         var currentCallKey = agent.licence_key + ":" + agent.email + ":current_call";
         client.set(currentCallKey, JSON.stringify(call), function(err, res) {
             if (err) {
-                return reject("redis:set(" + currentCallKey + ") error " + error);
+                return reject("redis:set(" + currentCallKey + ") error " + err);
             }
             if (res) {
                 return resolve(res);
@@ -288,7 +288,7 @@ function clearCurrentCall(agent) {
         var currentCallKey = agent.licence_key + ":" + agent.email + ":current_call";
         client.del(currentCallKey, function(err, res) {
             if (err) {
-                return reject("redis:del(" + currentCallKey + ") error " + error);
+                return reject("redis:del(" + currentCallKey + ") error " + err);
             }
             if (res) {
                 return resolve(res);

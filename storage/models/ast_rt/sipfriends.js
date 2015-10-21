@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('sipfriends', {
+  return sequelize.define("sipfriends", {
     id: {
       type: DataTypes.INTEGER(11),
       primaryKey: true,
@@ -10,7 +10,7 @@ module.exports = function(sequelize, DataTypes) {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: ''
+      defaultValue: ""
     },
     ipaddr: {
       type: DataTypes.STRING,
@@ -47,10 +47,10 @@ module.exports = function(sequelize, DataTypes) {
     host: {
       type: DataTypes.STRING,
       allowNull: true,
-      defaultValue: 'dynamic'
+      defaultValue: "dynamic"
     },
     type: {
-      type: DataTypes.ENUM('friend','user','peer'),
+      type: DataTypes.ENUM("friend","user","peer"),
       allowNull: true,
     },
     context: {
@@ -78,19 +78,19 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
     },
     transport: {
-      type: DataTypes.ENUM('udp','tcp','udp,tcp','tcp,udp'),
+      type: DataTypes.ENUM("udp","tcp","udp,tcp","tcp,udp"),
       allowNull: true,
     },
     dtmfmode: {
-      type: DataTypes.ENUM('rfc2833','info','shortinfo','inband','auto'),
+      type: DataTypes.ENUM("rfc2833","info","shortinfo","inband","auto"),
       allowNull: true,
     },
     directmedia: {
-      type: DataTypes.ENUM('yes','no','nonat','update'),
+      type: DataTypes.ENUM("yes","no","nonat","update"),
       allowNull: true,
     },
     nat: {
-      type: DataTypes.ENUM('no','force_rport','comedia','force_rport,comedia','auto_force_rport','auto_comedia'),
+      type: DataTypes.ENUM("no","force_rport","comedia","force_rport,comedia","auto_force_rport","auto_comedia"),
       allowNull: true,
     },
     callgroup: {
@@ -118,19 +118,19 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
     },
     trustrpid: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     progressinband: {
-      type: DataTypes.ENUM('yes','no','never'),
+      type: DataTypes.ENUM("yes","no","never"),
       allowNull: true,
     },
     promiscredir: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     useclientcode: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     accountcode: {
@@ -150,7 +150,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
     },
     callcounter: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     busylevel: {
@@ -158,15 +158,15 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
     },
     allowoverlap: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     allowsubscribe: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     videosupport: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     maxcallbitrate: {
@@ -174,7 +174,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
     },
     rfc2833compensate: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     mailbox: {
@@ -182,7 +182,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
     },
     "session-timers": {
-      type: DataTypes.ENUM('accept','refuse','originate'),
+      type: DataTypes.ENUM("accept","refuse","originate"),
       allowNull: true,
     },
     "session-expires": {
@@ -194,7 +194,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
     },
     "session-refresher": {
-      type: DataTypes.ENUM('uac','uas'),
+      type: DataTypes.ENUM("uac","uas"),
       allowNull: true,
     },
     t38pt_usertpsource: {
@@ -230,7 +230,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
     },
     sendrpid: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     outboundproxy: {
@@ -242,7 +242,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
     },
     registertrying: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     timert1: {
@@ -258,7 +258,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
     },
     constantssrc: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     contactpermit: {
@@ -270,19 +270,19 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
     },
     usereqphone: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     textsupport: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     faxdetect: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     buggymwi: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     auth: {
@@ -302,7 +302,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
     },
     callingpres: {
-      type: DataTypes.ENUM('allowed_not_screened','allowed_passed_screen','allowed_failed_screen','allowed','prohib_not_screened','prohib_passed_screen','prohib_failed_screen','prohib'),
+      type: DataTypes.ENUM("allowed_not_screened","allowed_passed_screen","allowed_failed_screen","allowed","prohib_not_screened","prohib_passed_screen","prohib_failed_screen","prohib"),
       allowNull: true,
     },
     mohinterpret: {
@@ -318,11 +318,11 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
     },
     hasvoicemail: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     subscribemwi: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     vmexten: {
@@ -330,7 +330,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
     },
     autoframing: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     rtpkeepalive: {
@@ -342,19 +342,19 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
     },
     g726nonstandard: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     ignoresdpversion: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     allowtransfer: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     dynamic: {
-      type: DataTypes.ENUM('yes','no'),
+      type: DataTypes.ENUM("yes","no"),
       allowNull: true,
     },
     device_token: {

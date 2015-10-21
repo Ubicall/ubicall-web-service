@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('dingaling_settings', { 
+  return sequelize.define("dingaling_settings", { 
     id: {
       type: DataTypes.INTEGER(10),
       allowNull: false,

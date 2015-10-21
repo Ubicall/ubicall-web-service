@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('join_announcement', {
+  return sequelize.define("join_announcement", {
     id: {
       type: DataTypes.INTEGER(16),
       primaryKey: true,

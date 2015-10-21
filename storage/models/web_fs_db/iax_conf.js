@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('iax_conf', { 
+  return sequelize.define("iax_conf", { 
     id: {
       type: DataTypes.INTEGER(11),
       allowNull: false,

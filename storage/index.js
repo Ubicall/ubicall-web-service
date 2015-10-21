@@ -1,9 +1,9 @@
 // inspired from https://github.com/node-red/node-red/tree/master/red/storage
-var when = require('when');
-var log = require('../log');
-var agentInterface = require('./agent');
-var callInterface = require('./call');
-var ubicallStorageModule, astStorageModule, cacheModule, cache;
+var when = require("when");
+var log = require("../log");
+var agentInterface = require("./agent");
+var callInterface = require("./call");
+var ubicallStorageModule, astStorageModule, webFSStorageModule, cacheModule, cache;
 
 
 function _initStorage(_settings) {
@@ -32,7 +32,7 @@ var storageModuleInterface = {
             promises.push(_initStorage(_settings));
             if (_settings.cache && _settings.cache.enabled) {
                 cache = _settings.cache.enabled;
-                cacheModule = require('../caching');
+                cacheModule = require("../caching");
                 promises.push(cacheModule.init(_settings));
             }
         } catch (e) {
@@ -46,28 +46,28 @@ var storageModuleInterface = {
         return when.promise(function(resolve, reject) {
             ubicallStorageModule.getHours(id).then(function(result) {
                 return resolve(result);
+            }).otherwise(function(error) {
+                return reject(error);
             });
-        }).otherwise(function(error) {
-            return reject(error);
         });
     },
     getEmail: function(licence_key) {
         return when.promise(function(resolve, reject) {
-            ubicallStorageModule.getEmail(licence_key).then(function(result) {
+            return ubicallStorageModule.getEmail(licence_key).then(function(result) {
                 return resolve(result);
+            }).otherwise(function(error) {
+                return reject(error);
             });
-        }).otherwise(function(error) {
-            return reject(error);
         });
     },
 
     getEmail2: function(email_id) {
         return when.promise(function(resolve, reject) {
-            ubicallStorageModule.getEmail2(email_id).then(function(result) {
+            return ubicallStorageModule.getEmail2(email_id).then(function(result) {
                 return resolve(result);
+            }).otherwise(function(error) {
+                return reject(error);
             });
-        }).otherwise(function(error) {
-            return reject(error);
         });
     },
 
@@ -87,7 +87,6 @@ var storageModuleInterface = {
             }).otherwise(function(error) {
                 return reject(error);
             });
-
         });
     },
 

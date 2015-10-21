@@ -1,16 +1,16 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('sipregs', { 
+  return sequelize.define("sipregs", { 
     id: {
       type: DataTypes.INTEGER(11),
       allowNull: false,
-      defaultValue: '0'
+      defaultValue: "0"
     },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: ''
+      defaultValue: ""
     },
     ipaddr: {
       type: DataTypes.STRING,

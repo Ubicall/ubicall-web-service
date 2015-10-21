@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('dialplan_extension', { 
+  return sequelize.define("dialplan_extension", { 
     extension_id: {
       type: DataTypes.INTEGER(11),
       allowNull: false,

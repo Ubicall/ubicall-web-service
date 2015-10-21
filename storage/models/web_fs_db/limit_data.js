@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('limit_data', { 
+  return sequelize.define("limit_data", { 
     hostname: {
       type: DataTypes.STRING,
       allowNull: true,

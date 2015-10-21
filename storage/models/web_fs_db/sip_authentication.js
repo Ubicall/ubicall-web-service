@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('sip_authentication', { 
+  return sequelize.define("sip_authentication", { 
     nonce: {
       type: DataTypes.STRING,
       allowNull: true,

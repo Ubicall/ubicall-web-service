@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('dialplan_condition', { 
+  return sequelize.define("dialplan_condition", { 
     condition_id: {
       type: DataTypes.INTEGER(11),
       allowNull: false,

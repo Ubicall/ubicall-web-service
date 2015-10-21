@@ -1,9 +1,9 @@
 /* jshint indent: 2 */
-var moment = require('moment');
+var moment = require("moment");
 var now = new moment();
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('send_email', {
+  return sequelize.define("send_email", {
     id: {
       type: DataTypes.INTEGER(11),
       primaryKey: true,
@@ -20,12 +20,12 @@ module.exports = function(sequelize, DataTypes) {
     time_insert: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: now.format('YYYY-MM-DD HH:mm:ss')
+      defaultValue: now.format("YYYY-MM-DD HH:mm:ss")
     },
     time_send: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: now.format('YYYY-MM-DD HH:mm:ss')
+      defaultValue: now.format("YYYY-MM-DD HH:mm:ss")
     },
     email: {
       type: DataTypes.STRING,

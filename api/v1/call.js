@@ -401,7 +401,7 @@ function _workingHours(req, res, next) {
     var queue_id = req.params.queue;
     var d = new Date();
     console.log(d);
-    utc_time = new Date().getTime(); //utc time in milliseconds
+    var utc_time = new Date().getTime(); //utc time in milliseconds
     var day = new Date().getDay(); //returns day in number
     storage.getAdmin(license_key).then(function(admin) {
         var _id = admin.id;
@@ -416,14 +416,14 @@ function _workingHours(req, res, next) {
             if (flag === 1) {
                 day_start = day_start.split(":");
                 day_end = day_end.split(":");
-                hours_start = day_start[0];
-                hours_end = day_end[0];
-                minutes_start = day_start[1];
-                minutes_end = day_end[1];
+                var hours_start = day_start[0];
+                var hours_end = day_end[0];
+                var minutes_start = day_start[1];
+                var minutes_end = day_end[1];
                 minutes_start = Number(minutes_start);
-                utc_start = Number(hours_start) - offset;
+                var utc_start = Number(hours_start) - offset;
                 console.log("starts at", utc_start);
-                utc_end = Number(hours_end) - offset;
+                var utc_end = Number(hours_end) - offset;
                 //change to milliseconds
                 var start = new Date();
                 start.setHours(utc_start);
@@ -433,8 +433,8 @@ function _workingHours(req, res, next) {
                 end.setMinutes(minutes_end);
                 if (utc_time > start) {
                     if (end > utc_time) { //check on end
-                        milliseconds = end - utc_time;
-                        min = milliseconds / (1000 * 60);
+                        var milliseconds = end - utc_time;
+                        var min = milliseconds / (1000 * 60);
                         storage.getQueueCallsCount(queue_id).then(function(count) {
                             res.status(200).json({
                                 message: "successful",

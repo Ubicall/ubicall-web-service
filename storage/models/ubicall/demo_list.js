@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('demo_list', {
+  return sequelize.define("demo_list", {
     w_id: {
       type: DataTypes.INTEGER(11),
       primaryKey: true,
@@ -54,12 +54,12 @@ module.exports = function(sequelize, DataTypes) {
     w_status: {
       type: DataTypes.INTEGER(11),
       allowNull: false,
-      defaultValue: '0'
+      defaultValue: "0"
     },
     w_date: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: 'CURRENT_TIMESTAMP'
+      defaultValue: "CURRENT_TIMESTAMP"
     }
   });
 };

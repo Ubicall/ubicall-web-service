@@ -1,5 +1,5 @@
-var when = require('when');
-var log = require('../log');
+var when = require("when");
+var log = require("../log");
 var ubicallStorageModule, astStorageModule, cacheModule, cache;
 
 var agentInterface = {

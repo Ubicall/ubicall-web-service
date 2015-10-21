@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('apns_devices', { 
+  return sequelize.define("apns_devices", { 
     pid: {
       type: DataTypes.INTEGER(9),
       allowNull: false,
@@ -15,11 +15,11 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
     },
     deviceuid: {
-      type: 'CHAR(40)',
+      type: "CHAR(40)",
       allowNull: false,
     },
     devicetoken: {
-      type: 'CHAR(64)',
+      type: "CHAR(64)",
       allowNull: false,
     },
     devicename: {
@@ -35,29 +35,29 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
     },
     pushbadge: {
-      type: DataTypes.ENUM('DISABLED','ENABLED'),
+      type: DataTypes.ENUM("DISABLED","ENABLED"),
       allowNull: true,
-      defaultValue: 'disabled'
+      defaultValue: "disabled"
     },
     pushalert: {
-      type: DataTypes.ENUM('DISABLED','ENABLED'),
+      type: DataTypes.ENUM("DISABLED","ENABLED"),
       allowNull: true,
-      defaultValue: 'disabled'
+      defaultValue: "disabled"
     },
     pushsound: {
-      type: DataTypes.ENUM('DISABLED','ENABLED'),
+      type: DataTypes.ENUM("DISABLED","ENABLED"),
       allowNull: true,
-      defaultValue: 'disabled'
+      defaultValue: "disabled"
     },
     development: {
-      type: DataTypes.ENUM('PRODUCTION','SANDBOX'),
+      type: DataTypes.ENUM("PRODUCTION","SANDBOX"),
       allowNull: false,
-      defaultValue: 'production'
+      defaultValue: "production"
     },
     status: {
-      type: DataTypes.ENUM('ACTIVE','UNINSTALLED'),
+      type: DataTypes.ENUM("ACTIVE","UNINSTALLED"),
       allowNull: false,
-      defaultValue: 'active'
+      defaultValue: "active"
     },
     created: {
       type: DataTypes.DATE,
@@ -66,7 +66,7 @@ module.exports = function(sequelize, DataTypes) {
     modified: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: '0000-00-00 00:00:00'
+      defaultValue: "0000-00-00 00:00:00"
     }
   });
 };

@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('post_load_modules_conf', { 
+  return sequelize.define("post_load_modules_conf", { 
     id: {
       type: DataTypes.INTEGER(10),
       allowNull: false,
@@ -13,12 +13,12 @@ module.exports = function(sequelize, DataTypes) {
     load_module: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: '1'
+      defaultValue: "1"
     },
     priority: {
       type: DataTypes.INTEGER(10),
       allowNull: false,
-      defaultValue: '1000'
+      defaultValue: "1000"
     }
   });
 };

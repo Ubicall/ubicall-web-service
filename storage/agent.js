@@ -1,5 +1,5 @@
-var when = require('when');
-var log = require('../log');
+var when = require("when");
+var log = require("../log");
 var ubicallStorageModule, astStorageModule, cacheModule, cache;
 
 var agentInterface = {
@@ -17,7 +17,7 @@ var agentInterface = {
         return when.resolve(ubicallStorageModule.getQueues(agent));
     },
     updateAgent: function(agent, data) {
-        return when.resolve(ubicallStorageModule.updateAgent(agent, image));
+        return when.resolve(ubicallStorageModule.updateAgent(agent, data));
     },
     updateAgentImage: function(agent, image) {
         return when.resolve(ubicallStorageModule.updateAgentImage(agent, image));

@@ -1,7 +1,7 @@
 /* jshint indent: 2 */
 
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('feedback', {
+  return sequelize.define("feedback", {
     id: {
       type: DataTypes.INTEGER(11),
       primaryKey: true,
@@ -22,7 +22,7 @@ module.exports = function(sequelize, DataTypes) {
     time: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: 'CURRENT_TIMESTAMP'
+      defaultValue: "CURRENT_TIMESTAMP"
     }
   });
 };
