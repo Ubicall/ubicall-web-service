@@ -673,8 +673,8 @@ module.exports = {
     getVersion: getVersion,
     getDevice: getDevice,
     getClient: getClient,
-    scheduleDemoCall: scheduleDemoCall
-    getAdminQueues,
+    scheduleDemoCall: scheduleDemoCall,
+    getAdminQueues:getAdminQueues,
     feedback: feedback,
     getAdmin: getAdmin,
     updateIVR: updateIVR,
