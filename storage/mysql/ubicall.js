@@ -206,17 +206,17 @@ function getAdmin(key) {
     });
 }
 
-function getQueue(id) {
+function getAdminQueues(adminID) {
     return when.promise(function(resolve, reject) {
-        $queue.findOne({
+        $queue.findAll({
             where: {
-                admin_id: id,
+                admin_id: adminID
             }
-        }).then(function(queue) {
-            if (!queue) {
+        }).then(function(queues) {
+            if (!queues) {
                 return reject("no result found");
             }
-            return resolve(queue);
+            return resolve(queues);
         }).catch(function(error) {
             return reject(error);
         });
@@ -517,9 +517,6 @@ function getEmail(licence_key) {
                 licence_key: licence_key
             }
         }).then(function(email) {
-            if (!email) {
-                return reject("no result found");
-            }
             return resolve(email);
         }).catch(function(error) {
             return reject(error);

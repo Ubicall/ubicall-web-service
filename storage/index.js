@@ -173,9 +173,9 @@ var storageModuleInterface = {
             });
         });
     },
-    getQueue: function(id) {
+    getAdminQueues: function(adminID) {
         return when.promise(function(resolve, reject) {
-            ubicallStorageModule.getQueue(id).then(function(queue) {
+            ubicallStorageModule.getAdminQueues(adminID).then(function(queue) {
                 return resolve(queue);
             }).otherwise(function(error) {
                 return reject(error);
@@ -183,10 +183,10 @@ var storageModuleInterface = {
         });
     },
 
-    findQueue: function(key) {
+    findAdminQueues: function(key) {
         return when.promise(function(resolve, reject) {
             ubicallStorageModule.getAdmin(key).then(function(admin) {
-                ubicallStorageModule.getQueue(admin.id).then(function(queue) {
+                ubicallStorageModule.getAdminQueues(admin.id).then(function(queue) {
                     return resolve(queue);
                 }).otherwise(function(error) {
                     return reject(error);
