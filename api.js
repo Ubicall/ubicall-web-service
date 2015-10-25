@@ -23,9 +23,15 @@ storage.init(settings).then(function() {
   }
 
   var meta = function(req, res) {
-    res.status(200).json({
-      "apiv1": "https://api.ubicall.com/v1/"
-    });
+    if(process.env.node_env === "development" || process.env.node_env === "test"){
+      res.status(200).json({
+        "apiv1": "https://api-dev.ubicall.com/v1/"
+      });
+    }else {
+      res.status(200).json({
+        "apiv1": "https://api.ubicall.com/v1/"
+      });
+    }
   };
 
   app.get("/", meta);

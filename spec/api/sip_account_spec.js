@@ -1,7 +1,7 @@
 var frisby = require("frisby");
 
 //base url to allow changing from dev to production testing easily
-var baseURL = "https://api.dev.ubicall.com";
+var baseURL = "https://api-dev.ubicall.com";
 
 
 /*
