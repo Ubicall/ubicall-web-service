@@ -37,7 +37,15 @@ module.exports = {
     //      i.e.    username : xyz@sand.com
     //              password : xyz
     ubicallStorageModule: "mysql",
-    ubicall_mysql: config.storage.mysql.ubicall_db,
+    ubicall_mysql: {
+                "database": "ubicall",
+                "username": "ubiuser",
+                "password": "UbIPaWd15dB@1",
+                "external_ip": "23.253.158.160",
+                "external_port": 3306,
+                "internal_ip": "10.176.192.120",
+                "internal_port": 3306
+    },
     ast_rt_mysql: config.storage.mysql.ast_rt,
     web_fs_db_mysql: config.storage.mysql.WEB_FS_DB,
     fake: {
