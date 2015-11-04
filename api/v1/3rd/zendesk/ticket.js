@@ -8,7 +8,6 @@
 
  var request = require("request");
  var zendesk = require("node-zendesk");
- var ServerError = require("../v1/utils/errors").ServerError;
 
 /**
   Create a zendesk ticket
@@ -37,7 +36,7 @@
                     };
 
         client.tickets.create(ticket,  function(err, req, result) {
-          if (err){   return next(new ServerError(err, req.path));}
+          if (err){   res.status(500).json(err);}
           console.log(JSON.stringify(result, null, 2, true));
           res.status(200).json(result);
         });
