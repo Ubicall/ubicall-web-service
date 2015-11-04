@@ -98,7 +98,7 @@ function init(_settings, _storage) {
 
         apiApp.get("/queue", needsPermission("-"), queue.fetchAdminQueues);
 
-        apiApp.post("/ticket", needsPermission("-"), zendesk.createTicket);
+        apiApp.post("/ticket", zendesk.createTicket);
 
         apiApp.use(errorHandler.log);
         apiApp.use(errorHandler.handle);

@@ -31,7 +31,7 @@
          token:api_token,
          remoteUri: "https://"+ domain +".zendesk.com/api/v2"
        });
-
+console.log(req.body);
        var ticket = {
                       "ticket":req.body
                     };
