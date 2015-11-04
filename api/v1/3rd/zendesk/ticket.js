@@ -8,7 +8,7 @@
 
  var request = require("request");
  var zendesk = require("node-zendesk");
- var ServerError = require("../v1/utils/errors").ServerError;
+ var ServerError = require("./././utils/errors").ServerError;
 
 /**
   Create a zendesk ticket
