@@ -8,19 +8,21 @@
 
  var request = require("request");
  var zendesk = require("node-zendesk");
- var NotImplementedError = require("./utils/errors").NotImplementedError;
- var BadRequest = require("./utils/errors").BadRequest;
- var MissedParams = require("./utils/errors").MissedParams;
- var Forbidden = require("./utils/errors").Forbidden;
- var ServerError = require("./utils/errors").ServerError;
- var NotFound = require("./utils/errors").NotFound;
+ var ServerError = require("../utils/errors").ServerError;
 
- function handleError(err) {
-    console.log(err);
-    process.exit(-1);
-}
+/**
+  Create a zendesk ticket
+* @param {String} req.body.subject Subject of the ticket
+* @param {String} req.body.body Subject of the ticket
+* @param {String} req.body.priority Priority of the ticket {urgent, high, normal, or low}
+* @param {String} req.body.type Type of the ticket {problem, incident, question, or task}
+* @return HTTP status 200 if ticket created successfully
+ * @throws {@link ServerError} if storage.markCallFail failed
+* POST /ticket
+* @memberof API
+*/
 
- function createTicket(req,res){
+ function createTicket(req,res,next){
     var username = "founders@ubicall.com";
      var api_token = "ZeFnzD7Dhu9hYt5TlUya8WCnaozbQF6MJLozokGj";
      var domain ="ubicall";
@@ -45,9 +47,9 @@
                     };
 
         client.tickets.create(ticket,  function(err, req, result) {
-          if (err){ return handleError(err);}
+          if (err){   return next(new ServerError(err, req.path));}
           console.log(JSON.stringify(result, null, 2, true));
-          res.send(result);
+          res.status(200).json(result);
         });
  }
 
