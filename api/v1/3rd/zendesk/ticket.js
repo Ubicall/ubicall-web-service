@@ -12,12 +12,12 @@
 
 /**
   Create a zendesk ticket
-* @param {String} req.body.subject Subject of the ticket
-* @param {String} req.body.body Subject of the ticket
-* @param {String} req.body.priority Priority of the ticket {urgent, high, normal, or low}
-* @param {String} req.body.type Type of the ticket {problem, incident, question, or task}
+* @param {String} req.body.subject - Subject of the ticket
+* @param {String} req.body.body -Body  of the ticket
+* @param {String} req.body.priority -Priority of the ticket {urgent, high, normal, or low}
+* @param {String} req.body.type -Type of the ticket {problem, incident, question, or task}
 * @return HTTP status 200 if ticket created successfully
- * @throws {@link ServerError} if storage.markCallFail failed
+ * @throws {@link ServerError} if failed to create a ticket
 * POST /ticket
 * @memberof API
 */
@@ -26,10 +26,6 @@
     var username = "founders@ubicall.com";
      var api_token = "ZeFnzD7Dhu9hYt5TlUya8WCnaozbQF6MJLozokGj";
      var domain ="ubicall";
-     var subject=req.body.subject;
-     var body=req.body.body;
-     var type=req.body.type;
-     var priority=req.body.priority;
      var client = zendesk.createClient({
          username:  username,
          token:api_token,
@@ -37,13 +33,7 @@
        });
 
        var ticket = {
-                      "ticket":
-                        {
-                          "subject":subject,
-                          "comment": { "body": body},
-                          "type":type,
-                          "priority": priority
-                        }
+                      "ticket":req.body
                     };
 
         client.tickets.create(ticket,  function(err, req, result) {
