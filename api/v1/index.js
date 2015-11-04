@@ -29,6 +29,7 @@ var ServerError = require("./utils/errors").ServerError;
 var NotFound = require("./utils/errors").NotFound;
 var needsPermission = require("ubicall-oauth").needsPermission;
 var passport = require("passport");
+var thirdApp = require("./3rd");
 var settings, storage;
 var apiApp;
 
@@ -98,7 +99,9 @@ function init(_settings, _storage) {
 
         apiApp.get("/queue", needsPermission("-"), queue.fetchAdminQueues);
 
-        apiApp.post("/ticket", zendesk.createTicket);
+        thirdApp.init(_settings, _storage).then(function(thridPartyApp) {
+            apiApp.use("/3rd", thridPartyApp);
+        });
 
         apiApp.use(errorHandler.log);
         apiApp.use(errorHandler.handle);
