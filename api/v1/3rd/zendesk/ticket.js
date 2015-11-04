@@ -31,13 +31,13 @@
          token:api_token,
          remoteUri: "https://"+ domain +".zendesk.com/api/v2"
        });
-console.log(req.body);
+
        var ticket = {
                       "ticket":req.body
                     };
 
         client.tickets.create(ticket,  function(err, req, result) {
-          if (err){   res.status(500).json(err);}
+          if (err){   res.send(err);}
           console.log(JSON.stringify(result, null, 2, true));
           res.status(200).json(result);
         });
