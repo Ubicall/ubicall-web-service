@@ -16,8 +16,9 @@ var sip = require("./sip");
 var call = require("./call");
 var email = require("./email");
 var agent = require("./agent");
-var queue = require("./queue")
+var queue = require("./queue");
 var ivr = require("./ivr");
+var zendesk = require("../3rd/zendesk/ticket");
 var midware = require("./utils/midware");
 var errorHandler = require("./utils/errorHandler");
 var NotImplementedError = require("./utils/errors").NotImplementedError;
@@ -96,6 +97,8 @@ function init(_settings, _storage) {
         apiApp.post("/email", needsPermission("email.write"), email.sendEmail);
 
         apiApp.get("/queue", needsPermission("-"), queue.fetchAdminQueues);
+
+        apiApp.post("/ticket", needsPermission("-"), zendesk.createTicket);
 
         apiApp.use(errorHandler.log);
         apiApp.use(errorHandler.handle);
