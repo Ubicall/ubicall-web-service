@@ -6,9 +6,9 @@
  * @namespace ticket
  */
 
- var request = require("request");
- var zendesk = require("node-zendesk");
- var ServerError = require("././utils/errors").ServerError;
+var request = require("request");
+var zendesk = require("node-zendesk");
+
 
 /**
 	Create a zendesk ticket
