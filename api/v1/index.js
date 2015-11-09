@@ -99,6 +99,8 @@ function init(_settings, _storage) {
 
         apiApp.get("/email", needsPermission("email.read"), email.getEmail);
 
+        apiApp.post("/email/:email_id/:email_name", needsPermission("email.write"), email.sendEmail);
+
         apiApp.post("/email", needsPermission("email.write"), email.sendEmail);
 
         apiApp.get("/queue", needsPermission("-"), queue.fetchAdminQueues);
