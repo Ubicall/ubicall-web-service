@@ -11,7 +11,7 @@ if(DEVENV){
 }
 
 var config = loader.load({
-  configHost: process.env.node_env === "production" ? "http://developer.ubicall.com/conf/" : "http://developer.dev.ubicall.com/conf/",
+  configHost: process.env.node_env === "production" ? "http://developer.ubicall.com/conf/" : "http://developer-dev.ubicall.com/conf/",
   configVersion: process.env.config_version,
   configEnv: process.env.node_env
 });

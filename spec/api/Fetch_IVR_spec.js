@@ -1,6 +1,6 @@
 var frisby = require("frisby");
 //base url to allow changing from dev to production testing easily
-var baseURL = "https://api.dev.ubicall.com";
+var baseURL = "https://api-dev.ubicall.com";
 
 
 //this line is added to ignore problems in self signed SSL should be removed once we have a valid ssl on the dev.ubicall.com

@@ -10,11 +10,12 @@ var when = require("when");
 var bodyParser = require("body-parser");
 var cors = require("cors");
 var multer = require("multer");
-var log = require("../../log");
+var log = require("../../../log");
 var zendesk = require("./zendesk/ticket");
 var midware = require("../utils/midware");
 var errorHandler = require("../utils/errorHandler");
 var needsPermission = require("ubicall-oauth").needsPermission;
+var hasZendeskCredinitial = require("./zendesk/utils.js").hasZendeskCredinitial;
 var passport = require("passport");
 var settings, storage;
 var app;
@@ -30,7 +31,7 @@ function init(_settings, _storage) {
             extended: true
         }));
         app.use(bodyParser.json());
-        app.post("/zendesk/ticket", needsPermission("zendesk.ticket.write"), zendesk.createTicket);
+        app.post("/zendesk/ticket", needsPermission("zendesk.ticket.write"), hasZendeskCredinitial, zendesk.createTicket);
 
         app.use(errorHandler.log);
         app.use(errorHandler.handle);

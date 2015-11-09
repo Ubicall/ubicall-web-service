@@ -48,6 +48,7 @@
     "node-zendesk": "~1.1.5"
   },
   "devDependencies": {
+    "coveralls": "^2.11.4",
     "docco": "~0.7.0",
     "forever": "^0.15.1",
     "grunt": "~0.4.5",
@@ -56,12 +57,15 @@
     "grunt-jsdoc": "~0.6.8",
     "grunt-nginx": "^0.2.2",
     "ink-docstrap": "~0.5.2",
+    "istanbul": "^0.4.0",
     "jasmine-node": "^1.14.5",
     "js-beautify": "^1.5.10",
     "jsdoc": "~3.3.2",
     "jshint": "^2.8.0",
     "minami": "^1.1.1",
     "pre-commit": "^1.1.1",
-    "sequelize-auto": "0.0.7"
+    "sequelize-auto": "0.0.7",
+    "sinon": "^1.17.2",
+    "supertest": "^1.1.0"
   }
 }

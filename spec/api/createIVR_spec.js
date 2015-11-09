@@ -1,6 +1,6 @@
 var frisby = require("frisby");
 //base url to allow changing from dev to production testing easily
-var baseURL = "https://api.dev.ubicall.com";
+var baseURL = "https://api-dev.ubicall.com";
 
 /*
 Testing the /ivr service to deploy changes on the designer

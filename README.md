@@ -1,5 +1,5 @@
 # ubicall-web-service
-exposed ubicall web service for public and internal use , for documention checkout [development](http://developer.ubicall.com/docs/) or [production](http://developer.ubicall.com/docs/) links.
+exposed ubicall web service for public and internal use , for documentation checkout [development](http://developer-dev.ubicall.com/docs/) or [production](http://developer.ubicall.com/docs/) links.
 
 **preinstall:**
 
@@ -16,7 +16,7 @@ exposed ubicall web service for public and internal use , for documention checko
   *make sure you add the below line to your* **/etc/hosts** *file :*
 
     ```
-    10.0.0.170  developer.dev.ubicall.com
+    10.0.0.170  developer-dev.ubicall.com
     ```
 
 ```bash
