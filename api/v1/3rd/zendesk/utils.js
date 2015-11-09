@@ -1,4 +1,5 @@
 var Forbidden = require("../../utils/errors").Forbidden;
+var MissedParams = require("../../utils/errors").MissedParams;
 
 /**
  * middleware to check if your request.user has zendesk credentials
@@ -17,6 +18,23 @@ function hasZendeskCredinitial(req, res, next) {
     }
 }
 
+/**
+ * middleware to check if your request.body has zendesk comment, beacuse it is required .
+ * @param {Object} req.body - request body
+ * @param {Object} req.body.comment - zendesk ticket comment
+ * @throws {@link MissedParams} if @param req.body.comment is missing
+ * @memberof middleware
+ */
+function matchZendeskMinimumTicketRequirement(req, res, next) {
+    req.body.comment = req.body.comment || req.body.subject || req.body.description;
+    if (req.body.comment) {
+        next();
+    } else {
+        return next(new MissedParams(req.path, ["comment"]));
+    }
+}
+
 module.exports = {
-    hasZendeskCredinitial: hasZendeskCredinitial
+    hasZendeskCredinitial: hasZendeskCredinitial,
+    matchZendeskMinimumTicketRequirement: matchZendeskMinimumTicketRequirement
 };
