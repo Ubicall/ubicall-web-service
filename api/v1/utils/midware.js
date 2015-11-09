@@ -88,7 +88,7 @@ function callExtract(req, res, next) {
       }
     }
     call.sip = req.body.phone || req.body.sip || req.body.voiceuser_id || missingParams.push("phone");
-    call.queue = req.body.queue || req.body.queue_id || req.body.qid || missingParams.push("queue_id");
+    call.queue = req.params.queue_id || req.body.queue || req.body.queue_id || req.body.qid || missingParams.push("queue_id");
     call.license_key = req.user.licence_key || missingParams.push("license_key");
 
     // if this is mobile call then device_token is critical parameter otherwise it not so important

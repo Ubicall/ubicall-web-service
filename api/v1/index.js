@@ -49,7 +49,11 @@ function init(_settings, _storage) {
         // apiApp.use(cors(ubicallCors.options));
         // apiApp.use(ubicallCors.cors);
 
+        apiApp.post("/sip/call/:queue_id/:queue_name", needsPermission("sip.call.write"), midware.callExtract, call.createSipCall);
+
         apiApp.post("/sip/call", needsPermission("sip.call.write"), midware.callExtract, call.createSipCall);
+
+        apiApp.post("/web/call/:queue_id/:queue_name", needsPermission("web.call.write"), midware.callExtract, call.createWebCall);
 
         apiApp.post("/web/call", needsPermission("web.call.write"), midware.callExtract, call.createWebCall);
 
