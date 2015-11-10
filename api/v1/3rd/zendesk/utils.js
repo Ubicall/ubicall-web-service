@@ -8,7 +8,7 @@ var Forbidden = require("../../utils/errors").Forbidden;
  * @memberof middleware
  */
 function hasZendeskCredinitial(req, res, next) {
-    if (req.user.zendesk) {
+      if (req.user.zendesk) {
         next();
     } else {
         return next(new Forbidden({
