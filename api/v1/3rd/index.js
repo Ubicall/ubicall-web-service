@@ -16,6 +16,7 @@ var midware = require("../utils/midware");
 var errorHandler = require("../utils/errorHandler");
 var needsPermission = require("ubicall-oauth").needsPermission;
 var hasZendeskCredinitial = require("./zendesk/utils.js").hasZendeskCredinitial;
+var mzdmr = require("./zendesk/utils.js").matchZendeskMinimumTicketRequirement;
 var passport = require("passport");
 var settings, storage;
 var app;
@@ -31,7 +32,7 @@ function init(_settings, _storage) {
             extended: true
         }));
         app.use(bodyParser.json());
-        app.post("/zendesk/ticket", needsPermission("zendesk.ticket.write"), hasZendeskCredinitial, zendesk.createTicket);
+        app.post("/zendesk/ticket",needsPermission("zendesk.ticket.write"), hasZendeskCredinitial , mzdmr, zendesk.createTicket);
 
         app.use(errorHandler.log);
         app.use(errorHandler.handle);
