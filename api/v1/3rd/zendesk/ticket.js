@@ -32,11 +32,11 @@ function postZendeskTicket(zdcred, ticket) {
                 pass: zdcred.token
             },
             json: true,
-            body:{"ticket": ticket } 
+            body:{"ticket": ticket }
         };
         request(options, function(error, response, body) {
-            if (error) {
-                return reject(error || response.statusCode);
+            if (error || (response.statusCode !== 200 && response.statusCode !== 201)) {
+                return reject(error || body);
             } else {
                 return resolve(body);
             }
@@ -46,6 +46,7 @@ function postZendeskTicket(zdcred, ticket) {
 
 /**
  * Create a zendesk ticket
+ * note: zendesk Date format is YYYY-MM-DD
  * @param {Object} req.body - request body object, contain valid [ticket fields](https://developer.zendesk.com/rest_api/docs/core/ticket_fields)
  * @return HTTP status 200 if ticket created successfully
  * @throws {@link ServerError} if failed to create a ticket
@@ -76,8 +77,7 @@ function createTicket(req, res, next) {
             message: "zendesk ticket submitted successfully"
         });
     }).otherwise(function(err) {
-        log.error(err);
-        return next(new ServerError(err, req.path, "error creating zendesk ticket"));
+        return next(new ServerError(err, req.path, err));
     });
 }
 
