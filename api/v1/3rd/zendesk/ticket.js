@@ -33,7 +33,7 @@ function createTicket(req, res) {
       }
       }
         var options = {
-           url: req.user.zendesk.main+"tickets.json",
+           url: req.user.zendesk.main+"/tickets.json",
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
