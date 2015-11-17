@@ -18,7 +18,7 @@ function postZendeskTicket(zdcred, ticket) {
     return when.promise(function(resolve, reject) {
         log.info("creating zendesk ticket for " + zdcred.username);
         log.info("creating zendesk ticket as " + JSON.stringify(ticket));
-        if (Object.keys(ticket).length) {
+        if (!Object.keys(ticket).length) {
             return reject("ticket contain nothing!");
         }
         var options = {
@@ -32,7 +32,7 @@ function postZendeskTicket(zdcred, ticket) {
                 pass: zdcred.token
             },
             json: true,
-            body: ticket
+            body:{"ticket": ticket } 
         };
         request(options, function(error, response, body) {
             if (error) {
@@ -63,7 +63,7 @@ function createTicket(req, res, next) {
     for (var key in req.body) {
         if (/^\d+$/.test(key)) {
             ticket.custom_fields.push({
-                "id": parseInt(key, 10),
+                "id": key,
                 "value": req.body[key]
             });
         } else {
