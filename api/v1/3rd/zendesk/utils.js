@@ -1,5 +1,6 @@
 var Forbidden = require("../../utils/errors").Forbidden;
 var MissedParams = require("../../utils/errors").MissedParams;
+var log = require("../../../../log");
 
 /**
  * middleware to check if your request.user has zendesk credentials
@@ -26,6 +27,7 @@ function hasZendeskCredinitial(req, res, next) {
  * @memberof middleware
  */
 function matchZendeskMinimumTicketRequirement(req, res, next) {
+    log.info("matchZendeskMinimumTicketRequirement has req.body as " + JSON.stringify(req.body));
     req.body.comment = req.body.comment || req.body.subject || req.body.description;
     if (req.body.comment) {
         next();
