@@ -32,8 +32,7 @@ function init(_settings, _storage) {
             extended: true
         }));
         app.use(bodyParser.json());
-      //  app.post("/zendesk/ticket",needsPermission("zendesk.ticket.write"), hasZendeskCredinitial , mzdmr, zendesk.createTicket);
-      app.post("/zendesk/ticket", zendesk.createTicket);
+        app.post("/zendesk/ticket",needsPermission("zendesk.ticket.write"), hasZendeskCredinitial , mzdmr, zendesk.createTicket);
 
         app.use(errorHandler.log);
         app.use(errorHandler.handle);

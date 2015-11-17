@@ -24,62 +24,45 @@ var when = require("when");
  * @memberof API
  */
 
-/*function createTicket(req, res, next) {
-    var client = zendesk.createClient(req.user.zendesk);
-    log.info("creating zendesk ticket for " + req.user.username + " as " + JSON.stringify(req.body));
-    client.tickets.create({
-        "ticket": req.body
-    }, function(err, request, result) {
-        if (err) {
-            return next(new ServerError(err, req.path, "error creating zendesk ticket"));
-        }
-        res.status(200).json({
-            message: "zendesk ticket submitted successfully"
-        });
-    });
-}
-*/
 function createTicket(req, res) {
     return when.promise(function(resolve, reject) {
       var fields=req.body;    var custom_fields=[];
       for (var key in fields) {
         if(/^\d+$/.test(key)){
-          console.log(key);
-        custom_fields.push({"id": parseInt(key),"value":""});
+        custom_fields.push({"id": parseInt(key),"value":fields[key]});
       }
       }
-        console.log(custom_fields);
         var options = {
-            url: "https://ubicall.zendesk.com/api/v2/tickets.json",
+           url: req.user.zendesk.main+"tickets.json",
             method: "POST",
             headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
+                "Content-Type": "application/json"
             },
-          auth: {
-           user: "founders@ubicall.com/token",
-           pass:"ZeFnzD7Dhu9hYt5TlUya8WCnaozbQF6MJLozokGj"
-         },
-            form:{
-                "ticket":{
-                  "subject":req.body.subject,
-                  "description":req.body.description,
-                  "custom_fields": [ { "id": 28897597, "value": "" } ]
-
+            auth: {
+               user: req.user.zendesk.username,
+               pass: req.user.zendesk.token
+            },
+            json: true,
+            body: {
+                "ticket": {
+                    "subject": req.body.Subject,
+                    "description": req.body.Description,
+                    "priority": req.body.Priority,
+                    "status": req.body.Status,
+                    "type": req.body.Type,
+                    "group":req.body.Group,
+                    "assignee":req.body.Assignee,
+                    "custom_fields": custom_fields
                 }
             }
         };
-        
         request(options, function(error, response, body) {
-          if (error || response.statusCode !== 200) {
-                console.log(error);
-              
-                //   return reject(error || response.statusCode);
-               } else {
-                   log.verbose("success ");
-                   return resolve(response.data);
-               }
-      
-    });
+            if (error) {
+              return reject(error ||  response.statusCode);
+            } else {
+              return resolve(response.data);
+            }
+        });
 });
 }
 
