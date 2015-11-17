@@ -2,19 +2,6 @@ var Forbidden = require("../../utils/errors").Forbidden;
 var MissedParams = require("../../utils/errors").MissedParams;
 
 /**
-* lowerize object keys
-**/
-function _lowerizeObjectKeys(obj) {
-    var keys = Object.keys(obj);
-    var n = keys.length;
-    while (n--) {
-        var key = keys[n];
-        obj[key.toLowerCase()] = obj[key];
-        delete obj[key];
-    }
-}
-
-/**
  * middleware to check if your request.user has zendesk credentials
  * @param {Object} req.user - request user
  * @param {Object} req.user.zendesk - zendesk credentials
@@ -39,7 +26,6 @@ function hasZendeskCredinitial(req, res, next) {
  * @memberof middleware
  */
 function matchZendeskMinimumTicketRequirement(req, res, next) {
-    _lowerizeObjectKeys(req.body);
     req.body.comment = req.body.comment || req.body.subject || req.body.description;
     if (req.body.comment) {
         next();

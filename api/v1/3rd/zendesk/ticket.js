@@ -16,6 +16,8 @@ var log = require("../../../../log");
  */
 function postZendeskTicket(zdcred, ticket) {
     return when.promise(function(resolve, reject) {
+        log.info("creating zendesk ticket for " + zdcred.username);
+        log.info("creating zendesk ticket as " + JSON.stringify(ticket));
         if (Object.keys(ticket).length) {
             return reject("ticket contain nothing!");
         }
@@ -74,6 +76,7 @@ function createTicket(req, res, next) {
             message: "zendesk ticket submitted successfully"
         });
     }).otherwise(function(err) {
+        log.error(err);
         return next(new ServerError(err, req.path, "error creating zendesk ticket"));
     });
 }
