@@ -71,9 +71,9 @@ var storageModuleInterface = {
         });
     },
 
-    insertEmail: function(email, subject, destination) {
+    insertEmail: function(subject, destination, email) {
         return when.promise(function(resolve, reject) {
-            ubicallStorageModule.insertEmail(email, subject, destination).then(function(email) {
+            ubicallStorageModule.insertEmail(subject, destination, email).then(function(email) {
                 return resolve(email);
             }).otherwise(function(error) {
                 return reject(error);

@@ -17,15 +17,10 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.INTEGER(11),
       allowNull: false,
     },
-    time_insert: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: now.format("YYYY-MM-DD HH:mm:ss")
-    },
     time_send: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: now.format("YYYY-MM-DD HH:mm:ss")
+      defaultValue:""
     },
     email: {
       type: DataTypes.STRING,
