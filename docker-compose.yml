@@ -1,0 +1,14 @@
+nginx:
+    build: ./docker-dependencies/nginx
+    links:
+        - webservice1:webservice1
+    ports:
+        - "80:80"
+webservice1:
+    build: .
+    links:
+        - mysql
+    ports:
+        - "4000"
+mysql:
+  build: ./docker-dependencies/mysql

@@ -1,3 +1,5 @@
+console.log(process.env);
+
 var http = require("http");
 var https = require("https");
 var express = require("express");

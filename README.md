@@ -36,6 +36,13 @@ node_modules/sequelize-auto/bin/sequelize-auto -o "./storage/models/ubicall" -d 
 node_modules/sequelize-auto/bin/sequelize-auto -o "./storage/models/ast_rt" -d ast_rt -h localhost -u root -p 3306 -x root -e mysql
 node_modules/sequelize-auto/bin/sequelize-auto -o "./storage/models/web_fs_db" -d WEB_FS_DB -h localhost -u root -p 3306 -x root -e mysql
 ```
+**build docker images :**
+```bash
+# build ubicall-db-mysql-ubicall
+docker build -t ubicall-mysql:0.1 docker-dependencies/mysql/
+# run ubicall-mysql in detached mode, to get attached run `docker exec -it {CONTAINER_ID} bash`
+docker run -d ubicall-mysql:0.1
+```
 **how to contribute :**
 
 1. will create branch with your feature or fix i.e. feature-xx , fix-xx
