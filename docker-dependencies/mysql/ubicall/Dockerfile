@@ -6,5 +6,5 @@ ENV MYSQL_USER  "ubiuser"
 ENV MYSQL_PASSWORD  "UbIPaWd15dB@1"
 ENV MYSQL_DATABASE  "ubicall"
 
-# copy ./data/*.sql to /docker-entrypoint-initdb.d/ to be executed
-ADD ./data/*.sql /docker-entrypoint-initdb.d/
+# copy ubicall.sql to /docker-entrypoint-initdb.d/ to be executed
+ADD ubicall.sql /docker-entrypoint-initdb.d/

@@ -2,13 +2,38 @@ nginx:
     build: ./docker-dependencies/nginx
     links:
         - webservice1:webservice1
+        - webservice2:webservice2
     ports:
         - "80:80"
+# web services
 webservice1:
     build: .
     links:
-        - mysql
+        - mysqlubicall:db_ubicall
+        - mysqlastrt:db_ast_rt
+        - mysqlwebfs:db_web_fs
     ports:
         - "4000"
-mysql:
-  build: ./docker-dependencies/mysql
+
+webservice2:
+    build: .
+    links:
+        - mysqlubicall:db_ubicall
+        - mysqlastrt:db_ast_rt
+        - mysqlwebfs:db_web_fs
+    ports:
+        - "4000"
+
+# END web services
+
+# mysql store
+mysqlubicall:
+  build: ./docker-dependencies/mysql/ubicall
+  
+mysqlastrt:
+  build: ./docker-dependencies/mysql/ast_rt
+  
+mysqlwebfs:
+  build: ./docker-dependencies/mysql/web_fs
+
+# End mysql store
