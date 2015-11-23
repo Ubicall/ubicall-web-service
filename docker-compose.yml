@@ -3,9 +3,12 @@ nginx:
     links:
         - webservice1:webservice1
         - webservice2:webservice2
+        - auth1:auth1
+        - auth2:auth2
     ports:
         - "80:80"
-# web services
+        
+# web services nodes
 webservice1:
     build: .
     links:
@@ -24,9 +27,25 @@ webservice2:
     ports:
         - "4000"
 
+auth1:
+  build: ./ubicall-oauth
+  links:
+      - mysqlubicall:db_ubicall
+      - mongo:mongo
+  ports:
+      - "5000"
+auth2:
+  build: ./ubicall-oauth
+  links:
+      - mysqlubicall:db_ubicall
+      - mongo:mongo
+  ports:
+      - "5000"
+        
 # END web services
 
-# mysql store
+
+# datastore store
 mysqlubicall:
   build: ./docker-dependencies/mysql/ubicall
   
@@ -36,4 +55,8 @@ mysqlastrt:
 mysqlwebfs:
   build: ./docker-dependencies/mysql/web_fs
 
-# End mysql store
+mongo:
+    image: mongo
+    ports:
+        - "27017"
+# End datastore store
