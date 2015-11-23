@@ -1,6 +1,7 @@
 FROM node:0.12.7-wheezy
 MAINTAINER Waleed Samy <waleed_samy@ymail.com>
 
+RUN mkdir -p /var/www/{agent,static} && mkdir -p /var/www/agent/avatar/
 RUN npm install -g forever grunt-cli bower
 
 ADD package.json /tmp/package.json
