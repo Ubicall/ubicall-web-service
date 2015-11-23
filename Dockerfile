@@ -15,4 +15,4 @@ ADD . /src
 EXPOSE  4000
 
 # Run app using nodemon
-CMD ["forever", "start", "/src/api.js"]
+CMD ["node", "/src/api.js"]

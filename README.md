@@ -38,6 +38,8 @@ node_modules/sequelize-auto/bin/sequelize-auto -o "./storage/models/web_fs_db" -
 ```
 **build docker images :**
 ```bash
+# compose short cut for all next commands
+docker-compose stop && docker-compose build && docker-compose up -d
 # build ubicall-db-mysql-ubicall
 docker build -t ubicall-mysql:0.1 docker-dependencies/mysql/
 # run ubicall-mysql in detached mode, to get attached run `docker exec -it {CONTAINER_ID} bash`
