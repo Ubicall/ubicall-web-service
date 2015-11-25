@@ -15,6 +15,7 @@ webservice1:
         - mysqlubicall:db_ubicall
         - mysqlastrt:db_ast_rt
         - mysqlwebfs:db_web_fs
+        - redis:redis
     ports:
         - "4000"
 
@@ -24,6 +25,7 @@ webservice2:
         - mysqlubicall:db_ubicall
         - mysqlastrt:db_ast_rt
         - mysqlwebfs:db_web_fs
+        - redis:redis
     ports:
         - "4000"
 
@@ -32,6 +34,7 @@ auth1:
   links:
       - mysqlubicall:db_ubicall
       - mongo:mongo
+      - redis:redis
   ports:
       - "5000"
 auth2:
@@ -39,6 +42,7 @@ auth2:
   links:
       - mysqlubicall:db_ubicall
       - mongo:mongo
+      - redis:redis
   ports:
       - "5000"
         
@@ -59,4 +63,9 @@ mongo:
     image: mongo
     ports:
         - "27017"
+
+redis:
+    image: redis
+    ports:
+        - "6379"
 # End datastore store

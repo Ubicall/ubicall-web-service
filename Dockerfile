@@ -4,9 +4,8 @@ MAINTAINER Waleed Samy <waleed_samy@ymail.com>
 RUN mkdir -p /var/www/{agent,static} && mkdir -p /var/www/agent/avatar/
 RUN npm install -g forever grunt-cli bower
 
-ADD package.json /tmp/package.json
-RUN cd /tmp && npm install
-RUN mkdir -p /src && cp -a /tmp/node_modules /src/
+
+RUN mkdir -p /src
 
 WORKDIR /src
 ADD . /src

@@ -30,31 +30,30 @@ module.exports = {
         //              password : xyz
         ubicallStorageModule: "mysql",
         ubicall_mysql: {
-            "database": process.env.DB_UBICALL_ENV_MYSQL_DATABASE,
-            "username": process.env.DB_UBICALL_ENV_MYSQL_USER,
-            "password": process.env.DB_UBICALL_ENV_MYSQL_PASSWORD,
-            "external_ip": process.env.DB_UBICALL_PORT_3306_TCP_ADDR,
-            "internal_port": process.env.DB_UBICALL_PORT_3306_TCP_PORT,
-            "internal_ip": process.env.DB_UBICALL_PORT_3306_TCP_ADDR,
-            "external_port": process.env.DB_UBICALL_PORT_3306_TCP_PORT
+            "database": "ubicall",
+            "username": "ubiuser",
+            "password": "UbIPaWd15dB@1",
+            "external_ip": "23.253.158.160",
+            "external_port": 3306,
+            "internal_ip": "10.176.192.120",
+            "internal_port": 3306
         },
         ast_rt_mysql: {
-            "database": process.env.DB_AST_RT_ENV_MYSQL_DATABASE,
-            "username": process.env.DB_AST_RT_ENV_MYSQL_USER,
-            "password": process.env.DB_AST_RT_ENV_MYSQL_PASSWORD,
-            "external_ip": process.env.DB_AST_RT_PORT_3306_TCP_ADDR,
-            "internal_port": process.env.DB_AST_RT_PORT_3306_TCP_PORT,
-            "internal_ip": process.env.DB_AST_RT_PORT_3306_TCP_ADDR,
-            "external_port": process.env.DB_AST_RT_PORT_3306_TCP_PORT
+            "database": "ast_rt",
+            "username": "ubiuser",
+            "password": "UbIPaWd15dB@1",
+            "external_ip": "23.253.158.160",
+            "internal_ip": "10.176.192.120",
+            "external_port": 3306
         },
         web_fs_db_mysql: {
-          "database": process.env.DB_WEB_FS_ENV_MYSQL_DATABASE,
-          "username": process.env.DB_WEB_FS_ENV_MYSQL_USER,
-          "password": process.env.DB_WEB_FS_ENV_MYSQL_PASSWORD,
-          "external_ip": process.env.DB_WEB_FS_PORT_3306_TCP_ADDR,
-          "internal_port": process.env.DB_WEB_FS_PORT_3306_TCP_PORT,
-          "internal_ip": process.env.DB_WEB_FS_PORT_3306_TCP_ADDR,
-          "external_port": process.env.DB_WEB_FS_PORT_3306_TCP_PORT
+            "database": "WEB_FS_DB",
+            "username": "ubiuser",
+            "password": "UbIPaWd15dB@1",
+            "external_ip": "104.239.164.247",
+            "internal_ip": "10.209.68.186",
+            "external_port": 3306,
+            "internal_port": 3306
         },
         cache: {
             enabled: false,
@@ -64,8 +63,8 @@ module.exports = {
             redis: {
                 "username": "XXXXX",
                 "password": "XXXXX",
-                "internal_ip": process.env.REDIS_PORT_6379_TCP_ADDR,
-                "internal_port": process.env.REDIS_PORT_6379_TCP_PORT
+                "internal_ip": "127.0.0.1",
+                "internal_port": "6379"
             }
         },
         infra: {
