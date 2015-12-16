@@ -29,6 +29,7 @@ var ServerError = require("./utils/errors").ServerError;
 var NotFound = require("./utils/errors").NotFound;
 var needsPermission = require("ubicall-oauth").needsPermission;
 var passport = require("passport");
+var helmet = require("helmet");
 var thirdApp = require("./3rd");
 var settings, storage;
 var apiApp;
@@ -50,6 +51,7 @@ function init(_settings, _storage) {
         apiApp.use(bodyParser.json());
         // apiApp.use(cors(ubicallCors.options));
         // apiApp.use(ubicallCors.cors);
+        apiApp.use(helmet());
 
         apiApp.post("/sip/call/:queue_id/:queue_name", needsPermission("sip.call.write"), midware.callExtract, call.createSipCall);
 
