@@ -68,7 +68,7 @@ function sendEmail(req, res, next) {
     email.lat = req.body.lat;
     email.long = req.body.long;
     email.address = req.body.address;
-    email.email_id = req.body.email_id || missingParams.push("email_id");
+    email.email_id = req.params.email_id || req.body.email_id || missingParams.push("email_id");
     email.device_token = req.body.device_token;
     if (missingParams.length > 0) {
         return next(new MissedParams(req.path, missingParams));

@@ -18,6 +18,7 @@ var email = require("./email");
 var agent = require("./agent");
 var queue = require("./queue");
 var ivr = require("./ivr");
+var zendesk = require("./3rd/zendesk/ticket");
 var midware = require("./utils/midware");
 var errorHandler = require("./utils/errorHandler");
 var NotImplementedError = require("./utils/errors").NotImplementedError;
@@ -28,6 +29,8 @@ var ServerError = require("./utils/errors").ServerError;
 var NotFound = require("./utils/errors").NotFound;
 var needsPermission = require("ubicall-oauth").needsPermission;
 var passport = require("passport");
+var helmet = require("helmet");
+var thirdApp = require("./3rd");
 var settings, storage;
 var apiApp;
 
@@ -48,8 +51,13 @@ function init(_settings, _storage) {
         apiApp.use(bodyParser.json());
         // apiApp.use(cors(ubicallCors.options));
         // apiApp.use(ubicallCors.cors);
+        apiApp.use(helmet());
+
+        apiApp.post("/sip/call/:queue_id/:queue_name", needsPermission("sip.call.write"), midware.callExtract, call.createSipCall);
 
         apiApp.post("/sip/call", needsPermission("sip.call.write"), midware.callExtract, call.createSipCall);
+
+        apiApp.post("/web/call/:queue_id/:queue_name", needsPermission("web.call.write"), midware.callExtract, call.createWebCall);
 
         apiApp.post("/web/call", needsPermission("web.call.write"), midware.callExtract, call.createWebCall);
 
@@ -93,9 +101,15 @@ function init(_settings, _storage) {
 
         apiApp.get("/email", needsPermission("email.read"), email.getEmail);
 
+        apiApp.post("/email/:email_id/:email_name", needsPermission("email.write"), email.sendEmail);
+
         apiApp.post("/email", needsPermission("email.write"), email.sendEmail);
 
         apiApp.get("/queue", needsPermission("-"), queue.fetchAdminQueues);
+
+        thirdApp.init(_settings, _storage).then(function(thridPartyApp) {
+            apiApp.use("/3rd", thridPartyApp);
+        });
 
         apiApp.use(errorHandler.log);
         apiApp.use(errorHandler.handle);

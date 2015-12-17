@@ -22,30 +22,33 @@
     "ubicall",
     "call center"
   ],
-  "license": "GPL-3.0",
+  "license": "GPLV2",
   "dependencies": {
     "body-parser": "^1.13.3",
     "cors": "^2.7.1",
     "express": "^4.13.3",
     "frisby": "^0.8.5",
+    "helmet": "^0.15.0",
     "modesl": "^1.1.5",
     "moment": "^2.10.6",
     "multer": "^1.0.3",
     "mysql": "^2.8.0",
+    "node-remote-config-loader": "git@github.com:ubicall/node-remote-config-loader",
     "passport": "^0.3.0",
     "randomstring": "~1.0.7",
-    "request": "^2.61.0",
+    "request": "~2.65.0",
     "sequelize": "^3.5.1",
     "slug": "^0.9.1",
     "sprintf": "~0.1.5",
     "sprintf-js": "^1.0.3",
     "sync-request": "^2.0.1",
-    "ubicall-oauth": "git://github.com/Ubicall/ubicall-oauth",
+    "ubicall-oauth": "git@github.com:Ubicall/ubicall-oauth",
     "validator": "^4.0.2",
     "when": "^3.7.3",
     "winston": "^1.0.1"
   },
   "devDependencies": {
+    "coveralls": "^2.11.4",
     "docco": "~0.7.0",
     "forever": "^0.15.1",
     "grunt": "~0.4.5",
@@ -54,12 +57,15 @@
     "grunt-jsdoc": "~0.6.8",
     "grunt-nginx": "^0.2.2",
     "ink-docstrap": "~0.5.2",
+    "istanbul": "^0.4.0",
     "jasmine-node": "^1.14.5",
     "js-beautify": "^1.5.10",
     "jsdoc": "~3.3.2",
     "jshint": "^2.8.0",
     "minami": "^1.1.1",
     "pre-commit": "^1.1.1",
-    "sequelize-auto": "0.0.7"
+    "sequelize-auto": "0.0.7",
+    "sinon": "^1.17.2",
+    "supertest": "^1.1.0"
   }
 }
