@@ -10,11 +10,11 @@ var randomstring = require("randomstring");
 var settings = require("../../settings");
 var storage = require("../../storage");
 var log = require("../../log");
-var NotImplementedError = require("./utils/errors").NotImplementedError;
-var BadRequest = require("./utils/errors").BadRequest;
-var MissedParams = require("./utils/errors").MissedParams;
-var Forbidden = require("./utils/errors").Forbidden;
-var ServerError = require("./utils/errors").ServerError;
+var NotImplementedError = require("../errors").NotImplementedError;
+var BadRequest = require("../errors").BadRequest;
+var MissedParams = require("../errors").MissedParams;
+var Forbidden = require("../errors").Forbidden;
+var ServerError = require("../errors").ServerError;
 
 /**
  * create sip account for mobile client

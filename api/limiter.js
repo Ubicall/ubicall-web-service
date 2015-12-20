@@ -2,6 +2,7 @@ var Limiter = require("ratelimiter");
 var ms = require("ms");
 var settings = require("../settings");
 var log = require("../log");
+var RateLimitExceededError = require("./errors").RateLimitExceededError;
 var redis = require("redis"),
     db = redis.createClient({
         host: settings.cache.redis.internal_ip,
@@ -9,7 +10,7 @@ var redis = require("redis"),
     });
 
 db.on("error", function(err) {
-    console.log("Error  limit:redis" + err);
+    log.error("Error limiter:redis" + err);
 });
 
 var MAX_LIMIT = 5000;
@@ -37,11 +38,15 @@ function rateLimiter(req, res, next) {
             var delta = (limit.reset * 1000) - Date.now() | 0;
             var after = limit.reset - (Date.now() / 1000) | 0;
             res.set("Retry-After", after);
-            log.warn("rate limit exceeded" + req.user.access_token);
-            // TODO return next with error - create custom error
-            res.send(429, "Rate limit exceeded, retry in " + ms(delta, {
-                long: true
-            }));
+            log.warn("rate limit exceeded for " + req.user.access_token);
+            return next(
+                new RateLimitExceededError(
+                    new Error("rate limit exceeded for " + req.user.access_token),
+                    req.path,
+                    "Rate limit exceeded, retry in " + ms(delta, {
+                        long: true
+                    })
+                ));
         }
     });
 }

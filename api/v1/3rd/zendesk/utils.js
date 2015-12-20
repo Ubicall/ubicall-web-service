@@ -1,5 +1,5 @@
-var Forbidden = require("../../utils/errors").Forbidden;
-var MissedParams = require("../../utils/errors").MissedParams;
+var Forbidden = require("../../../errors").Forbidden;
+var MissedParams = require("../../../errors").MissedParams;
 var log = require("../../../../log");
 
 /**
