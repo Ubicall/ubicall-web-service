@@ -12,6 +12,7 @@ var cors = require("cors");
 var multer = require("multer");
 var log = require("../../../log");
 var zendesk = require("./zendesk/ticket");
+var zdTktFrms = require("./zendesk/ticket_forms");
 var midware = require("../utils/midware");
 var errorHandler = require("../utils/errorHandler");
 var needsPermission = require("ubicall-oauth").needsPermission;
@@ -32,7 +33,8 @@ function init(_settings, _storage) {
             extended: true
         }));
         app.use(bodyParser.json());
-        app.post("/zendesk/ticket",needsPermission("zendesk.ticket.write"), hasZendeskCredinitial , mzdmr, zendesk.createTicket);
+        app.post("/zendesk/ticket", needsPermission("zendesk.ticket.write"), hasZendeskCredinitial, mzdmr, zendesk.createTicket);
+        app.get("/zendesk/ticket/forms", needsPermission("-"), hasZendeskCredinitial, zdTktFrms.getTicketForms);
 
         app.use(errorHandler.log);
         app.use(errorHandler.handle);
