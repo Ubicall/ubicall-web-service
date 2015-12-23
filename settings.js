@@ -40,6 +40,7 @@ module.exports = {
     ubicall_mysql: config.storage.mysql.ubicall_db,
     ast_rt_mysql: config.storage.mysql.ast_rt,
     web_fs_db_mysql: config.storage.mysql.WEB_FS_DB,
+    ubicall_log:config.storage.ubicall_log,
     fake: {
       locale: "de",
       options: { // these options take precedence in fakeStorage.js

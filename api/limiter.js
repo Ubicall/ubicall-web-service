@@ -2,7 +2,12 @@ var Limiter = require("ratelimiter");
 var ms = require("ms");
 var settings = require("../settings");
 var log = require("../log");
+var mongoose = require("mongoose");
+var $limter = require("../storage/models/mongo/rateLimiter");
+var $log = require("../storage/models/mongo/log");
 var RateLimitExceededError = require("./errors").RateLimitExceededError;
+var moment = require("moment");
+var now = new moment();
 var redis = require("redis"),
     db = redis.createClient({
         host: settings.cache.redis.internal_ip,
@@ -12,12 +17,40 @@ var redis = require("redis"),
 db.on("error", function(err) {
     log.error("Error limiter:redis" + err);
 });
-
-var MAX_LIMIT = 5000;
+var uri = "mongodb://127.0.0.1:27017/ubicall_log";
+var options = {
+    db: {
+        native_parser: true
+    },
+    server: {
+        poolSize: 5
+    },
+    replset: {
+        rs_name: "myReplicaSetName"
+    },
+    user: "",
+    pass: ""
+};
+mongoose.connect(uri, options, function() {
+    log.info("connected successfully to DB => ");
+});
+var MAX_LIMIT = 5;
 var LIMIT_PER = 24 * 60 * 60 * 1000; // 1 day
 var limit, id;
 
 function rateLimiter(req, res, next) {
+    var api_request = {
+        user_id: req.user.licence_key,
+        meta_data: req.headers
+    };
+    var doc = new $log(api_request);
+    doc.save(function(err, res) {
+        if (err || !doc) {
+            return err || "no doc found!";
+        } else {
+            console.log("saved");
+        }
+    });
     limit = new Limiter({
         id: req.user.licence_key,
         db: db,
@@ -50,6 +83,45 @@ function rateLimiter(req, res, next) {
         }
     });
 }
+
+
+function rateLimiterReset(req, res, next) {
+    log.info("Reset Limit");
+    var __doc = {
+        licence_key: req.user.licence_key,
+        log: "Reset limit"
+    };
+    console.log(__doc);
+    var doc = new $limter(__doc);
+
+    doc.save(function(err, res) {
+        if (err || !doc) {
+            return err || "no doc found!";
+        } else {
+            console.log("saved");
+            //  return resolve(res.toObject());
+        }
+    });
+
+    limit = new Limiter({
+        id: req.user.licence_key,
+        db: db,
+        max: MAX_LIMIT,
+        duration: LIMIT_PER
+    });
+    limit.reset(function(err, limit) {
+        if (err) {
+            return next(err);
+        }
+        res.set("X-RateLimit-Limit", limit.total);
+        res.set("X-RateLimit-Remaining", limit.remaining - 1);
+        res.set("X-RateLimit-Reset", limit.reset);
+
+        return res.status(200).send();
+    });
+}
+
 module.exports = {
     rateLimiter: rateLimiter,
+    rateLimiterReset: rateLimiterReset
 };

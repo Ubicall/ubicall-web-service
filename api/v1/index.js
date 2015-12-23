@@ -108,6 +108,8 @@ function init(_settings, _storage) {
 
         apiApp.get("/queue", needsPermission("-"), Limiter.rateLimiter, queue.fetchAdminQueues);
 
+        apiApp.get("/_reset", needsPermission("-"), Limiter.rateLimiterReset);
+
         thirdApp.init(_settings, _storage).then(function(thridPartyApp) {
             apiApp.use("/3rd", thridPartyApp);
         });
