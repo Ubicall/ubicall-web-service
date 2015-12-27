@@ -8,6 +8,7 @@ var $log = require("../storage/models/mongo/log");
 var RateLimitExceededError = require("./errors").RateLimitExceededError;
 var moment = require("moment");
 var now = new moment();
+
 var redis = require("redis"),
     db = redis.createClient({
         host: settings.cache.redis.internal_ip,
@@ -39,18 +40,7 @@ var LIMIT_PER = 24 * 60 * 60 * 1000; // 1 day
 var limit, id;
 
 function rateLimiter(req, res, next) {
-    var api_request = {
-        user_id: req.user.licence_key,
-        meta_data: req.headers
-    };
-    var doc = new $log(api_request);
-    doc.save(function(err, res) {
-        if (err || !doc) {
-            return err || "no doc found!";
-        } else {
-            console.log("saved");
-        }
-    });
+
     limit = new Limiter({
         id: req.user.licence_key,
         db: db,
@@ -71,10 +61,10 @@ function rateLimiter(req, res, next) {
             var delta = (limit.reset * 1000) - Date.now() | 0;
             var after = limit.reset - (Date.now() / 1000) | 0;
             res.set("Retry-After", after);
-            log.warn("rate limit exceeded for " + req.user.access_token);
+            log.warn("rate limit exceeded for " + req.user.licence_key);
             return next(
                 new RateLimitExceededError(
-                    new Error("rate limit exceeded for " + req.user.access_token),
+                    new Error("rate limit exceeded for " + req.user.licence_key),
                     req.path,
                     "Rate limit exceeded, retry in " + ms(delta, {
                         long: true
@@ -87,21 +77,6 @@ function rateLimiter(req, res, next) {
 
 function rateLimiterReset(req, res, next) {
     log.info("Reset Limit");
-    var __doc = {
-        licence_key: req.user.licence_key,
-        log: "Reset limit"
-    };
-    console.log(__doc);
-    var doc = new $limter(__doc);
-
-    doc.save(function(err, res) {
-        if (err || !doc) {
-            return err || "no doc found!";
-        } else {
-            console.log("saved");
-            //  return resolve(res.toObject());
-        }
-    });
 
     limit = new Limiter({
         id: req.user.licence_key,

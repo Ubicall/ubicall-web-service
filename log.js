@@ -1,4 +1,6 @@
 var winston = require("winston");
+require("winston-mongodb").MongoDB;
+
 var logger = new (winston.Logger)({
   levels: {
     trace: 0,
@@ -44,5 +46,11 @@ logger.add(winston.transports.DailyRotateFile, {
   filename: "./.log/api.log",
   json: false
 });
+
+logger.add(winston.transports.MongoDB, {
+  db: "mongodb://127.0.0.1:27017/ubicall_log",
+  collection: "logs"
+});
+
 
 module.exports = logger;
