@@ -3,8 +3,7 @@ var ms = require("ms");
 var settings = require("../settings");
 var log = require("../log");
 var mongoose = require("mongoose");
-var $limter = require("../storage/models/mongo/rateLimiter");
-var $log = require("../storage/models/mongo/log");
+var $rate_limter = require("../storage/models/mongo/rateLimiter");
 var RateLimitExceededError = require("./errors").RateLimitExceededError;
 var moment = require("moment");
 var now = new moment();
@@ -33,14 +32,13 @@ var options = {
     pass: ""
 };
 mongoose.connect(uri, options, function() {
-    log.info("connected successfully to DB => ");
+    log.info("connected successfully to DB => ubicall_log");
 });
 var MAX_LIMIT = 5;
 var LIMIT_PER = 24 * 60 * 60 * 1000; // 1 day
 var limit, id;
 
 function rateLimiter(req, res, next) {
-
     limit = new Limiter({
         id: req.user.licence_key,
         db: db,
@@ -62,6 +60,17 @@ function rateLimiter(req, res, next) {
             var after = limit.reset - (Date.now() / 1000) | 0;
             res.set("Retry-After", after);
             log.warn("rate limit exceeded for " + req.user.licence_key);
+            var doc = new $rate_limter({
+                licence_key: req.user.licence_key,
+                time: now,
+                url: req._parsedUrl.pathname,
+                limit: MAX_LIMIT
+            });
+            doc.save(function(err) {
+                if (err) {
+                    return err;
+                }
+            });
             return next(
                 new RateLimitExceededError(
                     new Error("rate limit exceeded for " + req.user.licence_key),
@@ -70,6 +79,7 @@ function rateLimiter(req, res, next) {
                         long: true
                     })
                 ));
+
         }
     });
 }
