@@ -3,10 +3,8 @@ var ms = require("ms");
 var settings = require("../settings");
 var log = require("../log");
 var mongoose = require("mongoose");
-var $rate_limter = require("../storage/models/mongo/rateLimiter");
 var RateLimitExceededError = require("./errors").RateLimitExceededError;
-var moment = require("moment");
-var now = new moment();
+var storage = require("../storage");
 
 var redis = require("redis"),
     db = redis.createClient({
@@ -17,23 +15,7 @@ var redis = require("redis"),
 db.on("error", function(err) {
     log.error("Error limiter:redis" + err);
 });
-var uri = "mongodb://127.0.0.1:27017/ubicall_log";
-var options = {
-    db: {
-        native_parser: true
-    },
-    server: {
-        poolSize: 5
-    },
-    replset: {
-        rs_name: "myReplicaSetName"
-    },
-    user: "",
-    pass: ""
-};
-mongoose.connect(uri, options, function() {
-    log.info("connected successfully to DB => ubicall_log");
-});
+
 var MAX_LIMIT = 5;
 var LIMIT_PER = 24 * 60 * 60 * 1000; // 1 day
 var limit, id;
@@ -60,30 +42,21 @@ function rateLimiter(req, res, next) {
             var after = limit.reset - (Date.now() / 1000) | 0;
             res.set("Retry-After", after);
             log.warn("rate limit exceeded for " + req.user.licence_key);
-            var doc = new $rate_limter({
-                licence_key: req.user.licence_key,
-                time: now,
-                url: req._parsedUrl.pathname,
-                limit: MAX_LIMIT
+            storage.insertLog(req.user.licence_key, req.path, MAX_LIMIT).then(function(log) {
+                return next(
+                    new RateLimitExceededError(
+                        new Error("rate limit exceeded for " + req.user.licence_key),
+                        req.path,
+                        "Rate limit exceeded, retry in " + ms(delta, {
+                            long: true
+                        })
+                    ));
+            }).otherwise(function(error) {
+                return error;
             });
-            doc.save(function(err) {
-                if (err) {
-                    return err;
-                }
-            });
-            return next(
-                new RateLimitExceededError(
-                    new Error("rate limit exceeded for " + req.user.licence_key),
-                    req.path,
-                    "Rate limit exceeded, retry in " + ms(delta, {
-                        long: true
-                    })
-                ));
-
         }
     });
 }
-
 
 function rateLimiterReset(req, res, next) {
     log.info("Reset Limit");

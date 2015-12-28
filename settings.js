@@ -1,5 +1,4 @@
 var loader = require("node-remote-config-loader");
-var log = require("./log");
 
 process.env.node_env = process.env.node_env || "development";
 process.env.db_env = process.env.db_env || "internal";
@@ -15,7 +14,6 @@ var config = loader.load({
   configVersion: process.env.config_version,
   configEnv: process.env.node_env
 });
-
 
 module.exports = {
 
@@ -37,10 +35,11 @@ module.exports = {
     //      i.e.    username : xyz@sand.com
     //              password : xyz
     ubicallStorageModule: "mysql",
+    logStorageModule: "mongo",
     ubicall_mysql: config.storage.mysql.ubicall_db,
     ast_rt_mysql: config.storage.mysql.ast_rt,
     web_fs_db_mysql: config.storage.mysql.WEB_FS_DB,
-    ubicall_log:config.storage.ubicall_log,
+    ubicall_log: config.storage.mongo.ubicall_log,
     fake: {
       locale: "de",
       options: { // these options take precedence in fakeStorage.js

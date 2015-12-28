@@ -3,7 +3,7 @@ var when = require("when");
 var log = require("../log");
 var agentInterface = require("./agent");
 var callInterface = require("./call");
-var ubicallStorageModule, astStorageModule, webFSStorageModule, cacheModule, cache;
+var ubicallStorageModule, astStorageModule, webFSStorageModule, cacheModule, cache, logStorageModule;
 
 
 function _initStorage(_settings) {
@@ -18,6 +18,10 @@ function _initStorage(_settings) {
             toReturnPromises.push(webFSStorageModule.init(_settings));
         } else {
             throw new Error("unsupport storage");
+        }
+        if (_settings.storage.logStorageModule && typeof _settings.storage.logStorageModule === "string" && _settings.storage.logStorageModule === "mongo") {
+            logStorageModule = require("./mongo/ubicall_log.js");
+            toReturnPromises.push(logStorageModule.init(_settings));
         }
         toReturnPromises.push(agentInterface.init(ubicallStorageModule, astStorageModule, cacheModule, cache));
         toReturnPromises.push(callInterface.init(ubicallStorageModule, astStorageModule, cacheModule, cache));
@@ -226,8 +230,6 @@ var storageModuleInterface = {
         });
     },
 
-
-
     incrementClientCount: function(clientId) {
         return when.promise(function(resolve, reject) {
             ubicallStorageModule.incrementClientCount(clientId).then(function(client) {
@@ -281,6 +283,21 @@ var storageModuleInterface = {
             }).otherwise(function(error) {
                 return reject(error);
             });
+        });
+    },
+
+    insertLog: function(licence_key, url, limit) {
+        return when.promise(function(resolve, reject) {
+            if (logStorageModule) {
+                logStorageModule.insertLog(licence_key, url, limit).then(function(log) {
+                    return resolve(log);
+                }).otherwise(function(error) {
+                    return reject(error);
+                });
+            } else {
+                log.warn("logStorageModule not configured yet");
+                return resolve();
+            }
         });
     },
     getCalls: agentInterface.getCalls,

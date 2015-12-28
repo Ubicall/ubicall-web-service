@@ -1,4 +1,5 @@
 var winston = require("winston");
+var settings = require("./settings");
 require("winston-mongodb").MongoDB;
 
 var logger = new (winston.Logger)({
@@ -47,8 +48,18 @@ logger.add(winston.transports.DailyRotateFile, {
   json: false
 });
 
+
+
+var _host = settings.storage.ubicall_log.external_ip;
+var _port = settings.storage.ubicall_log.external_port;
+
+if (!process.env.db_env || process.env.db_env === "internal") {
+    _host = settings.storage.mongo.ubicall_log.internal_ip;
+    _port = settings.storage.mongo.ubicall_log.internal_port;
+}
+
 logger.add(winston.transports.MongoDB, {
-  db: "mongodb://127.0.0.1:27017/ubicall_log",
+  db:"mongodb://" + _host + "/" + settings.storage.ubicall_log.database,
   collection: "logs"
 });
 
