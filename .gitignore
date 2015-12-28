@@ -144,3 +144,6 @@ docs/
 
 # jasmine-node reports folder
 reports/
+
+# environment file
+*.env

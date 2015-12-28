@@ -70,24 +70,24 @@ module.exports = {
         },
         infra: {
             agentServer: {
-                "internal_ip": "104.239.164.247",
-                "internal_port": "8021",
-                "password": "UbiFS2015esl",
+                "internal_ip": process.env.VOICE_INFRA_CLIENT_SERVER_MOBILE_EXTERNAL_IP,
+                "internal_port": process.env.VOICE_INFRA_CLIENT_SERVER_MOBILE_INTERNAL_IP,
+                "password": process.env.VOICE_INFRA_AGENT_SERVER_PASSWORD,
                 "_comment": "FREESWITCH Server"
             },
             clientServer: {
                 "mobile_voice_server": {
-                    "external_ip": "104.239.166.30",
-                    "external_port": 5060,
-                    "internal_ip": "10.209.96.174",
-                    "internal_port": 5060,
+                    "external_ip": process.env.VOICE_INFRA_CLIENT_SERVER_MOBILE_EXTERNAL_IP,
+                    "external_port": process.env.VOICE_INFRA_CLIENT_SERVER_MOBILE_INTERNAL_PORT,
+                    "internal_ip": process.env.VOICE_INFRA_CLIENT_SERVER_MOBILE_INTERNAL_IP,
+                    "internal_port": process.env.VOICE_INFRA_CLIENT_SERVER_MOBILE_EXTERNAL_PORT,
                     "_comment": "ASTERISK Server"
                 },
                 "web_voice_server": {
-                    "external_ip": "162.242.253.195",
-                    "external_port": 5080,
-                    "internal_ip": "10.208.201.195",
-                    "internal_port": 5080,
+                    "external_ip": process.env.VOICE_INFRA_CLIENT_SERVER_WEB_EXTERNAL_IP,
+                    "external_port": process.env.VOICE_INFRA_CLIENT_SERVER_WEB_INTERNAL_PORT,
+                    "internal_ip": process.env.VOICE_INFRA_CLIENT_SERVER_WEB_INTERNAL_IP,
+                    "internal_port": process.env.VOICE_INFRA_CLIENT_SERVER_WEB_EXTERNAL_PORT,
                     "_comment": "FREESWITCH Server"
                 }
             },

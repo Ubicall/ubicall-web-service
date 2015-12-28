@@ -18,6 +18,11 @@ webservice1:
         - redis:redis
     ports:
         - "4000"
+    environment:
+        - node_env=development
+        - db_env=external
+    env_file:
+        - conf/.env
 
 webservice2:
     build: .
@@ -28,6 +33,11 @@ webservice2:
         - redis:redis
     ports:
         - "4000"
+    environment:
+        - node_env=development
+        - db_env=external
+    env_file:
+        - conf/.env
 
 auth1:
   build: ./ubicall-oauth
