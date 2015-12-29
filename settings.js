@@ -39,7 +39,6 @@ module.exports = {
     ubicall_mysql: config.storage.mysql.ubicall_db,
     ast_rt_mysql: config.storage.mysql.ast_rt,
     web_fs_db_mysql: config.storage.mysql.WEB_FS_DB,
-    ubicall_log: config.storage.mongo.ubicall_log,
     fake: {
       locale: "de",
       options: { // these options take precedence in fakeStorage.js
@@ -72,6 +71,11 @@ module.exports = {
     // caching directory(./caching) and implement methods in ./caching/index.js
     cacheModule: "redis",
     redis: config.cache.redis
+  },
+  log:{
+    enabled: true,
+    logModule: "mongo",
+    mongo: config.storage.mongo.ubicall_log,
   },
   infra: {
     agentServer: config.voice_infra.agent_voice_server,

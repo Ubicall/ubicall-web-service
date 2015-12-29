@@ -12,12 +12,10 @@ module.exports = {
         }
     },
     log: function(err, req, res, next) {
-        if (err.response.resource) {
-            log.error("resource : " + err.response.resource);
-        }
-        if (err.stack) {
-            log.error(err.stack);
-        }
+        log.error({
+            error: err,
+            path: req.path
+        });
         next(err);
     }
 };

@@ -83,20 +83,16 @@ function createSipAccount(req, res, next) {
                             domain: domain
                         });
                     }).otherwise(function(error) {
-                        log.error("Error : " + error);
                         return next(new ServerError(error, req.path));
                     });
                 }).otherwise(function(error) {
-                    log.error("Error : " + error);
                     return next(new ServerError(error, req.path));
                 });
             }).otherwise(function(error) {
-                log.error("Error : " + error);
                 return next(new ServerError(error, req.path));
             });
         });
     }).otherwise(function(error) {
-        log.error("Error : " + error);
         return next(new Forbidden(error, req.path));
     });
 }
@@ -158,15 +154,12 @@ function createWebAccount(req, res, next) {
                     "domain": domain
                 });
             }).otherwise(function(error) {
-                log.error("Error : " + error);
                 return next(new ServerError(error, req.path));
             });
         }).otherwise(function(error) {
-            log.error("Error : " + error);
             return next(new ServerError(error, req.path));
         });
     }).otherwise(function(error) {
-        log.error("Error : " + error);
         return next(new Forbidden(error, req.path));
     });
 }

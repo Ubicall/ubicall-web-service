@@ -4,7 +4,7 @@ var settings = require("../settings");
 var log = require("../log");
 var mongoose = require("mongoose");
 var RateLimitExceededError = require("./errors").RateLimitExceededError;
-var storage = require("../storage");
+var limitExceeded = require("../log/ubicall").limitExceeded;
 
 var redis = require("redis"),
     db = redis.createClient({
@@ -42,7 +42,7 @@ function rateLimiter(req, res, next) {
             var after = limit.reset - (Date.now() / 1000) | 0;
             res.set("Retry-After", after);
             log.warn("rate limit exceeded for " + req.user.licence_key);
-            storage.insertLog(req.user.licence_key, req.path, MAX_LIMIT).then(function(log) {
+            limitExceeded(req.user.licence_key, req.path, MAX_LIMIT).then(function(log) {
                 return next(
                     new RateLimitExceededError(
                         new Error("rate limit exceeded for " + req.user.licence_key),
@@ -52,7 +52,7 @@ function rateLimiter(req, res, next) {
                         })
                     ));
             }).otherwise(function(error) {
-                return error;
+                return next(error);
             });
         }
     });

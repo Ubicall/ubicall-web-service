@@ -79,7 +79,6 @@ function createSipCall(req, res, next) {
                         call: dCall.id
                     });
                 }).otherwise(function(error) {
-                    log.error("error : " + error);
                     return next(new ServerError(error, req.path));
                 });
             } else { //schedule regualr call if client exist and has demo flag with value other than zero
@@ -89,16 +88,13 @@ function createSipCall(req, res, next) {
                         call: call.id
                     });
                 }).otherwise(function(error) {
-                    log.error("error : " + error);
                     return next(new ServerError(error, req.path));
                 });
             }
         }).otherwise(function(error) {
-            log.error("error : " + error);
             return next(new Forbidden(error, req.path));
         });
     }).otherwise(function(error) {
-        log.error("error : " + error);
         return next(new ServerError(error, req.path));
     });
 }
@@ -125,7 +121,6 @@ function createWebCall(req, res, next) {
             call: call.id
         });
     }).otherwise(function(error) {
-        log.error("error : " + error);
         return next(new ServerError(error, req.path));
     });
 }
@@ -148,7 +143,6 @@ function getDetail(req, res, next) {
             call: call
         });
     }).otherwise(function(error) {
-        log.error("error : " + error);
         return next(new NotFound(error, req.path));
     });
 }
@@ -185,16 +179,16 @@ function call(req, res, next) {
     storage.getCall(req.user, queue_id, queue_slug).then(function(call) {
         res.status(200).json(call);
         infra.call(call, req.user).otherwise(function(error) {
-            log.error("error : " + error);
             call.status = settings.call.status.retry;
             call.failure_cause = settings.call.reset_code;
             call.failure_cause_txt = error.toString();
             storage.markCallFail(call).otherwise(function(error) {
-                log.error("error : " + error);
+                log.error("error : %s", error, {
+                    path: req.path
+                });
             });
         });
     }).otherwise(function(error) {
-        log.error("error : " + error);
         return next(new NotFound(error, req.path));
     });
 }
@@ -232,11 +226,9 @@ function done(req, res, next) {
                 call: call
             });
         }).otherwise(function(error) {
-            log.error("error : " + error);
             return next(new ServerError(error, req.path));
         });
     }).otherwise(function(error) {
-        log.error("error : " + error);
         return next(new NotFound(error, req.path));
     });
 }
@@ -280,11 +272,9 @@ function failed(req, res, next) {
                 call: call
             });
         }).otherwise(function(error) {
-            log.error("error : " + error);
             return next(new ServerError(error, req.path));
         });
     }).otherwise(function(error) {
-        log.error("error : " + error);
         return next(new NotFound(error, req.path));
     });
 }
@@ -311,7 +301,6 @@ function cancel(req, res, next) {
             message: "call canceled successfully"
         });
     }).otherwise(function(error) {
-        log.error("error : " + error);
         return next(new ServerError(error, req.path));
     });
 
@@ -349,7 +338,6 @@ function submitFeedback(req, res, next) {
             message: "feedback sent successfully"
         });
     }).otherwise(function(error) {
-        log.error("error : " + error);
         return next(new ServerError(error, req.path));
     });
 
