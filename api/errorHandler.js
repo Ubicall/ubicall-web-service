@@ -14,7 +14,9 @@ module.exports = {
     log: function(err, req, res, next) {
         log.error({
             error: err,
-            path: req.path
+            path: req.path,
+            host: req.headers.host,
+            user_agent: req.headers["user-agent"]
         });
         next(err);
     }

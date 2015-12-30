@@ -16,7 +16,7 @@ db.on("error", function(err) {
     log.error("Error limiter:redis" + err);
 });
 
-var MAX_LIMIT = 5;
+var MAX_LIMIT = 5000;
 var LIMIT_PER = 24 * 60 * 60 * 1000; // 1 day
 var limit, id;
 
