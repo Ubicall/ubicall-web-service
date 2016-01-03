@@ -46,9 +46,9 @@ function init(_settings) {
                 logging: log.data
             });
         _sequelize.authenticate().then(function() {
-            log.info("connected successfully to DB => " + settings.storage.ubicall_mysql.database + ":" + _host + ":" + _port);
+            log.info("connected successfully to DB => %s:%s:%s", settings.storage.ubicall_mysql.database, _host, _port);
         }).catch(function(error) {
-            log.error("Unable to connect to DB => " + settings.storage.ubicall_mysql.database + ":" + _host + ":" + _port);
+            log.error("Unable to connect to DB => %s:%s:%s", settings.storage.ubicall_mysql.database, _host, _port);
             throw error;
         });
         $agent = sequlizeImport("agent");

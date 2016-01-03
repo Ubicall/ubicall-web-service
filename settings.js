@@ -1,5 +1,4 @@
 var loader = require("node-remote-config-loader");
-var log = require("./log");
 
 process.env.node_env = process.env.node_env || "development";
 process.env.db_env = process.env.db_env || "internal";
@@ -15,7 +14,6 @@ var config = loader.load({
   configVersion: process.env.config_version,
   configEnv: process.env.node_env
 });
-
 
 module.exports = {
 
@@ -37,6 +35,7 @@ module.exports = {
     //      i.e.    username : xyz@sand.com
     //              password : xyz
     ubicallStorageModule: "mysql",
+    logStorageModule: "mongo",
     ubicall_mysql: config.storage.mysql.ubicall_db,
     ast_rt_mysql: config.storage.mysql.ast_rt,
     web_fs_db_mysql: config.storage.mysql.WEB_FS_DB,
@@ -72,6 +71,11 @@ module.exports = {
     // caching directory(./caching) and implement methods in ./caching/index.js
     cacheModule: "redis",
     redis: config.cache.redis
+  },
+  log:{
+    enabled: true,
+    logModule: "mongo",
+    mongo: config.storage.mongo.ubicall_log,
   },
   infra: {
     agentServer: config.voice_infra.agent_voice_server,

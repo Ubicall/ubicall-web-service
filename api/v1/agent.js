@@ -11,12 +11,12 @@ var validator = require("validator");
 var settings = require("../../settings");
 var storage = require("../../storage");
 var log = require("../../log");
-var NotImplementedError = require("./utils/errors").NotImplementedError;
-var BadRequest = require("./utils/errors").BadRequest;
-var MissedParams = require("./utils/errors").MissedParams;
-var Forbidden = require("./utils/errors").Forbidden;
-var ServerError = require("./utils/errors").ServerError;
-var NotFound = require("./utils/errors").NotFound;
+var NotImplementedError = require("../errors").NotImplementedError;
+var BadRequest = require("../errors").BadRequest;
+var MissedParams = require("../errors").MissedParams;
+var Forbidden = require("../errors").Forbidden;
+var ServerError = require("../errors").ServerError;
+var NotFound = require("../errors").NotFound;
 
 
 /**
@@ -39,7 +39,6 @@ function getCalls(req, res, next) {
     storage.getCalls(req.user, options).then(function(calls) {
         return res.status(200).json(calls);
     }).otherwise(function(error) {
-        log.error("error : " + error);
         return next(new ServerError(error, req.path));
     });
 }
@@ -58,7 +57,6 @@ function getQueues(req, res, next) {
     storage.getQueues(req.user).then(function(queues) {
         return res.status(200).json(queues);
     }).otherwise(function(error) {
-        log.error("error : " + error);
         return next(new ServerError(error, req.path));
     });
 }
@@ -93,7 +91,6 @@ function update(req, res, next) {
             message: "Your info updated"
         });
     }).otherwise(function(error) {
-        log.error("error : " + error);
         return next(new ServerError(error, req.path));
     });
 }
@@ -120,7 +117,6 @@ function updateImage(req, res, next) {
             message: "Your Image updated"
         });
     }).otherwise(function(error) {
-        log.error("error : " + error);
         return next(new ServerError(error, req.path));
     });
 }

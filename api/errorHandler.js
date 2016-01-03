@@ -1,5 +1,5 @@
 var UbicallError = require("./errors").UbicallError;
-var log = require("../../../log");
+var log = require("../log");
 
 module.exports = {
     handle: function(err, req, res, next) {
@@ -12,12 +12,12 @@ module.exports = {
         }
     },
     log: function(err, req, res, next) {
-        if (err.response.resource) {
-            log.error("resource : " + err.response.resource);
-        }
-        if (err.stack) {
-            log.error(err.stack);
-        }
+        log.error({
+            error: err,
+            path: req.path,
+            host: req.headers.host,
+            user_agent: req.headers["user-agent"]
+        });
         next(err);
     }
 };

@@ -8,12 +8,12 @@
 var when = require("when");
 var validator = require("validator");
 var settings = require("../../../settings");
-var NotImplementedError = require("./errors").NotImplementedError;
-var BadRequest = require("./errors").BadRequest;
-var MissedParams = require("./errors").MissedParams;
-var Forbidden = require("./errors").Forbidden;
-var ServerError = require("./errors").ServerError;
-var NotFound = require("./errors").NotFound;
+var NotImplementedError = require("../../errors").NotImplementedError;
+var BadRequest = require("../../errors").BadRequest;
+var MissedParams = require("../../errors").MissedParams;
+var Forbidden = require("../../errors").Forbidden;
+var ServerError = require("../../errors").ServerError;
+var NotFound = require("../../errors").NotFound;
 var log = require("../../../log");
 
 /**
