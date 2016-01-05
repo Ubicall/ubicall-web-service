@@ -1,6 +1,6 @@
 var when = require("when");
 var request = require("request");
-var ServerError = require("../../utils/errors").ServerError;
+var ServerError = require("../../../errors").ServerError;
 var log = require("../../../../log");
 
 /**
@@ -64,7 +64,7 @@ module.exports = {
         });
     },
     getCategorySections: function(req, res, next) {
-        _getCategorySections(req.user.zendesk, request.params.id).then(function(sections) {
+        _getCategorySections(req.user.zendesk, req.params.id).then(function(sections) {
             return res.status(200).json(sections);
         }).otherwise(function(err) {
             return next(new ServerError(err, req.path, err));

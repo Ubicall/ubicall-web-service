@@ -8,7 +8,7 @@
 
 var when = require("when");
 var request = require("request");
-var ServerError = require("../../utils/errors").ServerError;
+var ServerError = require("../../../errors").ServerError;
 var log = require("../../../../log");
 
 /**
