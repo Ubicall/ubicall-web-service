@@ -4,6 +4,7 @@ var settings = require("../settings");
 var log = require("../log");
 var mongoose = require("mongoose");
 var RateLimitExceededError = require("./errors").RateLimitExceededError;
+var ServerError = require("./errors").ServerError;
 var limitExceeded = require("../log/ubicall").limitExceeded;
 
 var redis = require("redis"),
@@ -16,33 +17,40 @@ db.on("error", function(err) {
     log.error("Error limiter:redis" + err);
 });
 
+// 5000 request per day
 var MAX_LIMIT = 5000;
 var LIMIT_PER = 24 * 60 * 60 * 1000; // 1 day
-var limit, id;
 
 function rateLimiter(req, res, next) {
-    limit = new Limiter({
-        id: req.user.licence_key,
-        db: db,
-        max: MAX_LIMIT,
-        duration: LIMIT_PER
-    });
-    limit.get(function(err, limit) {
-        if (err) {
-            return next(err);
-        }
-        res.set("X-RateLimit-Limit", limit.total);
-        res.set("X-RateLimit-Remaining", limit.remaining - 1);
-        res.set("X-RateLimit-Reset", limit.reset);
+    if (true) {
+        next();
+    } else {
+        var limit = new Limiter({
+            id: req.user.licence_key,
+            db: db,
+            max: MAX_LIMIT,
+            duration: LIMIT_PER
+        });
+        limit.get(function(err, limit) {
+            if (err) {
+                return next(err);
+            }
+            res.set("X-RateLimit-Limit", limit.total);
+            res.set("X-RateLimit-Remaining", limit.remaining - 1);
+            res.set("X-RateLimit-Reset", limit.reset);
 
-        if (limit.remaining) {
-            return next();
-        } else {
-            var delta = (limit.reset * 1000) - Date.now() | 0;
-            var after = limit.reset - (Date.now() / 1000) | 0;
-            res.set("Retry-After", after);
-            log.warn("rate limit exceeded for " + req.user.licence_key);
-            limitExceeded(req.user.licence_key, req.path, MAX_LIMIT).then(function(log) {
+            if (limit.remaining) {
+                return next();
+            } else if (process.env.node_env !== "production") {
+                log.warn("quota limits ain't applied in " + process.env.node_env + " node");
+                res.set("X-RateLimit-Disabled", process.env.node_env);
+                return next();
+            } else {
+                var delta = (limit.reset * 1000) - Date.now() | 0;
+                var after = limit.reset - (Date.now() / 1000) | 0;
+                res.set("Retry-After", after);
+                log.warn("rate limit exceeded for " + req.user.licence_key);
+                limitExceeded(req.user.licence_key, req.path, MAX_LIMIT);
                 return next(
                     new RateLimitExceededError(
                         new Error("rate limit exceeded for " + req.user.licence_key),
@@ -51,17 +59,13 @@ function rateLimiter(req, res, next) {
                             long: true
                         })
                     ));
-            }).otherwise(function(error) {
-                return next(error);
-            });
-        }
-    });
+            }
+        });
+    }
 }
 
 function rateLimiterReset(req, res, next) {
-    log.info("Reset Limit");
-
-    limit = new Limiter({
+    var limit = new Limiter({
         id: req.user.licence_key,
         db: db,
         max: MAX_LIMIT,
@@ -69,13 +73,15 @@ function rateLimiterReset(req, res, next) {
     });
     limit.reset(function(err, limit) {
         if (err) {
-            return next(err);
+            return next(new ServerError(err, req.path, "rateLimiterReset Error"));
         }
         res.set("X-RateLimit-Limit", limit.total);
         res.set("X-RateLimit-Remaining", limit.remaining - 1);
         res.set("X-RateLimit-Reset", limit.reset);
 
-        return res.status(200).send();
+        return res.status(200).send({
+            message: "Api Rate Limit Restored"
+        });
     });
 }
 
