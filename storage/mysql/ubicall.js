@@ -549,7 +549,7 @@ function insertEmail(subject, destination, email) {
             latitude: email.lat,
             address: email.address,
             body: email.body,
-            apikey: email.licence_key,
+            api_key: email.licence_key,
             device_token: email.device_token
         }).then(function(email) {
             if (!email) {
