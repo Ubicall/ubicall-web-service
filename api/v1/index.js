@@ -11,7 +11,7 @@ var bodyParser = require("body-parser");
 var cors = require("cors");
 var multer = require("multer");
 var ubicallCors = require("../../ubicallCors");
-var log = require("../../log");
+var ubicallLogger = require("../logger").log;
 var sip = require("./sip");
 var call = require("./call");
 var email = require("./email");
@@ -53,6 +53,7 @@ function init(_settings, _storage) {
         // apiApp.use(cors(ubicallCors.options));
         // apiApp.use(ubicallCors.cors);
         apiApp.use(helmet());
+        apiApp.use(ubicallLogger);
 
         apiApp.post("/sip/call/:queue_id/:queue_name", needsPermission("sip.call.write"), Limiter.rateLimiter, midware.callExtract, call.createSipCall);
 
