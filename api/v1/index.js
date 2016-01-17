@@ -11,7 +11,9 @@ var bodyParser = require("body-parser");
 var cors = require("cors");
 var multer = require("multer");
 var ubicallCors = require("../../ubicallCors");
-var ubicallLogger = require("../logger").log;
+var ubicallLogger = require("../access").ubicallLogger;
+var rateLimiter = require("../access").rateLimiter;
+var rateLimiterReset = require("../access").rateLimiterReset;
 var sip = require("./sip");
 var call = require("./call");
 var email = require("./email");
@@ -31,7 +33,6 @@ var needsPermission = require("ubicall-oauth").needsPermission;
 var passport = require("passport");
 var helmet = require("helmet");
 var thirdApp = require("./3rd");
-var Limiter = require("../limiter");
 var settings, storage;
 var apiApp;
 
@@ -53,63 +54,65 @@ function init(_settings, _storage) {
         // apiApp.use(cors(ubicallCors.options));
         // apiApp.use(ubicallCors.cors);
         apiApp.use(helmet());
+        // TODO seperate auth/authz
+        // TODO call auth middleware and fall over to unprivileged user if no one found
         apiApp.use(ubicallLogger);
 
-        apiApp.post("/sip/call/:queue_id/:queue_name", needsPermission("sip.call.write"), Limiter.rateLimiter, midware.callExtract, call.createSipCall);
+        apiApp.post("/sip/call/:queue_id/:queue_name", needsPermission("sip.call.write"), rateLimiter, midware.callExtract, call.createSipCall);
 
-        apiApp.post("/sip/call", needsPermission("sip.call.write"), Limiter.rateLimiter, midware.callExtract, call.createSipCall);
+        apiApp.post("/sip/call", needsPermission("sip.call.write"), rateLimiter, midware.callExtract, call.createSipCall);
 
-        apiApp.post("/web/call/:queue_id/:queue_name", needsPermission("web.call.write"), Limiter.rateLimiter, midware.callExtract, call.createWebCall);
+        apiApp.post("/web/call/:queue_id/:queue_name", needsPermission("web.call.write"), rateLimiter, midware.callExtract, call.createWebCall);
 
-        apiApp.post("/web/call", needsPermission("web.call.write"), Limiter.rateLimiter, midware.callExtract, call.createWebCall);
+        apiApp.post("/web/call", needsPermission("web.call.write"), rateLimiter, midware.callExtract, call.createWebCall);
 
-        apiApp.delete("/call/:call_id", needsPermission("call.delete"), Limiter.rateLimiter, call.cancel);
+        apiApp.delete("/call/:call_id", needsPermission("call.delete"), rateLimiter, call.cancel);
 
-        apiApp.get("/call/:call_id", needsPermission("call.read"), Limiter.rateLimiter, midware.isCallExist, call.getDetail);
+        apiApp.get("/call/:call_id", needsPermission("call.read"), rateLimiter, midware.isCallExist, call.getDetail);
 
-        apiApp.get("/call/queue/:queue_id/:queue_slug", needsPermission("call.make"), Limiter.rateLimiter, midware.ensureRTMP, call.call);
+        apiApp.get("/call/queue/:queue_id/:queue_slug", needsPermission("call.make"), rateLimiter, midware.ensureRTMP, call.call);
 
-        apiApp.put("/call/:call_id/done", needsPermission("call.write"), Limiter.rateLimiter, midware.isCallExist, call.done);
+        apiApp.put("/call/:call_id/done", needsPermission("call.write"), rateLimiter, midware.isCallExist, call.done);
 
-        apiApp.put("/call/:call_id/failed", needsPermission("call.write"), Limiter.rateLimiter, midware.isCallExist, call.failed);
+        apiApp.put("/call/:call_id/failed", needsPermission("call.write"), rateLimiter, midware.isCallExist, call.failed);
 
-        apiApp.post("/call/:call_id/feedback", needsPermission("feedback.write"), Limiter.rateLimiter, call.submitFeedback);
+        apiApp.post("/call/:call_id/feedback", needsPermission("feedback.write"), rateLimiter, call.submitFeedback);
 
-        apiApp.put("/call/:call_id/feedback", needsPermission("feedback.write"), Limiter.rateLimiter, call.submitFeedback);
+        apiApp.put("/call/:call_id/feedback", needsPermission("feedback.write"), rateLimiter, call.submitFeedback);
 
-        apiApp.post("/sip/account", needsPermission("sip.account.write"), Limiter.rateLimiter, sip.createSipAccount);
+        apiApp.post("/sip/account", needsPermission("sip.account.write"), rateLimiter, sip.createSipAccount);
 
-        apiApp.post("/web/account", needsPermission("web.account.write"), Limiter.rateLimiter, sip.createWebAccount);
+        apiApp.post("/web/account", needsPermission("web.account.write"), rateLimiter, sip.createWebAccount);
 
-        apiApp.get("/ivr", needsPermission("ivr.read"), Limiter.rateLimiter, ivr.fetchIvr);
+        apiApp.get("/ivr", needsPermission("ivr.read"), rateLimiter, ivr.fetchIvr);
 
-        apiApp.post("/ivr/:version", needsPermission("ivr.write"), Limiter.rateLimiter, ivr.deployIVR);
+        apiApp.post("/ivr/:version", needsPermission("ivr.write"), rateLimiter, ivr.deployIVR);
 
-        apiApp.put("/ivr/:version", needsPermission("ivr.write"), Limiter.rateLimiter, ivr.deployIVR);
+        apiApp.put("/ivr/:version", needsPermission("ivr.write"), rateLimiter, ivr.deployIVR);
 
-        apiApp.post("/agent", needsPermission("agent.write"), Limiter.rateLimiter, agent.update);
+        apiApp.post("/agent", needsPermission("agent.write"), rateLimiter, agent.update);
 
-        apiApp.put("/agent", needsPermission("agent.write"), Limiter.rateLimiter, agent.update);
+        apiApp.put("/agent", needsPermission("agent.write"), rateLimiter, agent.update);
 
-        apiApp.post("/agent/image", needsPermission("agent.write"), Limiter.rateLimiter, upload.single("image"), agent.updateImage);
+        apiApp.post("/agent/image", needsPermission("agent.write"), rateLimiter, upload.single("image"), agent.updateImage);
 
-        apiApp.put("/agent/image", needsPermission("agent.write"), Limiter.rateLimiter, upload.single("image"), agent.updateImage);
+        apiApp.put("/agent/image", needsPermission("agent.write"), rateLimiter, upload.single("image"), agent.updateImage);
 
-        apiApp.get("/agent/calls", needsPermission("agent.calls.read"), Limiter.rateLimiter, agent.calls);
+        apiApp.get("/agent/calls", needsPermission("agent.calls.read"), rateLimiter, agent.calls);
 
-        apiApp.get("/agent/queues", needsPermission("agent.calls.read"), Limiter.rateLimiter, agent.queues);
+        apiApp.get("/agent/queues", needsPermission("agent.calls.read"), rateLimiter, agent.queues);
 
-        apiApp.get("/workinghours/:zone/:queue", needsPermission("workinghours.read"), Limiter.rateLimiter, call._workingHours);
+        apiApp.get("/workinghours/:zone/:queue", needsPermission("workinghours.read"), rateLimiter, call._workingHours);
 
-        apiApp.get("/email", needsPermission("email.read"), Limiter.rateLimiter, email.getEmail);
+        apiApp.get("/email", needsPermission("email.read"), rateLimiter, email.getEmail);
 
-        apiApp.post("/email/:email_id/:email_name", needsPermission("email.write"), Limiter.rateLimiter, email.sendEmail);
+        apiApp.post("/email/:email_id/:email_name", needsPermission("email.write"), rateLimiter, email.sendEmail);
 
-        apiApp.post("/email", needsPermission("email.write"), Limiter.rateLimiter, email.sendEmail);
+        apiApp.post("/email", needsPermission("email.write"), rateLimiter, email.sendEmail);
 
-        apiApp.get("/queue", needsPermission("-"), Limiter.rateLimiter, queue.fetchAdminQueues);
+        apiApp.get("/queue", needsPermission("-"), rateLimiter, queue.fetchAdminQueues);
 
-        apiApp.get("/_/cache/reset", needsPermission("-"), Limiter.rateLimiterReset);
+        apiApp.get("/_/cache/reset", needsPermission("-"), rateLimiterReset);
 
         thirdApp.init(_settings, _storage).then(function(thridPartyApp) {
             apiApp.use("/3rd", thridPartyApp);

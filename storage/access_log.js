@@ -2,10 +2,9 @@ var when = require("when");
 var mongoose = require("mongoose");
 var settings = require("../settings");
 var log = require("../log");
-var $log = require("../log/ubicall/mongo/models/log");
-var logSchema = require("../log/ubicall/mongo/models/log");
-var $log;
-
+var logSchema = require("./models/ubicall_access/log");
+var limitExceededSchema = require("./models/ubicall_access/limitExceeded");
+var $log, $limitExceeded;
 
 module.exports = {
     init: function(_settings) {
@@ -31,35 +30,36 @@ module.exports = {
             var conn = mongoose.createConnection(uri, options, function() {
                 log.info("connected successfully to DB => %s:%s:%s", settings.log.mongo.database, _host, _port);
             });
-            $log = conn.model("apilogs", logSchema);
+
+            // why => http://stackoverflow.com/a/12807133
+            $log = conn.model("log", logSchema, "log");
+            $limitExceeded = conn.model("limit", limitExceededSchema, "limit");
+
             return resolve({});
         });
     },
-    log: function(req, res, next) {
-        if (req.method !== "OPTIONS") { // skip options requests
-            req.on("end", function() {
-                req.user = req.user || {}; // in case, user is not authenticated yet
-                var _log = {
-                    url: req.path,
-                    method: req.method,
-                    params: req.params,
-                    body: req.body,
-                    query: req.query,
-                    licence_key: req.user.licence_key,
-                    app_id: req.user.appid,
-                    user_agent: req.headers["user-agent"],
-                    host: req.headers.host
-                };
-
-                if (res.statusCode !== 200) {
-                    _log.status = "failure";
-                    _log.status_code = res.statusCode;
-                    _log.error = res.statusMessage;
-                }
-
-                new $log(_log).save();
+    /**
+     * @param request instance of ./models/ubicall_log/log
+     **/
+    log: function(request) {
+        return when.promise(function(resolve, reject) {
+            new $log(request).save();
+            return when.resolve({}); // silently failing
+        });
+    },
+    limitExceeded: function(licence_key, path, limit) {
+        return when.promise(function(resolve, reject) {
+            var __lex = new $limitExceeded({
+                licence_key: licence_key,
+                url: path,
+                max_limit: limit
             });
-        }
-        next();
+            __lex.save(function(err, doc) {
+                if (err || !doc) {
+                    return reject(err || "no doc found !!");
+                }
+                return resolve(doc.toObject());
+            });
+        });
     }
 };

@@ -7,7 +7,6 @@ var storage = require("./storage");
 var infra = require("./infra");
 var apiv1 = require("./api/v1");
 var log = require("./log");
-var ubicallLogger = require("./api/logger");
 
 var server;
 
@@ -36,7 +35,6 @@ storage.init(settings).then(function() {
   };
 
   app.get("/", meta);
-  ubicallLogger.init(settings);
 
   apiv1.init(settings, storage).then(function(apia) {
 

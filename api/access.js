@@ -1,11 +1,11 @@
+var mongoose = require("mongoose");
 var Limiter = require("ratelimiter");
 var ms = require("ms");
 var settings = require("../settings");
 var log = require("../log");
-var mongoose = require("mongoose");
+var storage = require("../storage");
 var RateLimitExceededError = require("./errors").RateLimitExceededError;
 var ServerError = require("./errors").ServerError;
-var limitExceeded = require("../log/ubicall").limitExceeded;
 
 var redis = require("redis"),
     db = redis.createClient({
@@ -50,7 +50,7 @@ function rateLimiter(req, res, next) {
                 var after = limit.reset - (Date.now() / 1000) | 0;
                 res.set("Retry-After", after);
                 log.warn("rate limit exceeded for " + req.user.licence_key);
-                limitExceeded(req.user.licence_key, req.path, MAX_LIMIT);
+                storage.limitExceeded(req.user.licence_key, req.path, MAX_LIMIT);
                 return next(
                     new RateLimitExceededError(
                         new Error("rate limit exceeded for " + req.user.licence_key),
@@ -85,7 +85,36 @@ function rateLimiterReset(req, res, next) {
     });
 }
 
+function ubicallLogger(req, res, next) {
+    if (req.method !== "OPTIONS") { // skip options requests
+        req.on("end", function() {
+            req.user = req.user || {}; // in case, user is not authenticated yet
+            var _request = {
+                url: req.path,
+                method: req.method,
+                params: req.params,
+                body: req.body,
+                query: req.query,
+                licence_key: req.user.licence_key,
+                app_id: req.user.appid,
+                user_agent: req.headers["user-agent"],
+                host: req.headers.host
+            };
+
+            if (res.statusCode !== 200) {
+                _request.status = "failure";
+                _request.status_code = res.statusCode;
+                _request.error = res.statusMessage;
+            }
+
+            storage.logRequest(_request);
+        });
+    }
+    next();
+}
+
 module.exports = {
     rateLimiter: rateLimiter,
-    rateLimiterReset: rateLimiterReset
+    rateLimiterReset: rateLimiterReset,
+    ubicallLogger: ubicallLogger
 };
