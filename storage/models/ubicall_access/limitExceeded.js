@@ -5,6 +5,10 @@ var limitExceededSchema = new Schema({
         type: String,
         required: true
     },
+    datetime: {
+        type: Date,
+        default: Date.now
+    },
     url: {
         type: String,
         required: true
