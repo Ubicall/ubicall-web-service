@@ -7,6 +7,7 @@ var storage = require("../storage");
 var RateLimitExceededError = require("./errors").RateLimitExceededError;
 var ServerError = require("./errors").ServerError;
 
+
 var redis = require("redis"),
     db = redis.createClient({
         host: settings.cache.redis.internal_ip,
@@ -17,6 +18,12 @@ db.on("error", function(err) {
     log.error("Error limiter:redis" + err);
 });
 
+var CATS = {
+    call: ["^/sip/call", "^/web/call", "^/call", "^/call/queue", "^/workinghours"],
+    email: ["^/email"],
+    agent: ["^/agent", "^/agent/image", "^/agent/calls", "^/agent/queues"],
+    sip: ["^/sip/account", "^web/account"]
+};
 // 5000 request per day
 var MAX_LIMIT = 5000;
 var LIMIT_PER = 24 * 60 * 60 * 1000; // 1 day
@@ -85,6 +92,25 @@ function rateLimiterReset(req, res, next) {
     });
 }
 
+/**
+ * function to map the request url with its category
+ * @param String url  - '/sip/call'
+ * @return {String} category -example: 'call', 'email', 'ivr'
+ **/
+function findCat(url) {
+    var key;
+    for (key in CATS) {
+        var rex = CATS[key];
+        for (var i = 0; i < rex.length; i++) {
+            var matched = url.match(rex[i]) || [];
+            if (matched && matched.length > 0) {
+                return key;
+            }
+        }
+    }
+    return "None";
+}
+
 function ubicallLogger(req, res, next) {
     if (req.method !== "OPTIONS") { // skip options requests
         req.on("end", function() {
@@ -98,7 +124,8 @@ function ubicallLogger(req, res, next) {
                 licence_key: req.user.licence_key,
                 app_id: req.user.appid,
                 user_agent: req.headers["user-agent"],
-                host: req.headers.host
+                host: req.headers.host,
+                category: findCat(req.path)
             };
 
             if (res.statusCode !== 200) {
