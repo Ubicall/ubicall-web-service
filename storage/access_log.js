@@ -4,7 +4,8 @@ var settings = require("../settings");
 var log = require("../log");
 var logSchema = require("./models/ubicall_access/log");
 var limitExceededSchema = require("./models/ubicall_access/limitExceeded");
-var $log, $limitExceeded;
+var reportsSchema = require("../storage/models/ubicall_access/report");
+var $log, $limitExceeded, $report;
 
 module.exports = {
     init: function(_settings) {
@@ -34,6 +35,7 @@ module.exports = {
             // why => http://stackoverflow.com/a/12807133
             $log = conn.model("log", logSchema, "log");
             $limitExceeded = conn.model("limit", limitExceededSchema, "limit");
+            $report = conn.model("report", reportsSchema, "report");
 
             return resolve({});
         });

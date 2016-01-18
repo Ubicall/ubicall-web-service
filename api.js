@@ -7,6 +7,7 @@ var storage = require("./storage");
 var infra = require("./infra");
 var apiv1 = require("./api/v1");
 var log = require("./log");
+var child = require("child_process");
 
 var server;
 
@@ -39,7 +40,7 @@ storage.init(settings).then(function() {
   apiv1.init(settings, storage).then(function(apia) {
 
     app.use("/v1" , apia);
-
+     child = child.fork("./report/index");
     app.use(function(err, req, res, next) {
       if (process.env.node_env !== "production") {
         res.status(500).send({
