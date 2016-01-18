@@ -40,7 +40,9 @@ storage.init(settings).then(function() {
   apiv1.init(settings, storage).then(function(apia) {
 
     app.use("/v1" , apia);
-     child = child.fork("./report/index");
+    
+    child = child.fork("./report");
+    
     app.use(function(err, req, res, next) {
       if (process.env.node_env !== "production") {
         res.status(500).send({

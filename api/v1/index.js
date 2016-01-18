@@ -84,6 +84,8 @@ function init(_settings, _storage) {
 
         apiApp.post("/web/account", needsPermission("web.account.write"), rateLimiter, sip.createWebAccount);
 
+        apiApp.get("/workinghours/:zone/:queue", needsPermission("workinghours.read"), rateLimiter, call._workingHours);
+
         apiApp.get("/ivr", needsPermission("ivr.read"), rateLimiter, ivr.fetchIvr);
 
         apiApp.post("/ivr/:version", needsPermission("ivr.write"), rateLimiter, ivr.deployIVR);
@@ -101,8 +103,6 @@ function init(_settings, _storage) {
         apiApp.get("/agent/calls", needsPermission("agent.calls.read"), rateLimiter, agent.calls);
 
         apiApp.get("/agent/queues", needsPermission("agent.calls.read"), rateLimiter, agent.queues);
-
-        apiApp.get("/workinghours/:zone/:queue", needsPermission("workinghours.read"), rateLimiter, call._workingHours);
 
         apiApp.get("/email", needsPermission("email.read"), rateLimiter, email.getEmail);
 

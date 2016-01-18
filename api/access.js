@@ -7,7 +7,6 @@ var storage = require("../storage");
 var RateLimitExceededError = require("./errors").RateLimitExceededError;
 var ServerError = require("./errors").ServerError;
 
-
 var redis = require("redis"),
     db = redis.createClient({
         host: settings.cache.redis.internal_ip,
@@ -18,12 +17,22 @@ db.on("error", function(err) {
     log.error("Error limiter:redis" + err);
 });
 
+// for more details check https://www.w3.org/Protocols/HTTP/HTRESP.html
+var SUCCESS_RESPONSE_CODES = [200, 201, 202, 204, 304];
+
+/**
+ * category => [regex], match a category by those regex
+ **/
 var CATS = {
-    call: ["^/sip/call", "^/web/call", "^/call", "^/call/queue", "^/workinghours"],
+    call: ["^/sip/call", "^/web/call", "^/call", "^/call/queue",
+        "^/workinghours", "^/sip/account", "^/web/account"
+    ],
     email: ["^/email"],
+    ivr: ["^/ivr"],
     agent: ["^/agent", "^/agent/image", "^/agent/calls", "^/agent/queues"],
-    sip: ["^/sip/account", "^web/account"]
+    integration: ["^/3rd/zendesk"]
 };
+
 // 5000 request per day
 var MAX_LIMIT = 5000;
 var LIMIT_PER = 24 * 60 * 60 * 1000; // 1 day
@@ -93,13 +102,12 @@ function rateLimiterReset(req, res, next) {
 }
 
 /**
- * function to map the request url with its category
- * @param String url  - '/sip/call'
- * @return {String} category -example: 'call', 'email', 'ivr'
+ * map a request url to it's category
+ * @param String url - url to be matched with a category
+ * @return String category - matched @param url category, None if no catagory found
  **/
 function findCat(url) {
-    var key;
-    for (key in CATS) {
+    for (var key in CATS) {
         var rex = CATS[key];
         for (var i = 0; i < rex.length; i++) {
             var matched = url.match(rex[i]) || [];
@@ -108,7 +116,7 @@ function findCat(url) {
             }
         }
     }
-    return "None";
+    return "none";
 }
 
 function ubicallLogger(req, res, next) {
@@ -125,12 +133,13 @@ function ubicallLogger(req, res, next) {
                 app_id: req.user.appid,
                 user_agent: req.headers["user-agent"],
                 host: req.headers.host,
-                category: findCat(req.path)
+                category: findCat(req.path),
+                status_code: res.statusCode
             };
 
-            if (res.statusCode !== 200) {
+            // req fail if req status Code not found in accepted SUCCESS_RESPONSE_CODES
+            if (SUCCESS_RESPONSE_CODES.indexOf(res.statusCode) === -1) {
                 _request.status = "failure";
-                _request.status_code = res.statusCode;
                 _request.error = res.statusMessage;
             }
 

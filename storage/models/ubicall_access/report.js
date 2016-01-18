@@ -7,6 +7,7 @@ var reportSchema = new Schema({
     },
     date: {
         type: Date,
+        default: Date.now
     },
     api: {
         type: String,

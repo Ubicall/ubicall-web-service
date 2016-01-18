@@ -23,7 +23,7 @@ var logSchema = new Schema({
     },
     category: {
         type: String,
-        default: "None"
+        default: "none"
     },
     app_id: { // Client Id
         type: String
