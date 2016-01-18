@@ -17,6 +17,16 @@ db.on("error", function(err) {
     log.error("Error limiter:redis" + err);
 });
 
+/**
+ * category => [regex], match a category by those regex
+ **/
+var CATS = {
+    call: ["^/sip/call", "^/web/call", "^/call", "^/call/queue", "^/workinghours"],
+    email: ["^/email"],
+    agent: ["^/agent", "^/agent/image", "^/agent/calls", "^/agent/queues"],
+    sip: ["^/sip/account", "^web/account"]
+};
+
 // 5000 request per day
 var MAX_LIMIT = 5000;
 var LIMIT_PER = 24 * 60 * 60 * 1000; // 1 day
@@ -85,6 +95,24 @@ function rateLimiterReset(req, res, next) {
     });
 }
 
+/**
+ * map a request url to it's category
+ * @param String url - url to be matched with a category
+ * @return String category - matched @param url category, None if no catagory found
+ **/
+function findCat(url) {
+    for (var key in CATS) {
+        var rex = CATS[key];
+        for (var i = 0; i < rex.length; i++) {
+            var matched = url.match(rex[i]) || [];
+            if (matched && matched.length > 0) {
+                return key;
+            }
+        }
+    }
+    return "None";
+}
+
 function ubicallLogger(req, res, next) {
     if (req.method !== "OPTIONS") { // skip options requests
         req.on("end", function() {
@@ -98,7 +126,8 @@ function ubicallLogger(req, res, next) {
                 licence_key: req.user.licence_key,
                 app_id: req.user.appid,
                 user_agent: req.headers["user-agent"],
-                host: req.headers.host
+                host: req.headers.host,
+                category: findCat(req.path)
             };
 
             if (res.statusCode !== 200) {
