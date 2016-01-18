@@ -293,7 +293,8 @@ var storageModuleInterface = {
     markCallFail: callInterface.markCallFail,
 
     limitExceeded: accessLogInterface.limitExceeded,
-    logRequest: accessLogInterface.log
+    logRequest: accessLogInterface.log,
+    aggregateLogs: accessLogInterface.aggregateLogs
 };
 
 

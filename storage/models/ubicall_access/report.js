@@ -5,11 +5,11 @@ var reportSchema = new Schema({
         type: String,
         required: true
     },
-    date: {
+    datetime: {
         type: Date,
         default: Date.now
     },
-    api: {
+    category: {
         type: String,
         required: true
     },

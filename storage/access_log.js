@@ -7,6 +7,21 @@ var limitExceededSchema = require("./models/ubicall_access/limitExceeded");
 var reportsSchema = require("../storage/models/ubicall_access/report");
 var $log, $limitExceeded, $report;
 
+
+function whatIsLastHourDate() {
+    var last_hour = new Date();
+    last_hour.setMinutes(0);
+    last_hour.setSeconds(0);
+    last_hour.setMilliseconds(0);
+    return last_hour;
+}
+
+function whatIsToday() {
+    var last_hour = whatIsLastHourDate();
+    last_hour.setHours(0);
+    return last_hour;
+}
+
 module.exports = {
     init: function(_settings) {
         return when.promise(function(resolve, reject) {
@@ -63,5 +78,50 @@ module.exports = {
                 return resolve(doc.toObject());
             });
         });
+    },
+    aggregateLogs: function() {
+
+        var today = whatIsToday();
+        var last_hour = whatIsLastHourDate();
+        // get distinct licence_key s from document changed last hour
+        //  db.log.distinct( "licence_key", { datetime: {"$gte":last_hour} } )
+        // foreach licence_key ky we should find
+        /*
+          db.log.aggregate([{
+              $match: {
+                  licence_key: ky,
+                  datetime: {
+                      "$gte": last_hour
+                  }
+              }
+          }, {
+              $group: {
+                  _id: "$category",
+                  count: {
+                      $sum: 1
+                  }
+              }
+          }]);
+        */
+
+        // foreach category in result
+        //  update reports where licence_key = ky and api = category and datetime gte today
+        /*
+            db.report.findAndModify({
+                query: {
+                    licence_key: ky,
+                    category: category._id,
+                    datetime: {
+                        $gte: today
+                    }
+                },
+                update: {
+                    $inc: {
+                        last_hour: category.count
+                    }
+                },
+            });
+            
+          */
     }
 };

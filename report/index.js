@@ -4,10 +4,8 @@ var settings = require("../settings");
 var storage = require("../storage");
 var log = require("../log");
 
-function aggregateLogs() {
-    log.info("aggregating logs");
-}
+
 
 storage.init(settings).then(function() {
-    var job = new CronJob("* * * * * *", aggregateLogs, null, true);
+    var job = new CronJob("* * * * * *", storage.aggregateLogs, null, true);
 });
