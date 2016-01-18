@@ -22,6 +22,82 @@ function whatIsToday() {
     return last_hour;
 }
 
+function getApiHitsClientsAtHour(hour) {
+    return when.promise(function(resolve, reject) {
+        $log.distinct("licence_key", {
+            datetime: {
+                "gte": hour
+            }
+        }, function(err, licence_keys) {
+            if (err) {
+                return reject(err);
+            }
+            return resolve(licence_keys || []);
+        });
+    });
+}
+
+function pushHitsPerHourOfCategory(licence_key, category, hits, day, hour) {
+    $report.findOneAndUpdate({
+        licence_key: licence_key,
+        category: category,
+        datetime: {
+            $gte: day
+        }
+    }, {
+        $inc: {
+            hour: hits
+        }
+    });
+}
+
+function getApiHitsStatsPerLicenceKey(licence_key, hour) {
+    return when.promise(function(resolve, reject) {
+        $log.aggregate([{
+            $match: {
+                licence_key: licence_key,
+                datetime: {
+                    "$gte": hour
+                }
+            }
+        }, {
+            $group: {
+                _id: "$category",
+                count: {
+                    $sum: 1
+                }
+            }
+        }]).exec(function(err, res) {
+            if (err) {
+                return reject(err);
+            }
+            return resolve(res);
+        });
+    });
+}
+
+getApiHitsStatsPerLicenceKeys(licence_keys, hour) {
+    return when.promise(function(resolve, reject) {
+        var promises = [];
+        for (var i = 0; i < licence_keys.length; i++) {
+            promises.push(when.resolve(getApiHitsStatsPerLicenceKey(licence_keys[i], hour)))
+        }
+
+        var settled = when.settle(promises);
+
+        
+        settled.then(function(descriptors) {
+            descriptors.forEach(function(d) {
+                if (d.state === 'rejected') {
+                    logError(d.reason);
+                } else {
+                    processSuccessfulResult(d.value);
+                }
+            });
+        });
+
+    });
+}
 module.exports = {
     init: function(_settings) {
         return when.promise(function(resolve, reject) {
@@ -80,48 +156,23 @@ module.exports = {
         });
     },
     aggregateLogs: function() {
-
-        var today = whatIsToday();
-        var last_hour = whatIsLastHourDate();
-        // get distinct licence_key s from document changed last hour
-        //  db.log.distinct( "licence_key", { datetime: {"$gte":last_hour} } )
-        // foreach licence_key ky we should find
-        /*
-          db.log.aggregate([{
-              $match: {
-                  licence_key: ky,
-                  datetime: {
-                      "$gte": last_hour
-                  }
-              }
-          }, {
-              $group: {
-                  _id: "$category",
-                  count: {
-                      $sum: 1
-                  }
-              }
-          }]);
-        */
-
-        // foreach category in result
-        //  update reports where licence_key = ky and api = category and datetime gte today
-        /*
-            db.report.findAndModify({
-                query: {
-                    licence_key: ky,
-                    category: category._id,
-                    datetime: {
-                        $gte: today
-                    }
-                },
-                update: {
-                    $inc: {
-                        last_hour: category.count
-                    }
-                },
+        return when.promise(function(resolve, reject) {
+            var today = whatIsToday();
+            var last_hour = whatIsLastHourDate();
+            getApiHitsClientsAtHour(last_hour).then(function(licence_keys) {
+                for (var i = 0; i < licence_keys.length; i++) {
+                    getApiHitsStatsPerLicenceKey(licence_keys[i], last_hour).then(function(categories) {
+                        for (var category in categories) {
+                            pushHitsPerHourOfCategory(licence_keys[i], category._id, category.count, today, last_hour);
+                        }
+                    }).otherwise(function(err) {
+                        return reject(err);
+                    });
+                }
+                return resolve({});
+            }).otherwise(function(err) {
+                return reject(err);
             });
-            
-          */
+        });
     }
 };
