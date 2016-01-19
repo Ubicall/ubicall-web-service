@@ -11,9 +11,9 @@ var bodyParser = require("body-parser");
 var cors = require("cors");
 var multer = require("multer");
 var ubicallCors = require("../../ubicallCors");
-var ubicallLogger = require("../access").ubicallLogger;
-var rateLimiter = require("../access").rateLimiter;
-var rateLimiterReset = require("../access").rateLimiterReset;
+var logRequest = require("../../access/mw").logRequest;
+var rateLimiter = require("../../access/mw").rateLimiter;
+var rateLimiterReset = require("../../access/mw").rateLimiterReset;
 var sip = require("./sip");
 var call = require("./call");
 var email = require("./email");
@@ -56,7 +56,7 @@ function init(_settings, _storage) {
         apiApp.use(helmet());
         // TODO seperate auth/authz
         // TODO call auth middleware and fall over to unprivileged user if no one found
-        apiApp.use(ubicallLogger);
+        apiApp.use(logRequest);
 
         apiApp.post("/sip/call/:queue_id/:queue_name", needsPermission("sip.call.write"), rateLimiter, midware.callExtract, call.createSipCall);
 

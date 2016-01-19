@@ -5,14 +5,14 @@ var child = require("child_process");
 var express = require("express");
 var settings = require("./settings");
 var storage = require("./storage");
+var access = require("./access");
 var infra = require("./infra");
 var apiv1 = require("./api/v1");
 var log = require("./log");
-var fake_log = require("./fake_log");
 
 var server;
 
-storage.init(settings).then(function() {
+storage.init(settings).then(access.init(settings)).then(function() {
   var app = express();
   if (settings.https) {
     server = https.createServer(settings.https, function(req, res) {
@@ -42,8 +42,7 @@ storage.init(settings).then(function() {
 
     app.use("/v1" , apia);
     
-    // child = child.fork("./report");
-    // fake_log.sinkFakeRequest();
+    child = child.fork("./access");
     
     app.use(function(err, req, res, next) {
       if (process.env.node_env !== "production") {

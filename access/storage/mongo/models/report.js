@@ -1,5 +1,6 @@
 var mongoose = require("mongoose"),
-    Schema = mongoose.Schema;
+    Schema = mongoose.Schema,
+    findOneOrCreate = require("mongoose-find-one-or-create");
 var reportSchema = new Schema({
     licence_key: {
         type: String,
@@ -116,5 +117,6 @@ var reportSchema = new Schema({
         default: 0
     }
 });
+reportSchema.plugin(findOneOrCreate);
 // make this available to our users in our Node applications
 module.exports = reportSchema;
