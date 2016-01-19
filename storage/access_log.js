@@ -76,28 +76,17 @@ function getApiHitsStatsPerLicenceKey(licence_key, hour) {
     });
 }
 
-getApiHitsStatsPerLicenceKeys(licence_keys, hour) {
-    return when.promise(function(resolve, reject) {
-        var promises = [];
-        for (var i = 0; i < licence_keys.length; i++) {
-            promises.push(when.resolve(getApiHitsStatsPerLicenceKey(licence_keys[i], hour)))
-        }
+function pushHitsPerHourOfItsCategory(licence_key, categories, today, hour) {
+    var promises = [];
 
-        var settled = when.settle(promises);
+    for (var category in categories) {
+        promises.push(pushHitsPerHourOfCategory(licence_key, category._id, category.count, today, hour));
+    }
 
-        
-        settled.then(function(descriptors) {
-            descriptors.forEach(function(d) {
-                if (d.state === 'rejected') {
-                    logError(d.reason);
-                } else {
-                    processSuccessfulResult(d.value);
-                }
-            });
-        });
+    return when.settle(promises);
 
-    });
 }
+
 module.exports = {
     init: function(_settings) {
         return when.promise(function(resolve, reject) {
@@ -161,13 +150,12 @@ module.exports = {
             var last_hour = whatIsLastHourDate();
             getApiHitsClientsAtHour(last_hour).then(function(licence_keys) {
                 for (var i = 0; i < licence_keys.length; i++) {
-                    getApiHitsStatsPerLicenceKey(licence_keys[i], last_hour).then(function(categories) {
-                        for (var category in categories) {
-                            pushHitsPerHourOfCategory(licence_keys[i], category._id, category.count, today, last_hour);
-                        }
-                    }).otherwise(function(err) {
-                        return reject(err);
-                    });
+                    getApiHitsStatsPerLicenceKey(licence_keys[i], last_hour)
+                        .then(function(categories) {
+                            return pushHitsPerHourOfItsCategory(licence_keys[i], categories, today, last_hour);
+                        }).otherwise(function(err) {
+                            log.info("error => %s", err);
+                        });
                 }
                 return resolve({});
             }).otherwise(function(err) {
