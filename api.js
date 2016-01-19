@@ -1,13 +1,14 @@
+var fs = require("fs");
 var http = require("http");
 var https = require("https");
+var child = require("child_process");
 var express = require("express");
-var fs = require("fs");
 var settings = require("./settings");
 var storage = require("./storage");
 var infra = require("./infra");
 var apiv1 = require("./api/v1");
 var log = require("./log");
-var child = require("child_process");
+var fake_log = require("./fake_log");
 
 var server;
 
@@ -41,7 +42,8 @@ storage.init(settings).then(function() {
 
     app.use("/v1" , apia);
     
-    child = child.fork("./report");
+    // child = child.fork("./report");
+    // fake_log.sinkFakeRequest();
     
     app.use(function(err, req, res, next) {
       if (process.env.node_env !== "production") {

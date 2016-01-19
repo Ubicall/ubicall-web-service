@@ -7,5 +7,10 @@ var log = require("../log");
 
 
 storage.init(settings).then(function() {
-    var job = new CronJob("* * * * * *", storage.aggregateLogs, null, true);
+    storage.aggregateLogs().then(function(time) {
+        log.info("aggregate done for %s at %s", time.day, time.hour);
+    }).otherwise(function(err) {
+        log.error("error => %s", err);
+    });
+    // var job = new CronJob("* * * * * *", storage.aggregateLogs, null, true);
 });

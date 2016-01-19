@@ -26,7 +26,9 @@
   "dependencies": {
     "body-parser": "^1.13.3",
     "cors": "^2.7.1",
+    "cron": "^1.1.0",
     "express": "^4.13.3",
+    "faker": "^3.0.1",
     "frisby": "^0.8.5",
     "helmet": "~0.15.0",
     "modesl": "^1.1.5",

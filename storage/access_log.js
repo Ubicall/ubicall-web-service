@@ -13,20 +13,23 @@ function whatIsLastHourDate() {
     last_hour.setMinutes(0);
     last_hour.setSeconds(0);
     last_hour.setMilliseconds(0);
-    return last_hour;
+    return last_hour.toISOString();
 }
 
 function whatIsToday() {
-    var last_hour = whatIsLastHourDate();
+    var last_hour = new Date();
+    last_hour.setMinutes(0);
+    last_hour.setSeconds(0);
+    last_hour.setMilliseconds(0);
     last_hour.setHours(0);
-    return last_hour;
+    return last_hour.toISOString();
 }
 
 function getApiHitsClientsAtHour(hour) {
     return when.promise(function(resolve, reject) {
         $log.distinct("licence_key", {
             datetime: {
-                "gte": hour
+                "$lte": hour
             }
         }, function(err, licence_keys) {
             if (err) {
@@ -42,10 +45,10 @@ function pushHitsPerHourOfCategory(licence_key, category, hits, day, hour) {
         licence_key: licence_key,
         category: category,
         datetime: {
-            $gte: day
+            "$gte": day
         }
     }, {
-        $inc: {
+        "$inc": {
             hour: hits
         }
     });
@@ -64,7 +67,7 @@ function getApiHitsStatsPerLicenceKey(licence_key, hour) {
             $group: {
                 _id: "$category",
                 count: {
-                    $sum: 1
+                    "$sum": 1
                 }
             }
         }]).exec(function(err, res) {
@@ -157,7 +160,10 @@ module.exports = {
                             log.info("error => %s", err);
                         });
                 }
-                return resolve({});
+                return resolve({
+                    day: today,
+                    hour: last_hour
+                });
             }).otherwise(function(err) {
                 return reject(err);
             });
