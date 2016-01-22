@@ -1,9 +1,8 @@
 var when = require("when");
 var moment = require("moment");
-var logSchema = require("./mongo/models/log");
-var reportsSchema = require("./mongo/models/report");
-var helper = require("./helper");
-var log = require("../../log");
+var logSchema = require("./models/log");
+var reportsSchema = require("./models/report");
+var log = require("../../../log");
 var $log, $report;
 
 
