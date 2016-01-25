@@ -11,14 +11,21 @@ var $log, $limitExceeded, $report;
 /**
  * @param request instance of ./models/ubicall_log/log
  **/
-function logRequest(request) {
+function logRequest(requests) {
     return when.promise(function(resolve, reject) {
-        var req = new $log(request);
-        req.save(function(err, doc) {
+        var docs = [];
+        if(variable instanceof Array){
+          for(var i = 0 ; i < requests.length; i++){
+            docs.push(new $log(requests[i]));
+          }
+        }else {
+          docs = [ new $log(requests) ];
+        }
+        $log.insert(docs,function(err, docs) {
             if (err) {
                 return reject(err);
             }
-            return resolve(doc);
+            return resolve();
         });
     });
 }

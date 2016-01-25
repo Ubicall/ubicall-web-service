@@ -43,23 +43,52 @@ var CREATE_DATES = [
     moment().subtract(4, "days")
 ];
 
+function genRequest(options){
+      return {
+          url: faker.random.arrayElement(options.urls || URLS),
+          method: faker.random.arrayElement(options.httpMethods||HTTP_METHODS),
+          params: {},
+          body: {},
+          query: {},
+          licence_key: faker.random.arrayElement(options.licenceKeys || LICENCE_KEYS),
+          category: faker.random.arrayElement(options.categories ||CATEGORIES),
+          app_id: faker.random.arrayElement(options.appID || APP_ID),
+          user_agent: faker.internet.userAgent(),
+          user_ip: faker.internet.ip(),
+          datetime: faker.random.arrayElement(options.dates ||CREATE_DATES),
+          status: faker.random.arrayElement(options.requestStatus || REQUEST_STATUS),
+          status_code: faker.random.arrayElement(options.statusCode || STATUS_CODE),
+          error: ""
+      };
+}
 module.exports = {
-    getFakeRequest: function() {
-        return {
-            url: faker.random.arrayElement(URLS),
-            method: faker.random.arrayElement(HTTP_METHODS),
-            params: {},
-            body: {},
-            query: {},
-            licence_key: faker.random.arrayElement(LICENCE_KEYS),
-            category: faker.random.arrayElement(CATEGORIES),
-            app_id: faker.random.arrayElement(APP_ID),
-            user_agent: faker.internet.userAgent(),
-            user_ip: faker.internet.ip(),
-            datetime: faker.random.arrayElement(CREATE_DATES),
-            status: faker.random.arrayElement(REQUEST_STATUS),
-            status_code: faker.random.arrayElement(STATUS_CODE),
-            error: ""
-        };
+    getFakeRequest: genRequest,
+    genRecentFakeRequest: function(count){
+      var logs = [];
+      if(count){
+        for (var i = 0; i < count; i++) {
+          logs.push(genRequest({dates : [moment()]}));
+        }
+      }else {
+        logs.push(genRequest({dates : [moment()]}));
+      }
+      return logs;
+    },
+    genPastFakeRequest: function(count){
+      return genRequest({
+        dates :[
+            moment().subtract(1, "days"),
+            moment().subtract(2, "days"),
+            moment().subtract(3, "days")
+          ]});
+    },
+    genFutureFakeRequest: function(count){
+      return genRequest({
+        dates :[
+            moment().add(1, "days"),
+            moment().add(2, "days"),
+            moment().add(3, "days")
+          ]});
     }
+
 };
