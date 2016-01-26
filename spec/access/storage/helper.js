@@ -13,10 +13,10 @@ var APP_ID = ["ubicall-mob-android", "ubicall-mob-ios",
 ];
 var REQUEST_STATUS = ["success", "failure"];
 
-var LICENCE_KEYS = [];
-for (var i = 0; i < 10; i++) {
-    LICENCE_KEYS.push(faker.random.uuid());
-}
+var LICENCE_KEYS = ["e6053eb8d35e02ae40beeeacef203c1a"];
+// for (var i = 0; i < 10; i++) {
+//     LICENCE_KEYS.push(faker.random.uuid());
+// }
 
 var CREATE_DATES = [
     moment(),
@@ -43,52 +43,137 @@ var CREATE_DATES = [
     moment().subtract(4, "days")
 ];
 
-function genRequest(options){
-      return {
-          url: faker.random.arrayElement(options.urls || URLS),
-          method: faker.random.arrayElement(options.httpMethods||HTTP_METHODS),
-          params: {},
-          body: {},
-          query: {},
-          licence_key: faker.random.arrayElement(options.licenceKeys || LICENCE_KEYS),
-          category: faker.random.arrayElement(options.categories ||CATEGORIES),
-          app_id: faker.random.arrayElement(options.appID || APP_ID),
-          user_agent: faker.internet.userAgent(),
-          user_ip: faker.internet.ip(),
-          datetime: faker.random.arrayElement(options.dates ||CREATE_DATES),
-          status: faker.random.arrayElement(options.requestStatus || REQUEST_STATUS),
-          status_code: faker.random.arrayElement(options.statusCode || STATUS_CODE),
-          error: ""
-      };
+function genRequest(options) {
+    return {
+        url: faker.random.arrayElement(options.urls || URLS),
+        method: faker.random.arrayElement(options.httpMethods || HTTP_METHODS),
+        params: {},
+        body: {},
+        query: {},
+        licence_key: faker.random.arrayElement(options.licenceKeys || LICENCE_KEYS),
+        category: faker.random.arrayElement(options.categories || CATEGORIES),
+        app_id: faker.random.arrayElement(options.appID || APP_ID),
+        user_agent: faker.internet.userAgent(),
+        user_ip: faker.internet.ip(),
+        datetime: faker.random.arrayElement(options.dates || CREATE_DATES).toDate(),
+        status: faker.random.arrayElement(options.requestStatus || REQUEST_STATUS),
+        status_code: faker.random.arrayElement(options.statusCode || STATUS_CODE),
+        error: ""
+    };
+}
+
+function genReport(options) {
+    return {
+        licence_key: faker.random.arrayElement(options.licenceKeys || LICENCE_KEYS),
+        datetime: faker.random.arrayElement(options.dates || CREATE_DATES).toDate(),
+        category: faker.random.arrayElement(options.categories || CATEGORIES),
+        hourly: {
+            "0": faker.random.number(),
+            "1": faker.random.number(),
+            "2": faker.random.number(),
+            "3": faker.random.number(),
+            "4": faker.random.number(),
+            "5": faker.random.number(),
+            "6": faker.random.number(),
+            "7": faker.random.number(),
+            "8": faker.random.number(),
+            "9": faker.random.number(),
+            "10": faker.random.number(),
+            "11": faker.random.number(),
+            "12": faker.random.number(),
+            "13": faker.random.number(),
+            "14": faker.random.number(),
+            "15": faker.random.number(),
+            "16": faker.random.number(),
+            "17": faker.random.number(),
+            "18": faker.random.number(),
+            "19": faker.random.number(),
+            "20": faker.random.number(),
+            "21": faker.random.number(),
+            "22": faker.random.number(),
+            "23": faker.random.number()
+        },
+        count: faker.random.number()
+    };
 }
 module.exports = {
     getFakeRequest: genRequest,
-    genRecentFakeRequest: function(count){
-      var logs = [];
-      if(count){
+    genRecentFakeRequest: function(count) {
+        var logs = [];
+        count = count || 1;
         for (var i = 0; i < count; i++) {
-          logs.push(genRequest({dates : [moment()]}));
+            logs.push(genRequest({
+                dates: [moment()]
+            }));
         }
-      }else {
-        logs.push(genRequest({dates : [moment()]}));
-      }
-      return logs;
+        return logs;
     },
-    genPastFakeRequest: function(count){
-      return genRequest({
-        dates :[
-            moment().subtract(1, "days"),
-            moment().subtract(2, "days"),
-            moment().subtract(3, "days")
-          ]});
+    genPastFakeRequest: function(count) {
+        var logs = [];
+        count = count || 1;
+        for (var i = 0; i < count; i++) {
+            logs.push(genRequest({
+                dates: [
+                    moment().subtract(1, "days"),
+                    moment().subtract(2, "days"),
+                    moment().subtract(3, "days")
+                ]
+            }));
+        }
+        return logs;
     },
-    genFutureFakeRequest: function(count){
-      return genRequest({
-        dates :[
-            moment().add(1, "days"),
-            moment().add(2, "days"),
-            moment().add(3, "days")
-          ]});
-    }
+    genFutureFakeRequest: function(count) {
+        var logs = [];
+        count = count || 1;
+        for (var i = 0; i < count; i++) {
+            logs.push(genRequest({
+                dates: [
+                    moment().add(1, "days"),
+                    moment().add(2, "days"),
+                    moment().add(3, "days")
+                ]
+            }));
+        }
+        return logs;
+    },
+    genReport: genReport,
+    genRecentFakeReport: function(count) {
+        var reports = [];
+        count = count || 1;
+        for (var i = 0; i < count; i++) {
+            reports.push(genReport({
+                dates: [moment()]
+            }));
+        }
+        return reports;
+    },
+    genPastFakeReport: function(count) {
+        var reports = [];
+        count = count || 1;
+        for (var i = 0; i < count; i++) {
+            reports.push(genReport({
+                dates: [
+                    moment().subtract(1, "days"),
+                    moment().subtract(2, "days"),
+                    moment().subtract(3, "days")
+                ]
+            }));
+        }
+        return reports;
+    },
+    genFutureFakeReport: function(count) {
+        var reports = [];
+        count = count || 1;
+        for (var i = 0; i < count; i++) {
+            reports.push(genReport({
+                dates: [
+                    moment().add(1, "days"),
+                    moment().add(2, "days"),
+                    moment().add(3, "days")
+                ]
+            }));
+        }
+        return reports;
+    },
 
 };

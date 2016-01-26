@@ -1,4 +1,5 @@
 var when = require("when");
+var moment = require("moment");
 var schedule = require("node-schedule");
 var settings = require("../settings");
 var log = require("../log");
@@ -15,16 +16,22 @@ function initStrorage(_settings) {
     return when.resolve(storage.init(_settings));
 }
 
+function startAggregate() {
+    var today = moment().startOf("day").toDate();
+    var _startDate = moment().startOf("hour");
+    var startDate = moment(_startDate).toDate();
+    var endDate = moment(_startDate).add(1, "hours").toDate();
+    storage.aggregateLogs(today, startDate, endDate).then(function(status) {
+        log.info("status : %s", status);
+    }).otherwise(function(err) {
+        log.error("error %s", err);
+    });
+}
+
 initStrorage(settings) /*.then(storage.logFakeRequests)*/ .then(function() {
     // cron job for every hour => 0 */1 * * *
     // cron job for every 5 minute => */5 * * * *
-    var j = schedule.scheduleJob("0 */1 * * *", function() {
-        storage.aggregateLogs().then(function(status) {
-            log.info("status : %s", status);
-        }).otherwise(function(err) {
-            log.error("error %s", err);
-        });
-    });
+    var j = schedule.scheduleJob("*/1 * * * *", startAggregate);
 }).otherwise(function(err) {
     log.prompt("[background aggregator] IS DOWN NOW, reason %s", err.toString());
     process.exit(1);
