@@ -17,11 +17,10 @@ function initStrorage(_settings) {
 }
 
 function startAggregate() {
-    var today = moment().startOf("day").toDate();
     var _startDate = moment().startOf("hour");
     var startDate = moment(_startDate).toDate();
     var endDate = moment(_startDate).add(1, "hours").toDate();
-    storage.aggregateLogs(today, startDate, endDate).then(function(status) {
+    storage.aggregateLogs(startDate, endDate).then(function(status) {
         log.info("status : %s", status);
     }).otherwise(function(err) {
         log.error("error %s", err);

@@ -18,36 +18,39 @@ var settings = {
 };
 
 describe("access/storage/mongo driver with recent logs", function() {
-
     var logs = [];
     var reports = [];
 
     function __aggregateLogs() {
         return when.resolve(function(resolve, reject) {
-            var today = moment().startOf("day").toDate();
-            var _startDate = moment().startOf("hour");
-            var startDate = moment(_startDate).toDate();
-            var endDate = moment(_startDate).add(1, "hours").toDate();
-            mongodb.aggregateLogs(today, startDate, endDate).then(function() {
-                return resolve();
-            }).otherwise(function(err) {
-                return reject();
-            });
+
         });
     }
 
     before(function(done) {
         mongodb.init(settings)
-            .then(when.all([mongodb.clearLogs(), mongodb.clearReports()]))
-            .then(mongodb.logRequests(helper.genRecentFakeRequest(1000)))
-            .then(mongodb.getLogs().then(function(docs) {
+            .then(mongodb.clearLogs).then(mongodb.clearReports)
+            .then(function() {
+                return when.resolve(helper.genRecentFakeRequest(1000));
+            })
+            .then(mongodb.logRequests)
+            .then(mongodb.getLogs)
+            .then(function(docs) {
                 logs = docs || [];
                 return when.resolve();
-            }))
-            .then(__aggregateLogs())
-            .then(mongodb.getReports()).then(function(docs) {
+            })
+            .then(function() {
+                var _startDate = moment().startOf("hour");
+                var startDate = moment(_startDate).toDate();
+                var endDate = moment(_startDate).add(30, "minutes").toDate();
+                return mongodb.aggregateLogs(startDate, endDate);
+            })
+            .then(mongodb.getReports)
+            .then(function(docs) {
                 reports = docs || [];
                 done();
+            }).otherwise(function(err) {
+                done(err);
             });
     });
 

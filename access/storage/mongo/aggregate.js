@@ -2,165 +2,146 @@ var when = require("when");
 var moment = require("moment");
 var logSchema = require("./models/log");
 var reportsSchema = require("./models/report");
+var progressSchema = require("./models/progress");
 var log = require("../../../log");
-var $log, $report;
+var $log, $report, $progress;
 
+function aggregate(startDate, endDate) {
+    var aggregateDeferred = when.defer();
 
-function getApiHitsClientsWithin(startDate, endDate) {
-    return when.promise(function(resolve, reject) {
-        $log.distinct("licence_key", {
-            datetime: {
-                "$gte": startDate,
-                "$lt": endDate
-            }
-        }, function(err, licence_keys) {
-            if (err) {
-                return reject(err);
-            }
-            return resolve(licence_keys || []);
-        });
-    });
-}
+    function getChanges() {
+        var getChangesDeferred = when.defer();
 
-/**
- * @return
- *  [
- *    {_id : "ivr" , count : 27},
- *    {_id : "call" , count : 53},
- *    {_id : "integration" , count : 80}
- *  ]
- **/
-function getApiHitsStatsPerLicenceKey(licence_key, startDate, endDate) {
-    return when.promise(function(resolve, reject) {
-        var pipeline = [{
-            $match: {
-                licence_key: licence_key,
-                datetime: {
-                    "$gte": startDate,
-                    "$lt": endDate
-                }
-            }
-        }, {
-            $group: {
-                _id: "$category",
-                count: {
-                    "$sum": 1
-                }
-            }
-        }];
-
-        $log.aggregate(pipeline, function(err, res) {
-            if (err) {
-                return reject(err);
-            }
-            return resolve(res);
-        });
-    });
-}
-
-
-
-function pushHitsPerHourOfItsCategory(licence_key, categories, day, startDate, endDate) {
-    var promises = [];
-
-    function pushHitsPerHourOfCategory(category) {
-        function findReport() {
-            return when.promise(function(resolve, reject) {
-                $report.findOneOrCreate({
-                    licence_key: licence_key,
-                    category: category._id,
+        $log.aggregate([{
+                $match: {
                     datetime: {
-                        "$eq": day
+                        "$gte": startDate,
+                        "$lt": endDate
                     }
-                }, {
-                    licence_key: licence_key,
-                    category: category._id,
-                    datetime: day
-                }).then(function(report) {
-                    return resolve(report);
-                }).otherwise(function(err) {
-                    return reject(err);
-                });
+                }
+            }, {
+                $group: {
+                    _id: {
+                        category: "$category",
+                        licence_key: "$licence_key"
+                    }
+                }
+            }],
+            function(err, result) {
+                if (err || !result || result.length === 0) {
+                    return getChangesDeferred.reject(err);
+                }
+                return getChangesDeferred.resolve(result);
             });
+
+        return getChangesDeferred.promise;
+    }
+
+    /**
+     * create a report foreach change if not exist
+     **/
+    function ensureReport(changes) {
+        function _ensureReport(licence_key, category) {
+            var _ensureReportDeferred = when.defer();
+
+            var reportDate = new Date(startDate.getTime());
+            reportDate.setHours(0);
+            reportDate.setMinutes(0);
+            reportDate.setSeconds(0);
+            reportDate.setMilliseconds(0);
+
+            $report.findOneOrCreate({
+                licence_key: licence_key,
+                category: category,
+                datetime: {
+                    "$eq": reportDate
+                }
+            }, {
+                licence_key: licence_key,
+                category: category,
+                datetime: reportDate
+            }, function(err, report) {
+                if (err || !report) {
+                    return _ensureReportDeferred.reject(err);
+                }
+                return _ensureReportDeferred.resolve(report);
+            });
+
+            return _ensureReportDeferred.promise;
         }
 
-        function updateReport(report) {
-            return when.promise(function(resolve, reject) {
-                report["hourly." + startDate.getHours()] = category.count;
-                report.count.$inc(category.count);
-                report.save().then(function(doc) {
-                    return resolve({
-                        category: category._id,
-                        count: category.count,
-                        licence_key: licence_key
-                    });
-                }).otherwise(function(err) {
-                    return reject(err);
-                });
-            });
+        var promises = [];
+
+        for (var i = 0; i < changes.length; i++) {
+            var change = changes[i]._id;
+            promises.push(_ensureReport(change.licence_key, change.category));
         }
 
-        return findReport().then(updateReport);
+        return when.all(promises);
     }
 
-    for (var i = 0; i < categories.length; i++) {
-        promises.push(when.resolve(pushHitsPerHourOfCategory(categories[i])));
-    }
-
-    return when.all(promises);
-
-}
-
-function aggregateChanges(licence_keys, day, startDate, endDate) {
-    var promises = [];
-
-    function aggregateChangesPerLicence(licence_key) {
-        return when.promise(function(resolve, reject) {
-            getApiHitsStatsPerLicenceKey(licence_key, startDate, endDate).then(function(categories) {
-                return resolve(pushHitsPerHourOfItsCategory(licence_key, categories, day, startDate, endDate));
-            }).otherwise(function(err) {
-                return reject(err);
-            });
-        });
-    }
-
-    for (var i = 0; i < licence_keys.length; i++) {
-        promises.push(when.resolve(aggregateChangesPerLicence(licence_keys[i])));
-    }
-
-    return when.all(promises);
-}
-
-function aggregate(day, startDate, endDate) {
-    return when.promise(function(resolve, reject) {
-        log.info("start aggregate for %s logs between %s and %s", moment(day).format("dddd, MMMM Do YYYY"), moment(startDate).format("hA"), moment(endDate).format("hA"));
-        log.info("aggregate start at %s ", moment().format("dddd, MMMM Do YYYY, h:mm:ss a"));
-        getApiHitsClientsWithin(startDate, endDate).then(function(licence_keys) {
-            log.info("%s client hit servers between %s and %s", licence_keys.length, moment(startDate).format("ddd, hA"), moment(endDate).format("ddd, hA"));
-            log.data("clientclientclient licence_keys: \n" + licence_keys);
-            return resolve(aggregateChanges(licence_keys, day, startDate, endDate).then(function() {
-                log.info("successfully end aggregate for %s logs between %s and %s", moment(day).format("dddd, MMMM Do YYYY"), moment(startDate).format("hA"), moment(endDate).format("hA"));
-                log.info("aggregate end at %s ", moment().format("dddd, MMMM Do YYYY, h:mm:ss a"));
-                return resolve();
-            }).otherwise(function(err) {
-                log.error("error occureed while aggregate for %s logs between %s and %s", moment(day).format("dddd, MMMM Do YYYY"), moment(startDate).format("hA"), moment(endDate).format("hA"));
-                log.info("aggregate end at %s ", moment().format("dddd, MMMM Do YYYY, h:mm:ss a"));
-                log.error("error %s", err);
-                return reject(err);
-            }));
-        }).otherwise(function(err) {
-            return reject(err);
-        });
+    getChanges().then(ensureReport).then(function(res) {
+        return aggregateDeferred.resolve(res);
+    }).otherwise(function(err) {
+        return aggregateDeferred.reject(err);
     });
+
+    return aggregateDeferred.promise;
 }
+
+function controller(startDate, endDate) {
+    var controllerDeferred = when.defer();
+
+    //make sure end date belong to same hour of start date
+    if (startDate.getHours() !== endDate.getHours()) {
+        endDate = new Date(startDate.getTime());
+        endDate.setMinutes(59);
+        endDate.setSeconds(59);
+        endDate.setMilliseconds(999);
+    }
+
+    function isAggregatedBefore() {
+        var isAggregatedBeforeDeferred = when.defer();
+
+        $progress.find({
+            startDate: {
+                "$gte": startDate
+            },
+            endDate: {
+                "$lt": endDate
+            },
+        }, function(err, result) {
+            if (err || !result || result.length === 0) {
+                return isAggregatedBeforeDeferred.reject(err);
+            }
+            return isAggregatedBeforeDeferred.resolve(result);
+        });
+
+        return isAggregatedBeforeDeferred.promise;
+    }
+
+    isAggregatedBefore().then(function(incomplete) { // aggregate before and there are some fails
+        var promises = [];
+        for (var i = 0; i < incomplete.length; i++) {
+            promises.push(aggregate(incomplete.startDate, incomplete.endDate));
+        }
+        return controllerDeferred.resolve(when.all(promises));
+    }).otherwise(function(err) { // so frist time to aggregate this
+        return controllerDeferred.resolve(aggregate(startDate, endDate));
+    });
+
+    return controllerDeferred.promise;
+}
+
 
 module.exports = {
     init: function(conn) {
         $log = conn.model("log", logSchema, "log");
         $report = conn.model("report", reportsSchema, "report");
+        $progress = conn.model("progress", progressSchema, "progress");
         return when.resolve();
     },
-    aggregateLogs: aggregate,
+    aggregateLogs: controller,
     getReports: function() {
         return when.promise(function(resolve, reject) {
             $report.find({}, function(err, reports) {

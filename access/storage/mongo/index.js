@@ -1,14 +1,14 @@
 var when = require("when");
 var mongoose = require("mongoose");
-mongoose.Promise = require("when");
 var logSchema = require("./models/log");
 var limitExceededSchema = require("./models/limitExceeded");
 var reportsSchema = require("./models/report");
+var progressSchema = require("./models/progress");
 var aggregate = require("./aggregate");
 var log = require("../../../log");
 
 var settings;
-var $log, $limitExceeded, $report;
+var $log, $limitExceeded, $report, $progress;
 
 /**
  * @param request instance of ./models/ubicall_log/log
@@ -59,6 +59,7 @@ module.exports = {
             $log = conn.model("log", logSchema, "log");
             $limitExceeded = conn.model("limit", limitExceededSchema, "limit");
             $report = conn.model("report", reportsSchema, "report");
+            $progress = conn.model("progress", progressSchema, "progress");
             return resolve(aggregate.init(conn));
         });
     },
