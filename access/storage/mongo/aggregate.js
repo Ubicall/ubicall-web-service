@@ -6,8 +6,73 @@ var progressSchema = require("./models/progress");
 var log = require("../../../log");
 var $log, $report, $progress;
 
+function clearReports() {
+    return when.promise(function(resolve, reject) {
+        $report.remove({}, function(err) {
+            if (err) {
+                return reject(err);
+            }
+            return resolve();
+        });
+    });
+}
+
+function clearProgress() {
+    return when.promise(function(resolve, reject) {
+        $progress.remove({}, function(err) {
+            if (err) {
+                return reject(err);
+            }
+            return resolve();
+        });
+    });
+}
+
 function aggregate(startDate, endDate) {
     var aggregateDeferred = when.defer();
+
+    function ensureProgress() {
+        var _ensureProgressDeferred = when.defer();
+
+        $progress.findOneOrCreate({
+            startDate: startDate,
+            endDate: endDate
+        }, {
+            startDate: startDate,
+            endDate: endDate,
+            status: "running"
+        }, function(err, progress) {
+            if (err || !progress) {
+                return _ensureProgressDeferred.reject(err || "no progress created/updated");
+            }
+            return _ensureProgressDeferred.resolve(progress);
+        });
+
+        return _ensureProgressDeferred.promise;
+    }
+
+    function progressUpdate(status) {
+        var progressUpdateDeferred = when.defer();
+
+        $progress.findOneAndUpdate({
+                startDate: startDate,
+                endDate: endDate
+            }, {
+                "$set": {
+                    status: status
+                }
+            }, {
+                new: true
+            },
+            function(err, progress) {
+                if (err || !progress) {
+                    return progressUpdateDeferred.reject(err || "no progress updated");
+                }
+                return progressUpdateDeferred.resolve(progress);
+            });
+
+        return progressUpdateDeferred.promise;
+    }
 
     function getChanges() {
         var getChangesDeferred = when.defer();
@@ -29,7 +94,7 @@ function aggregate(startDate, endDate) {
             }],
             function(err, result) {
                 if (err || !result || result.length === 0) {
-                    return getChangesDeferred.reject(err);
+                    return getChangesDeferred.reject(err || "no logs found");
                 }
                 return getChangesDeferred.resolve(result);
             });
@@ -62,7 +127,7 @@ function aggregate(startDate, endDate) {
                 datetime: reportDate
             }, function(err, report) {
                 if (err || !report) {
-                    return _ensureReportDeferred.reject(err);
+                    return _ensureReportDeferred.reject(err || "no report created");
                 }
                 return _ensureReportDeferred.resolve(report);
             });
@@ -80,10 +145,15 @@ function aggregate(startDate, endDate) {
         return when.all(promises);
     }
 
-    getChanges().then(ensureReport).then(function(res) {
-        return aggregateDeferred.resolve(res);
+    ensureProgress().then(getChanges).then(ensureReport).then(function(res) {
+        progressUpdate("completed").then(function() {
+            return aggregateDeferred.resolve(res);
+        });
     }).otherwise(function(err) {
-        return aggregateDeferred.reject(err);
+        progressUpdate("failed").then(function() {
+            return aggregateDeferred.reject(err);
+        });
+
     });
 
     return aggregateDeferred.promise;
@@ -112,7 +182,7 @@ function controller(startDate, endDate) {
             },
         }, function(err, result) {
             if (err || !result || result.length === 0) {
-                return isAggregatedBeforeDeferred.reject(err);
+                return isAggregatedBeforeDeferred.reject(err || "no progress found");
             }
             return isAggregatedBeforeDeferred.resolve(result);
         });
@@ -153,14 +223,7 @@ module.exports = {
         });
     },
     clearReports: function() {
-        return when.promise(function(resolve, reject) {
-            $report.remove({}, function(err) {
-                if (err) {
-                    return reject(err);
-                }
-                return resolve();
-            });
-        });
+        return when.all([clearReports, clearProgress]);
     },
     _insertReports: function(reports) {
         return when.promise(function(resolve, reject) {

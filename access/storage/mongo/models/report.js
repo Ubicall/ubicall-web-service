@@ -118,5 +118,4 @@ var reportSchema = new Schema({
     }
 });
 reportSchema.plugin(findOneOrCreate);
-// make this available to our users in our Node applications
 module.exports = reportSchema;

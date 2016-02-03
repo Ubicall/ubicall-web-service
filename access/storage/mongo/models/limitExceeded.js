@@ -17,5 +17,4 @@ var limitExceededSchema = new Schema({
         type: Number
     }
 });
-
 module.exports = limitExceededSchema;

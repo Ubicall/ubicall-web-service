@@ -50,5 +50,4 @@ var logSchema = new Schema({
         type: String
     }
 });
-// make this available to our users in our Node applications
 module.exports = logSchema;

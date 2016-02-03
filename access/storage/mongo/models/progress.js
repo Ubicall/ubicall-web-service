@@ -1,5 +1,6 @@
 var mongoose = require("mongoose"),
-    Schema = mongoose.Schema;
+    Schema = mongoose.Schema,
+    findOneOrCreate = require("mongoose-find-one-or-create");
 var progressSchema = new Schema({
     startDate: {
         type: Date,
@@ -15,4 +16,5 @@ var progressSchema = new Schema({
         default: "running"
     }
 });
+progressSchema.plugin(findOneOrCreate);
 module.exports = progressSchema;

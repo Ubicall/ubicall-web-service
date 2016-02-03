@@ -19,6 +19,11 @@ aggregate:
                     update report by adding start_count to report with same hour of startDate
                     end_count <- get count of logs with licence_key, category, end of start hour, end
                     update report by adding end_count to report with same hour of endDate
+                      then
+                        update a progress state to completed
+                      otherwise
+                        update a progress state to failed
+
 
 make sure end date belong to same hour of start date
   false:
@@ -31,5 +36,4 @@ get progress aggregation between start-end
       aggregate
   else:
     aggregate
-      
-```      
+```
