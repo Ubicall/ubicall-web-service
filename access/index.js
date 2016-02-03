@@ -16,21 +16,14 @@ function initStrorage(_settings) {
     return when.resolve(storage.init(_settings));
 }
 
-function startAggregate() {
-    var _startDate = moment().startOf("hour");
-    var startDate = moment(_startDate).toDate();
-    var endDate = moment(_startDate).add(1, "hours").toDate();
-    storage.aggregateLogs(startDate, endDate).then(function(status) {
-        log.info("status : %s", status);
-    }).otherwise(function(err) {
-        log.error("error %s", err);
-    });
-}
-
-initStrorage(settings) /*.then(storage.logFakeRequests)*/ .then(function() {
+initStrorage(settings).then(function() {
     // cron job for every hour => 0 */1 * * *
     // cron job for every 5 minute => */5 * * * *
-    var j = schedule.scheduleJob("*/1 * * * *", startAggregate);
+    var j = schedule.scheduleJob("*/1 * * * *", function() {
+        var startDate = moment().toDate();
+        var endDate = moment(startDate).add(5, "minutes").toDate();
+        storage.aggregateLogs(startDate, endDate);
+    });
 }).otherwise(function(err) {
     log.prompt("[background aggregator] IS DOWN NOW, reason %s", err.toString());
     process.exit(1);

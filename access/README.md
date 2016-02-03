@@ -10,20 +10,14 @@ aggregate:
           foreach licence_key
             ensure report created for licence_key and it's categories
               then
-                foreach category
-                  if (startDate and endDate have same hour)
-                    count <- get count of logs with licence_key, category, start, end dates
-                    update report by adding count to report with same hour of startDate
-                  else
-                    start_count <- get count of logs with licence_key, category, start, end of start hour
-                    update report by adding start_count to report with same hour of startDate
-                    end_count <- get count of logs with licence_key, category, end of start hour, end
-                    update report by adding end_count to report with same hour of endDate
+                  update report count with category/licence_key count
+                    then
+                      foreach category
+                        update report by adding count to report with same hour of startDate
                       then
                         update a progress state to completed
                       otherwise
-                        update a progress state to failed
-
+                        update a progress state to failed  
 
 make sure end date belong to same hour of start date
   false:

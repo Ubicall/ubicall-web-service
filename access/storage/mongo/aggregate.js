@@ -31,6 +31,11 @@ function removeProgresses() {
 function aggregate(startDate, endDate) {
     var aggregateDeferred = when.defer();
 
+    /**
+     * changes will be sinked in reports
+     **/
+    var __changes__ = [];
+
     function ensureProgress() {
         var _ensureProgressDeferred = when.defer();
 
@@ -74,6 +79,26 @@ function aggregate(startDate, endDate) {
         return progressUpdateDeferred.promise;
     }
 
+    function progressUpdateCompleted() {
+        return when.resolve(progressUpdate("completed"));
+    }
+
+    function progressUpdateFailed() {
+        return when.resolve(progressUpdate("failed"));
+    }
+
+    /**
+     * return logs changes per category for licence_key
+     * @return[
+     *    {"_id":{"name":"integration","licence_key":"044b56a8-f4d6-4908-b693-9ea3f4cc19f1"},"count":6}
+     *    {"_id":{"name":"call","licence_key":"9698c2f8-c1c2-404d-b934-7629e440c6c2"},"count":3}
+     *    {"_id":{"name":"call","licence_key":"044b56a8-f4d6-4908-b693-9ea3f4cc19f1"},"count":2}
+     *    {"_id":{"name":"ivr","licence_key":"044b56a8-f4d6-4908-b693-9ea3f4cc19f1"},"count":6}
+     *    {"_id":{"name":"call","licence_key":"5363a776-eb69-4e5f-913c-c3dd39063ccc"},"count":10}
+     *    {"_id":{"name":"call","licence_key":"bd0dfa3c-2d21-4e77-a45c-3a128f130856"},"count":6}
+     *    {"_id":{"name":"call","licence_key":"6cf5a7d3-19d7-405f-84d0-fcb34da8135a"},"count":8}
+     *   ]
+     **/
     function getChanges() {
         var getChangesDeferred = when.defer();
 
@@ -87,8 +112,11 @@ function aggregate(startDate, endDate) {
             }, {
                 $group: {
                     _id: {
-                        category: "$category",
+                        name: "$category",
                         licence_key: "$licence_key"
+                    },
+                    count: {
+                        "$sum": 1
                     }
                 }
             }],
@@ -104,32 +132,55 @@ function aggregate(startDate, endDate) {
 
     /**
      * create a report foreach change if not exist
+     * @param Array changes - {name":"integration","licence_key":"044b56a8-f4d6-4908-b693-9ea3f4cc19f1","count":6}
      **/
     function ensureReport(changes) {
-        function _ensureReport(licence_key, category) {
+        function _ensureReport(category) {
             var _ensureReportDeferred = when.defer();
-
             var reportDate = new Date(startDate.getTime());
             reportDate.setHours(0);
             reportDate.setMinutes(0);
             reportDate.setSeconds(0);
             reportDate.setMilliseconds(0);
 
+            function _updateCount() {
+                var _updateCountDeferred = when.defer();
+
+                $report.update({
+                    licence_key: category.licence_key,
+                    category: category.name,
+                    datetime: {
+                        "$eq": reportDate
+                    }
+                }, {
+                    "$inc": {
+                        count: category.count
+                    }
+                }, function(err, report) {
+                    if (err || !report) {
+                        return _updateCountDeferred.reject(err || "not able to update report count");
+                    }
+                    return _updateCountDeferred.resolve(report);
+                });
+
+                return _updateCountDeferred.promise;
+            }
+
             $report.findOneOrCreate({
-                licence_key: licence_key,
-                category: category,
+                licence_key: category.licence_key,
+                category: category.name,
                 datetime: {
                     "$eq": reportDate
                 }
             }, {
-                licence_key: licence_key,
-                category: category,
+                licence_key: category.licence_key,
+                category: category.name,
                 datetime: reportDate
             }, function(err, report) {
                 if (err || !report) {
                     return _ensureReportDeferred.reject(err || "no report created");
                 }
-                return _ensureReportDeferred.resolve(report);
+                return _ensureReportDeferred.resolve(_updateCount());
             });
 
             return _ensureReportDeferred.promise;
@@ -138,23 +189,92 @@ function aggregate(startDate, endDate) {
         var promises = [];
 
         for (var i = 0; i < changes.length; i++) {
-            var change = changes[i]._id;
-            promises.push(_ensureReport(change.licence_key, change.category));
+            promises.push(_ensureReport(changes[i]));
         }
 
         return when.all(promises);
     }
 
-    ensureProgress().then(getChanges).then(ensureReport).then(function(res) {
-        progressUpdate("completed").then(function() {
-            return aggregateDeferred.resolve(res);
-        });
-    }).otherwise(function(err) {
-        progressUpdate("failed").then(function() {
-            return aggregateDeferred.reject(err);
-        });
 
-    });
+    function updateReport(changes) {
+        changes = __changes__;
+
+        var _reportDate = new Date(startDate.getTime());
+        _reportDate.setHours(0);
+        _reportDate.setMinutes(0);
+        _reportDate.setSeconds(0);
+        _reportDate.setMilliseconds(0);
+
+        function _updateReport(category) {
+            var _updateReportDeferred = when.defer();
+            
+            var setObj = {};
+            setObj["hourly." + startDate.getHours()] = category.count;
+
+            $report.update({
+                licence_key: category.licence_key,
+                category: category.name,
+                datetime: _reportDate
+            }, {
+                "$set": setObj
+            }, {
+                upsert: true
+            }, function(err, report) {
+                if (err || !report || report.nModified === 0) {
+                    return _updateReportDeferred.reject(err || "not able to update report per hour count");
+                }
+                return _updateReportDeferred.resolve(report);
+            });
+
+            return _updateReportDeferred.promise;
+        }
+
+        var promises = [];
+
+        for (var i = 0; i < changes.length; i++) {
+            promises.push(_updateReport(changes[i]));
+        }
+
+        return when.all(promises);
+    }
+
+    /**
+     * convert @param changes from
+     *        [
+     *          {"_id":{"name":"integration","licence_key":"044b56a8-f4d6-4908-b693-9ea3f4cc19f1"},"count":6}
+     *        ]
+     *    to
+     *        [
+     *          {name":"integration","licence_key":"044b56a8-f4d6-4908-b693-9ea3f4cc19f1","count":6}
+     *        ]
+     **/
+    function processChanges(changes) {
+        var updates = [];
+        changes.forEach(function(change) {
+            var category = change._id;
+            category.count = change.count;
+            updates.push(category);
+        });
+        return when.resolve(updates);
+    }
+
+    ensureProgress()
+        .then(getChanges).then(processChanges).then(function(changes) {
+            __changes__ = changes;
+            return when.resolve(changes);
+        })
+        .then(ensureReport).then(updateReport)
+        .then(progressUpdateCompleted)
+        .then(function() {
+            return aggregateDeferred.resolve();
+        })
+        .otherwise(function(err) {
+            progressUpdateFailed().then(function() {
+                return aggregateDeferred.reject(err);
+            }).otherwise(function(error) {
+                return aggregateDeferred.reject(error + "\n" + err);
+            });
+        });
 
     return aggregateDeferred.promise;
 }

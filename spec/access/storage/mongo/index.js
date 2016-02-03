@@ -29,13 +29,7 @@ describe("access/storage/mongo driver with recent logs", function() {
 
     before(function(done) {
         var logsOptions = {
-            count: 1000,
-            dates: [
-                moment().add(1, "minutes"),
-                moment().add(10, "minutes"),
-                moment().add(20, "minutes"),
-                moment().add(30, "minutes")
-            ]
+            count: 1000
         };
         mongodb.init(settings)
             .then(mongodb.clearLogs).then(mongodb.clearReports)
@@ -50,7 +44,7 @@ describe("access/storage/mongo driver with recent logs", function() {
             })
             .then(function() {
                 var startDate = moment().toDate();
-                var endDate = moment(startDate).add(10, "minutes").toDate();
+                var endDate = moment(startDate).add(30, "minutes").toDate();
                 return mongodb.aggregateLogs(startDate, endDate);
             })
             .then(mongodb.getReports)
