@@ -218,7 +218,7 @@ function aggregate(startDate, endDate) {
                     if (err || !result || result.length === 0) {
                         return _sumHourlyCountDeferred.reject(err || "error while trying to sume report hours");
                     }
-                    return _sumHourlyCountDeferred.resolve(result.count || 0);
+                    return _sumHourlyCountDeferred.resolve(result[0].count || 0);
                 });
                 return _sumHourlyCountDeferred.promise;
             }
@@ -229,7 +229,9 @@ function aggregate(startDate, endDate) {
                     category: category.name,
                     datetime: _reportDate
                 }, {
-                    count: count
+                    "$set": {
+                        count: count
+                    }
                 }, function(err, report) {
                     if (err || !report || report.nModified === 0) {
                         return _updateReportCountDeferred.reject(err || "not able to update report sum count");

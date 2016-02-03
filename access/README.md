@@ -10,14 +10,13 @@ aggregate:
           foreach licence_key
             ensure report created for licence_key and it's categories
               then
-                  update report count with category/licence_key count
-                    then
-                      foreach category
-                        update report by adding count to report with same hour of startDate
-                      then
-                        update a progress state to completed
-                      otherwise
-                        update a progress state to failed  
+                foreach category
+                  update report by adding count to report with same hour of startDate
+                  count <- sum of all hourly fields
+                then
+                  update a progress state to completed
+                otherwise
+                  update a progress state to failed  
 
 make sure end date belong to same hour of start date
   false:

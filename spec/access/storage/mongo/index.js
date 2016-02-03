@@ -23,7 +23,7 @@ describe("access/storage/mongo driver with recent logs", function() {
 
     before(function(done) {
         var logsOptions = {
-            count: 5,
+            count: 200,
             dates: [
                 moment().add(1, "minutes"),
                 moment().add(10, "minutes"),
