@@ -98,82 +98,23 @@ function genReport(options) {
 }
 module.exports = {
     getFakeRequest: genRequest,
-    genRecentFakeRequest: function(count) {
+    genFakeRequests: function(options) {
         var logs = [];
-        count = count || 1;
+        options = options || {};
+        var count = options.count || 1;
         for (var i = 0; i < count; i++) {
-            logs.push(genRequest({
-                dates: [moment()]
-            }));
+            logs.push(genRequest(options));
         }
         return logs;
     },
-    genPastFakeRequest: function(count) {
-        var logs = [];
-        count = count || 1;
-        for (var i = 0; i < count; i++) {
-            logs.push(genRequest({
-                dates: [
-                    moment().subtract(1, "days"),
-                    moment().subtract(2, "days"),
-                    moment().subtract(3, "days")
-                ]
-            }));
-        }
-        return logs;
-    },
-    genFutureFakeRequest: function(count) {
-        var logs = [];
-        count = count || 1;
-        for (var i = 0; i < count; i++) {
-            logs.push(genRequest({
-                dates: [
-                    moment().add(1, "days"),
-                    moment().add(2, "days"),
-                    moment().add(3, "days")
-                ]
-            }));
-        }
-        return logs;
-    },
-    genReport: genReport,
-    genRecentFakeReport: function(count) {
+    genFakeReport: genReport,
+    genFakeReports: function(options) {
         var reports = [];
-        count = count || 1;
+        options = options || {};
+        var count = options.count || 1;
         for (var i = 0; i < count; i++) {
-            reports.push(genReport({
-                dates: [moment()]
-            }));
+            reports.push(genReport(options));
         }
         return reports;
-    },
-    genPastFakeReport: function(count) {
-        var reports = [];
-        count = count || 1;
-        for (var i = 0; i < count; i++) {
-            reports.push(genReport({
-                dates: [
-                    moment().subtract(1, "days"),
-                    moment().subtract(2, "days"),
-                    moment().subtract(3, "days")
-                ]
-            }));
-        }
-        return reports;
-    },
-    genFutureFakeReport: function(count) {
-        var reports = [];
-        count = count || 1;
-        for (var i = 0; i < count; i++) {
-            reports.push(genReport({
-                dates: [
-                    moment().add(1, "days"),
-                    moment().add(2, "days"),
-                    moment().add(3, "days")
-                ]
-            }));
-        }
-        return reports;
-    },
-
+    }
 };

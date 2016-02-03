@@ -6,26 +6,26 @@ var progressSchema = require("./models/progress");
 var log = require("../../../log");
 var $log, $report, $progress;
 
-function clearReports() {
-    return when.promise(function(resolve, reject) {
-        $report.remove({}, function(err) {
-            if (err) {
-                return reject(err);
-            }
-            return resolve();
-        });
+function removeReports() {
+    var removeReportsDeferred = when.defer();
+    $report.remove({}, function(err) {
+        if (err) {
+            return removeReportsDeferred.reject(err);
+        }
+        return removeReportsDeferred.resolve();
     });
+    return removeReportsDeferred.promise;
 }
 
-function clearProgress() {
-    return when.promise(function(resolve, reject) {
-        $progress.remove({}, function(err) {
-            if (err) {
-                return reject(err);
-            }
-            return resolve();
-        });
+function removeProgresses() {
+    var removeProgressesDeferred = when.defer();
+    $progress.remove({}, function(err) {
+        if (err) {
+            return removeProgressesDeferred.reject(err);
+        }
+        return removeProgressesDeferred.resolve();
     });
+    return removeProgressesDeferred.promise;
 }
 
 function aggregate(startDate, endDate) {
@@ -223,7 +223,7 @@ module.exports = {
         });
     },
     clearReports: function() {
-        return when.all([clearReports, clearProgress]);
+        return when.all([removeReports(), removeProgresses()]);
     },
     _insertReports: function(reports) {
         return when.promise(function(resolve, reject) {

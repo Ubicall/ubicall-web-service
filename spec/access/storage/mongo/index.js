@@ -28,10 +28,19 @@ describe("access/storage/mongo driver with recent logs", function() {
     }
 
     before(function(done) {
+        var logsOptions = {
+            count: 1000,
+            dates: [
+                moment().add(1, "minutes"),
+                moment().add(10, "minutes"),
+                moment().add(20, "minutes"),
+                moment().add(30, "minutes")
+            ]
+        };
         mongodb.init(settings)
             .then(mongodb.clearLogs).then(mongodb.clearReports)
             .then(function() {
-                return when.resolve(helper.genRecentFakeRequest(1000));
+                return when.resolve(helper.genFakeRequests(logsOptions));
             })
             .then(mongodb.logRequests)
             .then(mongodb.getLogs)
@@ -40,9 +49,8 @@ describe("access/storage/mongo driver with recent logs", function() {
                 return when.resolve();
             })
             .then(function() {
-                var _startDate = moment().startOf("hour");
-                var startDate = moment(_startDate).toDate();
-                var endDate = moment(_startDate).add(30, "minutes").toDate();
+                var startDate = moment().toDate();
+                var endDate = moment(startDate).add(10, "minutes").toDate();
                 return mongodb.aggregateLogs(startDate, endDate);
             })
             .then(mongodb.getReports)
