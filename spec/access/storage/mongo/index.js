@@ -21,15 +21,15 @@ describe("access/storage/mongo driver with recent logs", function() {
     var logs = [];
     var reports = [];
 
-    function __aggregateLogs() {
-        return when.resolve(function(resolve, reject) {
-
-        });
-    }
-
     before(function(done) {
         var logsOptions = {
-            count: 1000
+            count: 5,
+            dates: [
+                moment().add(1, "minutes"),
+                moment().add(10, "minutes"),
+                moment().add(20, "minutes"),
+                moment().add(30, "minutes")
+            ]
         };
         mongodb.init(settings)
             .then(mongodb.clearLogs).then(mongodb.clearReports)

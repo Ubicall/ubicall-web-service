@@ -1,4 +1,5 @@
 var when = require("when");
+var sequence = require("when/sequence");
 var moment = require("moment");
 var logSchema = require("./models/log");
 var reportsSchema = require("./models/report");
@@ -143,29 +144,6 @@ function aggregate(startDate, endDate) {
             reportDate.setSeconds(0);
             reportDate.setMilliseconds(0);
 
-            function _updateCount() {
-                var _updateCountDeferred = when.defer();
-
-                $report.update({
-                    licence_key: category.licence_key,
-                    category: category.name,
-                    datetime: {
-                        "$eq": reportDate
-                    }
-                }, {
-                    "$inc": {
-                        count: category.count
-                    }
-                }, function(err, report) {
-                    if (err || !report) {
-                        return _updateCountDeferred.reject(err || "not able to update report count");
-                    }
-                    return _updateCountDeferred.resolve(report);
-                });
-
-                return _updateCountDeferred.promise;
-            }
-
             $report.findOneOrCreate({
                 licence_key: category.licence_key,
                 category: category.name,
@@ -180,7 +158,7 @@ function aggregate(startDate, endDate) {
                 if (err || !report) {
                     return _ensureReportDeferred.reject(err || "no report created");
                 }
-                return _ensureReportDeferred.resolve(_updateCount());
+                return _ensureReportDeferred.resolve(report);
             });
 
             return _ensureReportDeferred.promise;
@@ -205,9 +183,69 @@ function aggregate(startDate, endDate) {
         _reportDate.setSeconds(0);
         _reportDate.setMilliseconds(0);
 
+
+        function _updateReportCount(category) {
+            var _updateReportCountDeferred = when.defer();
+
+            function _sumHourlyCount() {
+                var _sumHourlyCountDeferred = when.defer();
+
+                $report.aggregate([{
+                    $match: {
+                        category: category.name,
+                        licence_key: category.licence_key,
+                        datetime: _reportDate
+                    }
+                }, {
+                    $group: {
+                        _id: {
+                            name: "$category",
+                            licence_key: "$licence_key"
+                        },
+                        count: {
+                            "$sum": {
+                                $add: [
+                                    "$hourly.0", "$hourly.1", "$hourly.2", "$hourly.3", "$hourly.4",
+                                    "$hourly.5", "$hourly.6", "$hourly.7", "$hourly.8", "$hourly.9",
+                                    "$hourly.10", "$hourly.11", "$hourly.12", "$hourly.13", "$hourly.14",
+                                    "$hourly.15", "$hourly.16", "$hourly.17", "$hourly.18", "$hourly.19",
+                                    "$hourly.20", "$hourly.21", "$hourly.22", "$hourly.23"
+                                ]
+                            }
+                        }
+                    }
+                }], function(err, result) {
+                    if (err || !result || result.length === 0) {
+                        return _sumHourlyCountDeferred.reject(err || "error while trying to sume report hours");
+                    }
+                    return _sumHourlyCountDeferred.resolve(result.count || 0);
+                });
+                return _sumHourlyCountDeferred.promise;
+            }
+
+            _sumHourlyCount().then(function(count) {
+                $report.update({
+                    licence_key: category.licence_key,
+                    category: category.name,
+                    datetime: _reportDate
+                }, {
+                    count: count
+                }, function(err, report) {
+                    if (err || !report || report.nModified === 0) {
+                        return _updateReportCountDeferred.reject(err || "not able to update report sum count");
+                    }
+                    return _updateReportCountDeferred.resolve(report);
+                });
+            }).otherwise(function(err) {
+                return _updateReportCountDeferred.reject(err || "not able to update report sum count");
+            });
+
+            return _updateReportCountDeferred.promise;
+        }
+
         function _updateReport(category) {
             var _updateReportDeferred = when.defer();
-            
+
             var setObj = {};
             setObj["hourly." + startDate.getHours()] = category.count;
 
@@ -232,7 +270,7 @@ function aggregate(startDate, endDate) {
         var promises = [];
 
         for (var i = 0; i < changes.length; i++) {
-            promises.push(_updateReport(changes[i]));
+            promises.push(sequence([_updateReport, _updateReportCount], changes[i]));
         }
 
         return when.all(promises);

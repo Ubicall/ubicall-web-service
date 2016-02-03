@@ -1,11 +1,8 @@
-var storageModule;
+var storageModule = require("./mongo");
 
 module.exports = {
-    init: function(settings) {
-        storageModule = require("./mongo");
-        return storageModule.init(settings);
-    },
-    logRequest: storageModule.logRequest,
+    init: storageModule.init,
+    logRequest: storageModule.logRequests,
     limitExceeded: storageModule.limitExceeded,
     clearLogs: storageModule.clearLogs,
     clearReports: storageModule.clearReports,
