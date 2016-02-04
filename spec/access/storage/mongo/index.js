@@ -23,7 +23,8 @@ describe("access/storage/mongo driver with recent logs", function() {
 
     before(function(done) {
         var logsOptions = {
-            count: 1000
+            count: 5,
+            dates: [moment()]
         };
         var yestarday = moment().add(-1, "day").toDate();
         var beforeYestarday = moment().add(-2, "day").toDate();
@@ -41,12 +42,12 @@ describe("access/storage/mongo driver with recent logs", function() {
             .then(mongodb.aggregateLogs)
             .then(mongodb.aggregateLogs)
             .then(mongodb.aggregateLogs)
-            .then(function() {
-                return when.resolve(mongodb.aggregateLogs(yestarday));
-            })
-            .then(function() {
-                return when.resolve(mongodb.aggregateLogs(beforeYestarday));
-            })
+            // .then(function() {
+            //     return when.resolve(mongodb.aggregateLogs(yestarday));
+            // })
+            // .then(function() {
+            //     return when.resolve(mongodb.aggregateLogs(beforeYestarday));
+            // })
             .then(mongodb.getReports)
             .then(function(docs) {
                 reports = docs || [];
@@ -58,16 +59,16 @@ describe("access/storage/mongo driver with recent logs", function() {
 
     it("reports should equal distinct log.category size", function() {
         console.log("logs size " + logs.length + " and report size " + reports.length);
-        // var logLicPlusCats = _.uniq(logs, function(log) {
-        //     return [log.licence_key, "_", log.category].join();
-        // });
-        // var reportLicPlusCats = _.uniq(reports, function(report) {
-        //     return [report.licence_key, "_", report.category].join();
-        // });
-        //
-        // console.log("logLicPlusCats " + logLicPlusCats);
-        // console.log("reportLicPlusCats " + reportLicPlusCats);
-        //
+        var logLicPlusCats = _.uniq(logs, function(log) {
+            return [log.licence_key, "_", log.category].join();
+        });
+        var reportLicPlusCats = _.uniq(reports, function(report) {
+            return [report.licence_key, "_", report.category].join();
+        });
+
+        console.log("logLicPlusCats " + logLicPlusCats);
+        console.log("reportLicPlusCats " + reportLicPlusCats);
+
         // logLicPlusCats.should.containEql(reportLicPlusCats);
     });
 });
