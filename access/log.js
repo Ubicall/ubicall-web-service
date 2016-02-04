@@ -49,7 +49,8 @@ function logRequest(req, res, next) {
                 user_agent: req.headers["user-agent"],
                 host: req.headers.host,
                 category: findCat(req.path),
-                status_code: res.statusCode
+                status_code: res.statusCode,
+                datetime: new Date()
             };
 
             // req fail if req status Code not found in accepted SUCCESS_RESPONSE_CODES

@@ -33,8 +33,8 @@
     "helmet": "~0.15.0",
     "modesl": "^1.1.5",
     "moment": "^2.11.1",
-    "mongodb": "^2.1.2",
-    "mongoose": "^4.3.3",
+    "mongodb": "^2.1.4",
+    "mongoose": "^4.3.7",
     "mongoose-find-one-or-create": "^0.2.0",
     "ms": "~0.7.1",
     "multer": "^1.0.3",
@@ -76,6 +76,7 @@
     "pre-commit": "^1.1.1",
     "sequelize-auto": "0.0.7",
     "sinon": "^1.17.2",
-    "supertest": "^1.1.0"
+    "supertest": "^1.1.0",
+    "underscore": "^1.8.3"
   }
 }

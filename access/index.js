@@ -1,9 +1,18 @@
 var when = require("when");
+var moment = require("moment");
 var schedule = require("node-schedule");
 var settings = require("../settings");
 var log = require("../log");
 var storage = require("./storage");
 
+var aggregateEvery, aggregateFrom;
+var DEVENV = (process.env.node_env === "development" || process.env.node_env === "test");
+if (DEVENV) {
+    aggregateEvery = 1 * 60 * 1000; // 1 minutes
+} else {
+    aggregateEvery = 7 * 60 * 1000; // 7 minutes
+}
+log.info("aggregate logs every %s minutes ", aggregateEvery);
 
 function initStrorage(_settings) {
     process.title = "api-access";
@@ -15,16 +24,14 @@ function initStrorage(_settings) {
     return when.resolve(storage.init(_settings));
 }
 
-initStrorage(settings) /*.then(storage.logFakeRequests)*/ .then(function() {
-    // cron job for every hour => 0 */1 * * *
-    // cron job for every 5 minute => */5 * * * *
-    var j = schedule.scheduleJob("*/1 * * * *", function() {
-        storage.aggregateLogs().then(function(status) {
-            log.info("status : %s", status);
+initStrorage(settings).then(function() {
+    setInterval(function() {
+        storage.aggregateLogs().then(function() {
+            log.info("aggregate Logs done successfully " + new Date());
         }).otherwise(function(err) {
-            log.error("error %s", err);
+            //log.info("nothing to aggregate ");
         });
-    });
+    }, aggregateEvery);
 }).otherwise(function(err) {
     log.prompt("[background aggregator] IS DOWN NOW, reason %s", err.toString());
     process.exit(1);
