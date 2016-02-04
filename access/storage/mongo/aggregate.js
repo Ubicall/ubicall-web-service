@@ -29,8 +29,15 @@ function removeProgresses() {
     return removeProgressesDeferred.promise;
 }
 
-function aggregate(startDate, endDate) {
+/**
+ * aggregate one hour of logs between start and end of @param date
+ **/
+function aggregate(date) {
     var aggregateDeferred = when.defer();
+
+    date = date || new Date();
+    var startDate = moment(date).startOf("hour").toDate();
+    var endDate = moment(date).endOf("hour").toDate();
 
     /**
      * changes will be sinked in reports
@@ -319,45 +326,39 @@ function aggregate(startDate, endDate) {
     return aggregateDeferred.promise;
 }
 
-function controller(startDate, endDate) {
+function aggregateController(date) {
     var controllerDeferred = when.defer();
 
-    //make sure end date belong to same hour of start date
-    if (startDate.getHours() !== endDate.getHours()) {
-        endDate = new Date(startDate.getTime());
-        endDate.setMinutes(59);
-        endDate.setSeconds(59);
-        endDate.setMilliseconds(999);
-    }
+    date = date || new Date();
+    var startDate = moment(date).startOf("hour").toDate();
+    var endDate = moment(date).endOf("hour").toDate();
 
     function isAggregatedBefore() {
         var isAggregatedBeforeDeferred = when.defer();
 
-        $progress.find({
-            startDate: {
-                "$gte": startDate
-            },
-            endDate: {
-                "$lt": endDate
-            },
-        }, function(err, result) {
-            if (err || !result || result.length === 0) {
+        $progress.findOne({
+            startDate: startDate,
+            endDate: endDate,
+        }, function(err, progress) {
+            if (err || !progress) {
                 return isAggregatedBeforeDeferred.reject(err || "no progress found");
             }
-            return isAggregatedBeforeDeferred.resolve(result);
+            return isAggregatedBeforeDeferred.resolve(progress);
         });
 
         return isAggregatedBeforeDeferred.promise;
     }
 
-    isAggregatedBefore().then(function(incomplete) { // aggregate before and there are some fails
-        var promises = [];
-        for (var i = 0; i < incomplete.length; i++) {
-            promises.push(aggregate(incomplete.startDate, incomplete.endDate));
+    isAggregatedBefore().then(function(progress) { // aggregated before, will reschedule it again if it has failed state
+        if (progress.status === "completed" || progress.status === "running") {
+            log.info("No need to start aggregation for %s hour, because it already %s", moment(progress.startDate).calendar(), progress.status);
+            return controllerDeferred.resolve();
+        } else {
+            var _date = moment(progress.startDate).startOf("hour").toDate();
+            return controllerDeferred.resolve(aggregate(_date));
         }
-        return controllerDeferred.resolve(when.all(promises));
     }).otherwise(function(err) { // so frist time to aggregate this
-        return controllerDeferred.resolve(aggregate(startDate, endDate));
+        return controllerDeferred.resolve(aggregate(date));
     });
 
     return controllerDeferred.promise;
@@ -371,7 +372,7 @@ module.exports = {
         $progress = conn.model("progress", progressSchema, "progress");
         return when.resolve();
     },
-    aggregateLogs: controller,
+    aggregateLogs: aggregateController,
     getReports: function() {
         return when.promise(function(resolve, reject) {
             $report.find({}, function(err, reports) {

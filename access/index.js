@@ -8,13 +8,11 @@ var storage = require("./storage");
 var aggregateEvery, aggregateFrom;
 var DEVENV = (process.env.node_env === "development" || process.env.node_env === "test");
 if (DEVENV) {
-    aggregateEvery = 2 * 60 * 1000; // 2 minutes
-    aggregateFrom = 3; // startDate of aggregate will be now - aggregateFrom
+    aggregateEvery = 1 * 60 * 1000; // 1 minutes
 } else {
-    aggregateEvery = 5 * 60 * 1000; // 5 minutes
-    aggregateFrom = 10; // startDate of aggregate will be now - aggregateFrom
+    aggregateEvery = 7 * 60 * 1000; // 7 minutes
 }
-log.info("aggregate logs every %s minutes and aggregate last %s minutes", (aggregateEvery / (60 * 1000)), aggregateFrom);
+log.info("aggregate logs every %s minutes ", aggregateEvery);
 
 function initStrorage(_settings) {
     process.title = "api-access";
@@ -28,12 +26,10 @@ function initStrorage(_settings) {
 
 initStrorage(settings).then(function() {
     setInterval(function() {
-        var startDate = moment(startDate).subtract(aggregateFrom, "minutes").toDate();
-        var endDate = moment().toDate();
-        storage.aggregateLogs(startDate, endDate).then(function() {
-            log.info("aggregate Logs done successfully " + startDate + " To " + endDate);
+        storage.aggregateLogs().then(function() {
+            log.info("aggregate Logs done successfully " + new Date());
         }).otherwise(function(err) {
-            //log.info("nothing to aggregate " + startDate + " To " + endDate);
+            //log.info("nothing to aggregate ");
         });
     }, aggregateEvery);
 }).otherwise(function(err) {

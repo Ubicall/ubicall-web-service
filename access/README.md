@@ -2,7 +2,17 @@
 
 ```pseudo
 
-aggregate:
+startDate <- start date of current hour (i.e 2016-02-04T08:00:00Z)
+endDate <- end date of current hour (i.e 2016-02-04T08:59:59.999Z)
+
+
+get progress aggregation between with startDate and endDate
+  if exist && completed
+    stop with message "already aggregated"
+  else:
+    aggregate
+    
+aggregate in date:
   add/update a progress [start - end - state]
     then
       get changed licence_keys, categories from start-end
@@ -13,20 +23,9 @@ aggregate:
                 foreach category
                   update report by adding count to report with same hour of startDate
                   count <- sum of all hourly fields
-                then
-                  update a progress state to completed
-                otherwise
-                  update a progress state to failed  
+              then
+                update a progress state to completed
+    otherwise
+      update a progress state to failed  
 
-make sure end date belong to same hour of start date
-  false:
-    endDate will be last minute of startDate hour
-get progress aggregation between start-end
-  if exist && all completed
-    stop with message "already aggregated"
-  if exist && some failed
-    foreach failed
-      aggregate
-  else:
-    aggregate
 ```
