@@ -25,6 +25,8 @@ describe("access/storage/mongo driver with recent logs", function() {
         var logsOptions = {
             count: 1000
         };
+        var yestarday = moment().add(-1, "day").toDate();
+        var beforeYestarday = moment().add(-2, "day").toDate();
         mongodb.init(settings)
             .then(mongodb.clearLogs).then(mongodb.clearReports)
             .then(function() {
@@ -38,6 +40,13 @@ describe("access/storage/mongo driver with recent logs", function() {
             })
             .then(mongodb.aggregateLogs)
             .then(mongodb.aggregateLogs)
+            .then(mongodb.aggregateLogs)
+            .then(function() {
+                return when.resolve(mongodb.aggregateLogs(yestarday));
+            })
+            .then(function() {
+                return when.resolve(mongodb.aggregateLogs(beforeYestarday));
+            })
             .then(mongodb.getReports)
             .then(function(docs) {
                 reports = docs || [];

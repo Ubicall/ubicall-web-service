@@ -7,22 +7,24 @@ endDate <- end date of current hour (i.e 2016-02-04T08:59:59.999Z)
 
 
 get progress aggregation between with startDate and endDate
-  if exist && completed
-    stop with message "already aggregated"
+  if running or (completed and `now is not Between startDate - endDate` )
+    stop with message "no need to run, already aggregated"
   else:
     aggregate
     
 aggregate in date:
-  add/update a progress [start - end - state]
+  add/update a progress with startDate, endDate and state `running`
     then
-      get changed licence_keys, categories from start-end
+      categories <- changes between startDate and endDate as [{licence_key, category, count}]
         then
-          foreach licence_key
-            ensure report created for licence_key and it's categories
+          foreach category: categories
+            ensure report exist with
+              report.category <- category.name
+              report.licence_key <- category.licence_key
               then
-                foreach category
-                  update report by adding count to report with same hour of startDate
-                  count <- sum of all hourly fields
+                update report
+                  report.hourly[startDate.hour] <- category.count
+                  report.count <- sum of all hourly fields
               then
                 update a progress state to completed
     otherwise

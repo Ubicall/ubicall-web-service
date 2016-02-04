@@ -38,11 +38,7 @@ function aggregate(date) {
     date = date || new Date();
     var startDate = moment(date).startOf("hour").toDate();
     var endDate = moment(date).endOf("hour").toDate();
-
-    /**
-     * changes will be sinked in reports
-     **/
-    var __changes__ = [];
+    var reportDate = moment(date).startOf("day").toDate();
 
     function ensureProgress() {
         var _ensureProgressDeferred = when.defer();
@@ -145,11 +141,6 @@ function aggregate(date) {
     function ensureReport(changes) {
         function _ensureReport(category) {
             var _ensureReportDeferred = when.defer();
-            var reportDate = new Date(startDate.getTime());
-            reportDate.setHours(0);
-            reportDate.setMinutes(0);
-            reportDate.setSeconds(0);
-            reportDate.setMilliseconds(0);
 
             $report.findOneOrCreate({
                 licence_key: category.licence_key,
@@ -182,14 +173,6 @@ function aggregate(date) {
 
 
     function updateReport(changes) {
-        changes = __changes__;
-
-        var _reportDate = new Date(startDate.getTime());
-        _reportDate.setHours(0);
-        _reportDate.setMinutes(0);
-        _reportDate.setSeconds(0);
-        _reportDate.setMilliseconds(0);
-
 
         function _updateReportCount(category) {
             var _updateReportCountDeferred = when.defer();
@@ -201,7 +184,7 @@ function aggregate(date) {
                     $match: {
                         category: category.name,
                         licence_key: category.licence_key,
-                        datetime: _reportDate
+                        datetime: reportDate
                     }
                 }, {
                     $group: {
@@ -234,13 +217,13 @@ function aggregate(date) {
                 $report.update({
                     licence_key: category.licence_key,
                     category: category.name,
-                    datetime: _reportDate
+                    datetime: reportDate
                 }, {
                     "$set": {
                         count: count
                     }
                 }, function(err, report) {
-                    if (err || !report || report.nModified === 0) {
+                    if (err || !report) {
                         return _updateReportCountDeferred.reject(err || "not able to update report sum count");
                     }
                     return _updateReportCountDeferred.resolve(report);
@@ -261,13 +244,13 @@ function aggregate(date) {
             $report.update({
                 licence_key: category.licence_key,
                 category: category.name,
-                datetime: _reportDate
+                datetime: reportDate
             }, {
                 "$set": setObj
             }, {
                 upsert: true
             }, function(err, report) {
-                if (err || !report || report.nModified === 0) {
+                if (err || !report) {
                     return _updateReportDeferred.reject(err || "not able to update report per hour count");
                 }
                 return _updateReportDeferred.resolve(report);
@@ -307,10 +290,8 @@ function aggregate(date) {
 
     ensureProgress()
         .then(getChanges).then(processChanges).then(function(changes) {
-            __changes__ = changes;
-            return when.resolve(changes);
+            return when.resolve(sequence([ensureReport, updateReport], changes));
         })
-        .then(ensureReport).then(updateReport)
         .then(progressUpdateCompleted)
         .then(function() {
             return aggregateDeferred.resolve();
@@ -326,12 +307,12 @@ function aggregate(date) {
     return aggregateDeferred.promise;
 }
 
-function aggregateController(date) {
+function aggregateController(aggregateDate) {
     var controllerDeferred = when.defer();
 
-    date = date || new Date();
-    var startDate = moment(date).startOf("hour").toDate();
-    var endDate = moment(date).endOf("hour").toDate();
+    aggregateDate = aggregateDate || new Date();
+    var startDate = moment(aggregateDate).startOf("hour").toDate();
+    var endDate = moment(aggregateDate).endOf("hour").toDate();
 
     function isAggregatedBefore() {
         var isAggregatedBeforeDeferred = when.defer();
@@ -350,15 +331,17 @@ function aggregateController(date) {
     }
 
     isAggregatedBefore().then(function(progress) { // aggregated before, will reschedule it again if it has failed state
-        if (progress.status === "completed" || progress.status === "running") {
-            log.info("No need to start aggregation for %s hour, because it already %s", moment(progress.startDate).calendar(), progress.status);
+        var shouldAggregate = moment(aggregateDate).isBetween(progress.startDate, progress.endDate);
+        if (progress.status === "running" || (progress.status === "completed" && !shouldAggregate)) {
+            log.info("No need to start aggregation for %s hour, because it already %s",
+                moment(progress.startDate).calendar(), progress.status);
             return controllerDeferred.resolve();
         } else {
-            var _date = moment(progress.startDate).startOf("hour").toDate();
-            return controllerDeferred.resolve(aggregate(_date));
+            var startOfHour = moment(progress.startDate).startOf("hour").toDate();
+            return controllerDeferred.resolve(aggregate(startOfHour));
         }
     }).otherwise(function(err) { // so frist time to aggregate this
-        return controllerDeferred.resolve(aggregate(date));
+        return controllerDeferred.resolve(aggregate(aggregateDate));
     });
 
     return controllerDeferred.promise;
